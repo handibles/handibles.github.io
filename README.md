@@ -24,10 +24,6 @@ It's not any sheer to put underneath with an unless  -  see with and folder
 
 ---
 
-## \#current_work
-
----
-
 <br>
 
 ```Jamie.FitzGerald -a- MTU.ie```
