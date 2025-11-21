@@ -28,9 +28,9 @@ knitr::opts_chunk$set(
 
 ---
 
-> Just the code?  - [see end of page](#r)
+> Just the code?  - [click here](#r) / end of page
 
-> Just download the database?  - [see end of page](#download-greengenes2-331k-for-kraken2)
+> Just download the database?  - [click here](#download-greengenes2-331k-for-kraken2) / end of page
 
 ---
 
@@ -836,13 +836,15 @@ Please use if you think it'll be of use to you. Do keep in mind that these are c
 
 ###### Download GreenGenes2 331K for Kraken2
 
-  -   `hash.k2d` - 38.4MB ([no link yet!]())
-  -   `opts.k2d` - 64B ([no link yet!]())
-  -   `taxo.k2d` - 1.5MB ([no link yet!]())
+  -   `hash.k2d` - 38.4MB 
+  -   `opts.k2d` - 64B 
+  -   `taxo.k2d` - 1.5MB 
   
 Or even so far as want to go to
 
-  -   `full_db_tar.gz` - includes nodes and map, ...MB ([no link yet!]())
+  -   `full_db_tar.gz` - includes nodes and map, 2~~MB 
+
+> see page on [Zenodo](https://zenodo.org/records/17674218?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImY2NDBmM2FlLWMxYjYtNGNmMS04NGNiLTczMjAyYmE1Y2Q4OCIsImRhdGEiOnt9LCJyYW5kb20iOiI1MjlhYWYwNjNmMTg4N2U4MTI5Zjk4Y2FhMWVjNGEwNSJ9.Ulg9pB-PM9q8WQ4ie_7I9geXDFz3qtvL2sHOZbENml00II47PrRam75JuLuFNBxEZ71N4e0BPeuDl7vNKJxePw)
 
 ---
 
