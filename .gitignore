@@ -1,3 +1,13 @@
+
+
+## jfg sees all, ignores all
+
+analysis/excluded_dross/*
+documents/excluded_dross/*
+
+
+## GH template R ignores
+
 # History files
 .Rhistory
 .Rapp.history
