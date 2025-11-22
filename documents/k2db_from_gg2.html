@@ -1481,7 +1481,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">make a custom <code>GreenGenes2</code>
 database (v2024.09) for <code>Kraken2</code></h1>
 <h4 class="author"><a href="mailto:jamie.fitzgerald@mtu.ie" class="email">jamie.fitzgerald@mtu.ie</a></h4>
-<h4 class="date">21 November, 2025</h4>
+<h4 class="date">22 November, 2025</h4>
 
 </div>
 
@@ -1498,13 +1498,14 @@ page</p>
 <div id="greengenes-2-son-of-greengenes" class="section level1">
 <h1>Greengenes 2: son of Greengenes</h1>
 <p>Greengenes was a popular and comprehensive 16S database representing
-84K (non-unique) sequences. Greengenes has been recently updated to a
-staggering 2M full-length (+21M V4 sequences) (<a href="https://greengenes2.ucsd.edu">GG2, 2024</a>).</p>
+201K sequences. Greengenes has been recently updated to a staggering 2M
+full-length (+21M V4 sequences) (<a href="https://greengenes2.ucsd.edu">GG2, 2024</a>).</p>
 <p>GG2 is not natively available for use with <code>Kraken2</code>,
-everyone’s favourite <em>k</em>-mer based taxonomic classifier.</p>
+<del>everyone’s</del> my favourite <em>k</em>-mer based sequence
+classifier.</p>
 <p>This guide hopes to give quick guidance to parsing the GG2 database
 into a NCBI-like format (see taxdump), explicitly so that it can be used
-with the Kraken2 taxonomic classifier. Although the Kraken2 wiki is
+with the Kraken2 taxonomic classifier. Although the <a href="https://github.com/DerrickWood/kraken2/wiki">Kraken2 wiki</a> is
 extensive, the method for developing a custom database <em>from
 scratch</em> was not completely obvious, so it is being recorded here in
 with the foreknowledge that <code>jfg</code> <em>will</em> forget what
@@ -1614,11 +1615,11 @@ done
 <p><br></p>
 <p>The <code>taxonomy.id</code> file should look like below: the long
 accessions are NCBI, and the short numbers are from the 23M V4 sequences
-added to the tree. Note the poor confidence scores: 0.3. It’s not clear
-how “<code>confidence</code>” is estimated but 0.3 don’t look great.
-Note also that <code>Taxon</code> is a <em>single column</em>, with the
-different <code>d__; c__; o__;</code> ranks joined together by
-whitespace.</p>
+added to the tree. Note the poor confidence scores: 0.3. These
+“<code>confidence</code>” estimated are an artefact of <a href="https://github.com/biocore/greengenes2/issues/15#issuecomment-3564865961">compatibility</a>,
+and are not relevant here. Note also that <code>Taxon</code> is a
+<em>single column</em>, with the different <code>d__; c__; o__;</code>
+ranks joined together by whitespace.</p>
 <pre><code>Feature ID      Taxon   Confidence
 GB-GCA-003568775.1-MWMI01000008.1       d__Bacteria; p__; c__; o__; f__; g__; s__       0.3
 GB-GCA-001552015.1-CP010514.1   d__Bacteria; p__; c__; o__; f__; g__; s__       0.3

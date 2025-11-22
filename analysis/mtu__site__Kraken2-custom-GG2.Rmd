@@ -37,11 +37,11 @@ knitr::opts_chunk$set(
 
 # Greengenes 2: son of Greengenes
 
-Greengenes was a popular and comprehensive 16S database representing 84K (non-unique) sequences. Greengenes has been recently updated to a staggering 2M full-length (+21M V4 sequences) ([GG2, 2024](https://greengenes2.ucsd.edu)).
+Greengenes was a popular and comprehensive 16S database representing 201K sequences. Greengenes has been recently updated to a staggering 2M full-length (+21M V4 sequences) ([GG2, 2024](https://greengenes2.ucsd.edu)).
 
-GG2 is not natively available for use with `Kraken2`, everyone's favourite _k_-mer based taxonomic classifier.
+GG2 is not natively available for use with `Kraken2`, ~~everyone's~~ my favourite _k_-mer based sequence classifier.
 
-This guide hopes to give quick guidance to parsing the GG2 database into a NCBI-like format (see taxdump), explicitly so that it can be used with the Kraken2 taxonomic classifier. Although the Kraken2 wiki is extensive, the method for developing a custom database _from scratch_ was not completely obvious, so it is being recorded here in with the foreknowledge that `jfg` _will_ forget what he has done.
+This guide hopes to give quick guidance to parsing the GG2 database into a NCBI-like format (see taxdump), explicitly so that it can be used with the Kraken2 taxonomic classifier. Although the [Kraken2 wiki](https://github.com/DerrickWood/kraken2/wiki) is extensive, the method for developing a custom database _from scratch_ was not completely obvious, so it is being recorded here in with the foreknowledge that `jfg` _will_ forget what he has done.
 
 
 ---
@@ -130,7 +130,7 @@ done
 
 <br>
 
-The `taxonomy.id` file should look like below: the long accessions are NCBI, and the short numbers are from the 23M V4 sequences added to the tree. Note the poor confidence scores: 0.3. It's not clear how "`confidence`" is estimated but 0.3 don't look great. Note also that `Taxon` is a _single column_, with the different `d__; c__; o__;` ranks joined together by whitespace. 
+The `taxonomy.id` file should look like below: the long accessions are NCBI, and the short numbers are from the 23M V4 sequences added to the tree. Note the poor confidence scores: 0.3. These "`confidence`" estimated are an artefact of [compatibility](https://github.com/biocore/greengenes2/issues/15#issuecomment-3564865961), and are not relevant here. Note also that `Taxon` is a _single column_, with the different `d__; c__; o__;` ranks joined together by whitespace. 
 
 ```
 Feature ID      Taxon   Confidence
