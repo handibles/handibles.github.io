@@ -1,6 +1,6 @@
 ---
 title: "make a custom `GreenGenes2` database (v2024.09) for `Kraken2`"
-author: "jamie.fitzgerald@mtu.ie"
+author: "[`jamie.fitzgerald@mtu.ie`](mailto:jamie.fitzgerald@mtu.ie)"
 date: "`r format(Sys.time(), '%d %B, %Y')`"    # %H:%M
 output:
   html_document:
@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 
 > Just the code?  - [click here](#r) / end of page
 
-> Just download the database?  - [click here](#download-greengenes2-331k-for-kraken2) / end of page
+> Just download the Kraken2 database?  - [click here](#download-gg2-kraken2-database) / end of page
 
 ---
 
@@ -811,6 +811,8 @@ sed -i -e 's/$/\t|/g' $k2db/taxonomy/names.dmp
 sed -i -e 's/$/\t|/g' $k2db/taxonomy/nodes.dmp
 
 kraken2-build --add-to-library $k2db/library/seqs.fna --db $k2db --no-masking
+
+# full thing takes ~90 mins
 kraken2-build --build --db $k2db --threads 15
 
 
@@ -832,19 +834,34 @@ head -n25  ./query16S.report
 # Download GG2-Kraken2 database
 
 
-Please use if you think it'll be of use to you. Do keep in mind that these are currently built from the sequences __between 1.4Kbp and 1.65Kbp only__ (331K sequences, not the 23M in the full GG2 set).
+### GreenGenes2 for Kraken2: 1.3-1.65kbp subset (331K seqs) 
 
-###### Download GreenGenes2 331K for Kraken2
+Filtered the original 23M sequences to keep only sequences __between 1.3Kbp and 1.65Kbp only__ (331K sequences). 
 
-  -   `hash.k2d` - 38.4MB 
+  -   `hash.k2d` - 38MB 
   -   `opts.k2d` - 64B 
   -   `taxo.k2d` - 1.5MB 
+
+Should you feel so inclined 
+
+  -   `full_db_tar.gz` - includes the `hash`, `opts`, & `taxo.k2d`, as well as `nodes`, `map`, & `seq.fna` files used:  170MB 
   
-Or even so far as want to go to
+[Download here (Zenodo.org)](https://zenodo.org/records/17674218?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImY2NDBmM2FlLWMxYjYtNGNmMS04NGNiLTczMjAyYmE1Y2Q4OCIsImRhdGEiOnt9LCJyYW5kb20iOiI1MjlhYWYwNjNmMTg4N2U4MTI5Zjk4Y2FhMWVjNGEwNSJ9.Ulg9pB-PM9q8WQ4ie_7I9geXDFz3qtvL2sHOZbENml00II47PrRam75JuLuFNBxEZ71N4e0BPeuDl7vNKJxePw)
 
-  -   `full_db_tar.gz` - includes nodes and map, 2~~MB 
 
-> see page on [Zenodo](https://zenodo.org/records/17674218?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImY2NDBmM2FlLWMxYjYtNGNmMS04NGNiLTczMjAyYmE1Y2Q4OCIsImRhdGEiOnt9LCJyYW5kb20iOiI1MjlhYWYwNjNmMTg4N2U4MTI5Zjk4Y2FhMWVjNGEwNSJ9.Ulg9pB-PM9q8WQ4ie_7I9geXDFz3qtvL2sHOZbENml00II47PrRam75JuLuFNBxEZ71N4e0BPeuDl7vNKJxePw)
+### GreenGenes2 for Kraken2: complete release (23M seqs)
+
+Built from the complete release, contains all sequences with a matching accession (ought to be 23M seqs). 
+
+  -   `hash.k2d` - 184MB 
+  -   `opts.k2d` - 64B 
+  -   `taxo.k2d` - 1.8MB 
+  
+Or indeed, run away with yrself:
+
+  -   `full_db_tar.gz` - includes the `hash`, `opts`, & `taxo.k2d`, as well as `nodes`, `map`, & `seq.fna` files used:  1.27GB 
+
+[Download here (Zenodo.org)](https://zenodo.org/records/17702026?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImY1MTFjNTcwLTYyZGItNGJhZC05NzY5LWE3MGM2Y2JjNDQ4MiIsImRhdGEiOnt9LCJyYW5kb20iOiI2MGI2MDcwMzlmM2FjYTFiNmYwODYxZTVjZjY2M2FjMSJ9.qoBo92vjMaVLUDhLyHMRDoAjm1aO_VLJq_3jPrl_NCGph2L6f7klG6YZR8ejZRQvVzwFs7Go9bkBhsQ_XHtSpw)
 
 ---
 
@@ -852,16 +869,22 @@ Or even so far as want to go to
 
 ### Considerations
 
-Recording here a number of issues that needed to be taken care of _en route_ to the bottom of the page.
+Things to be aware of if using this data for your work:
 
-  -   Cake is a made up drug. We made completely fake `taxid`s, so __none of these will match NCBI__ taxonomy.
-  -   as mentioned, database is built with only full length sequences (1.4 - 1.65Kbp; 331K sequences).
+  -   Cake is a made up drug[.](https://youtu.be/k0tMvxV-GC4?si=yQIageBDkjnXyoTA&t=223) We made completely fake `taxid`s, so __none of these will match NCBI__ taxonomy.
+  -   We did __not__ mask repetitive sequences. Not certain whether avoiding DUSTmasking for 16S is "better", but there is a strong & sensible case for avoiding it.
+  -   as mentioned, database was first built with only "full length" sequences (1.4 - 1.65Kbp; 331K sequences) for the subset. It is now extended to the full GG2 2024.09 release too.
+
+
+### Notes
+
+A number of issues that needed to be taken care of _en route_ to the bottom of the page.
+
   -   incorrect root (needed to be 1, not 0) (unclear how important this actually is)
   -   `.dmps`: incorrect seps on `.dmps` (needed to be \t|\t)
   -   `.dmps`: no sep (`\t|\t`) at _end_ of each line in `.dmps` (the end of a line is traditionally not delimited by sep, but by a newline, so go figure.)
   -   `.dmps`: column 4 in `names.dmp` needed to be lower-case in order to report taxonomies (`taxid` assignment worked fine, but it wouldn't tell you who they were)
   -   not clear whether `<acc>|kraken:taxid|000000` is better than `kraken:taxid|000000|<acc>`
-  -   not certain whether avoiding dustmasking for 16S is better, but there is a strong & sensible case for avoiding it.
   -   remove sarcasm, bad jokes, curt insensitivities. Partially successful.    
 
 <br> 
