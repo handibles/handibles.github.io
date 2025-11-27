@@ -1,6 +1,6 @@
 ---
 title: "make a custom `Silva` database (v138.2) for `Kraken2`"
-author: "[`hndbls.fitzgerald@mtu.ie`](mailto:hndbls.fitzgerald@mtu.ie)"
+author: "[`jamie.fitzgerald@mtu.ie`](mailto:jamie.fitzgerald@mtu.ie)"
 date: "`r format(Sys.time(), '%d %B, %Y')`"    # %H:%M
 output:
   html_document:
@@ -29,17 +29,18 @@ knitr::opts_chunk$set(
 ---
 
 > `Silva138.2-Kraken2` database: [download here](#download-silva138.2-kraken2-database) / see end of page
-  
-> `Silva138.2-Kraken2` database: [skip to code only](#r)
+
+> `Silva138.2-Kraken2` database: [skip to code only](#r-re-format-silva)
 
 ---
         
 
-# Building a Silva138.2 database - preamble
+# Silva138.2 - preamble
 
-Here we take the most recent release of the [Silva](https://www.arb-silva.de/) database (v.138.2 Silva; 2.2M sequences, [varying lengths](https://www.arb-silva.de/documentation/release-1382#c4414)). 
+Here we take the most recent release of the [Silva](https://www.arb-silva.de/) database (v.138.2 Silva; 2.2M sequences, [varying lengths](https://www.arb-silva.de/documentation/release-1382#c4414)), and format it for use explicitly with the Kraken2 classifier. 
 
-See also all the roundabout talk regarding [the GG2 version](./documents/k2db_from_gg2.html).
+See also all the roundabout talk regarding [the GG2 version](./documents/k2db_from_gg2.html), including a basic [intro to building Kraken2 databases](./documents/k2db_from_gg2.html#intro-to-kraken2-databases).
+
  
 ---
 
@@ -48,11 +49,11 @@ __of note:__
   1.    Silva catalogues sequence data for both the short and large sub-units (SSU & LSU), and as such represents both houses Prokarya and Eukarya.
   2.    Silva `taxid`s do not match NCBI! They don't even match between the SSU & LSU datasets (let alone matching GG2). Heartbreaking. 
   3.    Nor does Silva assign the `species` rank at all, and nor does it assign species-level `taxid`s. Instead, every species is assigned the `taxid` of it's parent, thereby "extending" its parent genus. Having done no research on the matter, I'm not sure why this should be, but it is at least partly the motivation for this code.
-  4.    We use `SILVA_138.2_SSU`**`Ref`**`tax_silva.fasta.gz`, and not the `NR99` version (tiny differences are the entire point of using ASVs). However, mighty [`benjjneb` and co.](https://benjjneb.github.io/dada2) use NR99 for their NB-RDP method. Should we follow suit? Probably not - [DADA2 uses a](https://benjjneb.github.io/dada2/assign.html) [twostep](#r) [solution](https://benjjneb.github.io/dada2/assign.html), whereas we are aiming for perfect-firstime-e'rytime.
+  4.    We use `SILVA_138.2_SSU`**`Ref`**`tax_silva.fasta.gz`, and not the `NR99` version (tiny differences are the entire point of using ASVs). However, mighty [`benjjneb` and co.](https://benjjneb.github.io/dada2) use NR99 for their NB-RDP method. Should we follow suit? Probably not - [DADA2 uses a](https://benjjneb.github.io/dada2/assign.html) [twostep](https://miakoden.bandcamp.com/album/keep-it-steppin) [solution](https://benjjneb.github.io/dada2/assign.html), whereas we are aiming for perfect-firstime-e'rytime.
 
 <br>
 
-# Input files
+# Silva 138.2 input files
 
 It's worth looking at the three `Silva` files we need before going any further (they're quite different from the GG2 files, and see also [the README.txt](https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/README.txt)). 
 
@@ -104,7 +105,7 @@ File contains:
 
 The reference `FASTA` sequences, complete with all-important header:
 
-  - the sequence accession, complete with version numbering. Note that the `primaryAccession` in the `taxmap` file (#2 above) does __not__ contain version numbering (e.g., `AY846372`), while the accession in the `seqs.fna` header does (e.g. `AY846372.1.1779`). 
+  - the sequence accession, complete with version numbering. Note that the `primaryAccession` in the `taxmap` file (#2 above) does __not__ contain version numbering (e.g., `AY846372`), while the accession in the `seqs.fna` header does (e.g. `AY846372.1.1779`). We will have to either remove the versioning, or edit the header to start with just the accession (i.e., "`>AY846372|...`, and *not* "`>AY846372`**`.1.1779`**`|...` )
   - the organism taxonomic _path_ and the organism's _name_, delimited by `;`
   - Like the `organism_name` above, the header contains spaces and other stupid characters like `[`, `(`, '/', and `#`. Stay wide. 
   - The sequence itsself! `A`, `T`, `G`, and `C`.
@@ -113,7 +114,7 @@ The reference `FASTA` sequences, complete with all-important header:
 
 <br> 
 
-# species-level Silva 138.2 - pé sceál
+# Build S138.2 database to species-level - tasks
 
 <!-- -   should prob also prepend "x__" guides, as we're going to guess anyway (not implemented) -->
       
@@ -130,11 +131,13 @@ From `Silva`, we need to create the following using the `taxid`s we copy from Si
 
   -   `names.dmp`: `organism_name`, `taxid`, and a bunch of other unimportant stuff we can fake
   -   `nodes.dmp`: `taxid`, `parent_taxid`, `rank`,  and a bunch more unimportant stuff, which we can also fake
-  -   `seqs.fna`:   `FASTA`-format DNA sequences, with the header __reformatted__ as: "`>---#1---|kraken:taxid|---#2---`", where `---#1---` is the accession the sequence came with, and `---#2---` is the `taxid` value (either the one copied from `Silva`, or the one we create for species-level assignment).
+  -   `seqs.fna`:   `FASTA`-format DNA sequences, with the header __reformatted__ as: "`>---#1---|kraken:taxid|---#2---`", where `---#1---` is the accession the sequence came with, and `---#2---` is the `taxid` value (either the one copied from `Silva`, or the one we create for species-level assignment). Any additional fields must be separated with a pipe (`|`), and __spaces are not allowed in the header__.
 
 ---        
-        
-# `R`: re-format `Silva`
+
+# Build S138.2 database to species-level - `code`        
+
+## `R`: re-format `Silva`
         
 ```{r mostly_r}
 
@@ -321,14 +324,17 @@ From `Silva`, we need to create the following using the `taxid`s we copy from Si
       length( usable_seqs <- seqs_w[ gsub("\\..*", "", names(seqs_w)) %in% tax$primaryAccession ] )    #  2,224,690
 
     ## accession-wrangling not necessary elsewhere, as we allow K2 to build the seqid2taxid map for us
-      names(usable_seqs) <- paste0(
+      names(usable_seqs) <- gsub( " ", "-", 
+                                  paste0(
+        gsub( "\\..*", "", names(usable_seqs)), 
+        "|",
         names(usable_seqs), 
         "|kraken:taxid|", 
         unlist( mclapply( names(usable_seqs), function(aa){      # aa <- names(seqs_w)[403]
           # - first match only below, due to nested hits in the DB
           taxf[ match( gsub( "\\..*","", aa), taxf$primaryAccession ) , "taxid_novo" ]
         }, mc.cores = n_cores, mc.cleanup = TRUE, mc.preschedule = TRUE ))
-      )
+      ))
 
       
     ## DB issue: some accessions represent multiple overlapping htis
@@ -356,7 +362,7 @@ From `Silva`, we need to create the following using the `taxid`s we copy from Si
 
 
 
-# `bash` : post-process & build `Kraken2`
+## `bash` : post-process & build `Kraken2`
 
 Having made the species levels & `taxid`s, and output the `nodes.dmp`, `names.dmp`, & `seqs.fna`, we now build the `Kraken2` database. We still need to do a small fix to the end of the `nodes.dmp` and `names.dmp` files, as below. I couldn't get the database to build without doing that.
 
@@ -392,7 +398,7 @@ $ tree $k2db
 # >      └── nodes.dmp
 ```
 
-Now try building the database:
+Now try building the database:    CHECK PRELIMMAP again! compare with GG2! 
 
 ```{bash more_bash}
 
@@ -416,17 +422,26 @@ head -n25  ./query16S.report
 ```
 
 
-### download Silva138.2 Kraken2 database
+# Download S138.2-Kraken2 database
 
-`Silva` is highly curated, thus filtering by sequence length did not really impact the dataset size/feasibility. Enjoy working with the full dataset!
+Complete, species-level 16S Silva database for Kraken2 (2.2M sequences). `Silva` is highly curated, thus filtering by sequence length did not really impact the dataset size/feasibility. Enjoy working with the full dataset!
 
-  - ...
-  - ...
-  - ...
-  - ...
+  -   `hash.k2d` - ___MB 
+  -   `opts.k2d` - ___B 
+  -   `taxo.k2d` - ___MB 
   
+Or indeed, run back and forth, forever:
 
-Honestly, I did _try_ to keep this brief, but I think it's better now that I've removed all the haikus
+  -   `full_db_tar.gz` - includes the `hash`, `opts`, & `taxo.k2d`, as well as `nodes`, `map`, & `seq.fna` files used:  ____B 
+
+[Still processing... ~~Download here (Zenodo.org)~~](#r)
+
+
+---
+
+#
+
+Honestly, I did _try_ to keep this brief, but it _is_ better now that I've removed all the haikus
 
 <!-- ``` -->
 <!-- Archaea;        2       domain   -->

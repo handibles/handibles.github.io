@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="hndbls.fitzgerald@mtu.ie" />
+<meta name="author" content="jamie.fitzgerald@mtu.ie" />
 
 
 <title>make a custom Silva database (v138.2) for Kraken2</title>
@@ -1480,7 +1480,7 @@ border-radius: 0px;
 
 <h1 class="title toc-ignore">make a custom <code>Silva</code> database
 (v138.2) for <code>Kraken2</code></h1>
-<h4 class="author"><a href="mailto:hndbls.fitzgerald@mtu.ie"><code>hndbls.fitzgerald@mtu.ie</code></a></h4>
+<h4 class="author"><a href="mailto:jamie.fitzgerald@mtu.ie"><code>jamie.fitzgerald@mtu.ie</code></a></h4>
 <h4 class="date">27 November, 2025</h4>
 
 </div>
@@ -1492,16 +1492,18 @@ border-radius: 0px;
 of page</p>
 </blockquote>
 <blockquote>
-<p><code>Silva138.2-Kraken2</code> database: <a href="#r">skip to code
-only</a></p>
+<p><code>Silva138.2-Kraken2</code> database: <a href="#r-re-format-silva">skip to code only</a></p>
 </blockquote>
 <hr />
-<div id="building-a-silva138.2-database---preamble" class="section level1">
-<h1>Building a Silva138.2 database - preamble</h1>
+<div id="silva138.2---preamble" class="section level1">
+<h1>Silva138.2 - preamble</h1>
 <p>Here we take the most recent release of the <a href="https://www.arb-silva.de/">Silva</a> database (v.138.2 Silva; 2.2M
 sequences, <a href="https://www.arb-silva.de/documentation/release-1382#c4414">varying
-lengths</a>).</p>
-<p>See also all the roundabout talk regarding <a href="./documents/k2db_from_gg2.html">the GG2 version</a>.</p>
+lengths</a>), and format it for use explicitly with the Kraken2
+classifier.</p>
+<p>See also all the roundabout talk regarding <a href="./documents/k2db_from_gg2.html">the GG2 version</a>, including a
+basic <a href="./documents/k2db_from_gg2.html#intro-to-kraken2-databases">intro
+to building Kraken2 databases</a>.</p>
 <hr />
 <p><strong>of note:</strong></p>
 <ol style="list-style-type: decimal">
@@ -1522,13 +1524,14 @@ code.</li>
 and not the <code>NR99</code> version (tiny differences are the entire
 point of using ASVs). However, mighty <a href="https://benjjneb.github.io/dada2"><code>benjjneb</code> and
 co.</a> use NR99 for their NB-RDP method. Should we follow suit?
-Probably not - <a href="https://benjjneb.github.io/dada2/assign.html">DADA2 uses a</a> <a href="#r">twostep</a> <a href="https://benjjneb.github.io/dada2/assign.html">solution</a>,
+Probably not - <a href="https://benjjneb.github.io/dada2/assign.html">DADA2 uses a</a> <a href="https://miakoden.bandcamp.com/album/keep-it-steppin">twostep</a>
+<a href="https://benjjneb.github.io/dada2/assign.html">solution</a>,
 whereas we are aiming for perfect-firstime-e’rytime.</li>
 </ol>
 <p><br></p>
 </div>
-<div id="input-files" class="section level1">
-<h1>Input files</h1>
+<div id="silva-138.2-input-files" class="section level1">
+<h1>Silva 138.2 input files</h1>
 <p>It’s worth looking at the three <code>Silva</code> files we need
 before going any further (they’re quite different from the GG2 files,
 and see also <a href="https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/README.txt">the
@@ -1594,7 +1597,11 @@ all-important header:</p>
 the <code>primaryAccession</code> in the <code>taxmap</code> file (#2
 above) does <strong>not</strong> contain version numbering (e.g.,
 <code>AY846372</code>), while the accession in the <code>seqs.fna</code>
-header does (e.g. <code>AY846372.1.1779</code>).</li>
+header does (e.g. <code>AY846372.1.1779</code>). We will have to either
+remove the versioning, or edit the header to start with just the
+accession (i.e., “<code>&gt;AY846372|...</code>, and
+<em>not</em>”<code>&gt;AY846372</code><strong><code>.1.1779</code></strong><code>|...</code>
+)</li>
 <li>the organism taxonomic <em>path</em> and the organism’s
 <em>name</em>, delimited by <code>;</code></li>
 <li>Like the <code>organism_name</code> above, the header contains
@@ -1607,8 +1614,8 @@ spaces and other stupid characters like <code>[</code>, <code>(</code>,
 <p><br></p>
 </div>
 </div>
-<div id="species-level-silva-138.2---pé-sceál" class="section level1">
-<h1>species-level Silva 138.2 - pé sceál</h1>
+<div id="build-s138.2-database-to-species-level---tasks" class="section level1">
+<h1>Build S138.2 database to species-level - tasks</h1>
 <!-- -   should prob also prepend "x__" guides, as we're going to guess anyway (not implemented) -->
 <p>Good to keep in mind, <code>Kraken2</code> just wants matching
 <code>names.dmp</code>, <code>nodes.dmp</code>, and
@@ -1635,12 +1642,16 @@ the header <strong>reformatted</strong> as:
 <code>---#1---</code> is the accession the sequence came with, and
 <code>---#2---</code> is the <code>taxid</code> value (either the one
 copied from <code>Silva</code>, or the one we create for species-level
-assignment).</li>
+assignment). Any additional fields must be separated with a pipe
+(<code>|</code>), and <strong>spaces are not allowed in the
+header</strong>.</li>
 </ul>
 <hr />
 </div>
-<div id="r-re-format-silva" class="section level1">
-<h1><code>R</code>: re-format <code>Silva</code></h1>
+<div id="build-s138.2-database-to-species-level---code" class="section level1">
+<h1>Build S138.2 database to species-level - <code>code</code></h1>
+<div id="r-re-format-silva" class="section level2">
+<h2><code>R</code>: re-format <code>Silva</code></h2>
 <pre class="r"><code>    # nano $ref/k2__silva138.2/r_format_s1382-ALL-SEQS.R
       rm(list=ls()) ; gc() 
       
@@ -1823,14 +1834,17 @@ assignment).</li>
       length( usable_seqs &lt;- seqs_w[ gsub(&quot;\\..*&quot;, &quot;&quot;, names(seqs_w)) %in% tax$primaryAccession ] )    #  2,224,690
 
     ## accession-wrangling not necessary elsewhere, as we allow K2 to build the seqid2taxid map for us
-      names(usable_seqs) &lt;- paste0(
+      names(usable_seqs) &lt;- gsub( &quot; &quot;, &quot;-&quot;, 
+                                  paste0(
+        gsub( &quot;\\..*&quot;, &quot;&quot;, names(usable_seqs)), 
+        &quot;|&quot;,
         names(usable_seqs), 
         &quot;|kraken:taxid|&quot;, 
         unlist( mclapply( names(usable_seqs), function(aa){      # aa &lt;- names(seqs_w)[403]
           # - first match only below, due to nested hits in the DB
           taxf[ match( gsub( &quot;\\..*&quot;,&quot;&quot;, aa), taxf$primaryAccession ) , &quot;taxid_novo&quot; ]
         }, mc.cores = n_cores, mc.cleanup = TRUE, mc.preschedule = TRUE ))
-      )
+      ))
 
       
     ## DB issue: some accessions represent multiple overlapping htis
@@ -1854,9 +1868,9 @@ assignment).</li>
       write.table(nodes_proto, file = paste0( path, &quot;/silva_138.2__complete2.2M__nodes.dmp&quot;), 
                   sep = &#39;\t|\t&#39;, col.names = FALSE, row.names = FALSE, quote = FALSE)</code></pre>
 </div>
-<div id="bash-post-process-build-kraken2" class="section level1">
-<h1><code>bash</code> : post-process &amp; build
-<code>Kraken2</code></h1>
+<div id="bash-post-process-build-kraken2" class="section level2">
+<h2><code>bash</code> : post-process &amp; build
+<code>Kraken2</code></h2>
 <p>Having made the species levels &amp; <code>taxid</code>s, and output
 the <code>nodes.dmp</code>, <code>names.dmp</code>, &amp;
 <code>seqs.fna</code>, we now build the <code>Kraken2</code> database.
@@ -1889,7 +1903,8 @@ sed -i -e &#39;s/$/\t|/g&#39; $k2db/taxonomy/nodes.dmp
 # &gt;  └── taxonomy
 # &gt;      ├── names.dmp
 # &gt;      └── nodes.dmp</code></pre>
-<p>Now try building the database:</p>
+<p>Now try building the database: CHECK PRELIMMAP again! compare with
+GG2!</p>
 <pre class="bash"><code>
 # note that we avoid masking, to maximise content of 16S
 kraken2-build --add-to-library $k2db/library/seqs.fna --db $k2db --no-masking
@@ -1908,18 +1923,33 @@ kraken2 --db $k2db \
 
 head -n25  ./query16S.report
 </code></pre>
-<div id="download-silva138.2-kraken2-database" class="section level3">
-<h3>download Silva138.2 Kraken2 database</h3>
-<p><code>Silva</code> is highly curated, thus filtering by sequence
-length did not really impact the dataset size/feasibility. Enjoy working
-with the full dataset!</p>
+</div>
+</div>
+<div id="download-s138.2-kraken2-database" class="section level1">
+<h1>Download S138.2-Kraken2 database</h1>
+<p>Complete, species-level 16S Silva database for Kraken2 (2.2M
+sequences). <code>Silva</code> is highly curated, thus filtering by
+sequence length did not really impact the dataset size/feasibility.
+Enjoy working with the full dataset!</p>
 <ul>
-<li>…</li>
-<li>…</li>
-<li>…</li>
-<li>…</li>
+<li><code>hash.k2d</code> - ___MB</li>
+<li><code>opts.k2d</code> - ___B</li>
+<li><code>taxo.k2d</code> - ___MB</li>
 </ul>
-<p>Honestly, I did <em>try</em> to keep this brief, but I think it’s
+<p>Or indeed, run back and forth, forever:</p>
+<ul>
+<li><code>full_db_tar.gz</code> - includes the <code>hash</code>,
+<code>opts</code>, &amp; <code>taxo.k2d</code>, as well as
+<code>nodes</code>, <code>map</code>, &amp; <code>seq.fna</code> files
+used: ____B</li>
+</ul>
+<p><a href="#r">Still processing… <del>Download here
+(Zenodo.org)</del></a></p>
+<hr />
+</div>
+<div id="section" class="section level1">
+<h1></h1>
+<p>Honestly, I did <em>try</em> to keep this brief, but it <em>is</em>
 better now that I’ve removed all the haikus</p>
 <!-- ``` -->
 <!-- Archaea;        2       domain   -->
@@ -1933,7 +1963,6 @@ better now that I’ve removed all the haikus</p>
 <!-- AX664486        3       1987    Eukaryota;Amorphea;Obazoa;Opisthokonta;Holozoa;Choanozoa;Metazoa;Animalia;BCP clade;Bilateria;Protostomia;Ecdysozoa;Arthropoda;Hexapoda;Insecta;Pterygota;Neoptera;Diptera;     Drosophila melanogaster (fruit fly)     47180 -->
 <!-- CS214259        13      1872    Eukaryota;Amorphea;Obazoa;Opisthokonta;Holozoa;Choanozoa;Metazoa;Animalia;BCP clade;Bilateria;Deuterostomia;Chordata;Vertebrata;Gnathostomata;Euteleostomi;Tetrapoda;Mammalia;  Rattus norvegicus (Norway rat)  47087 -->
 <!-- BH771024        532     2058    Bacteria;Bacillota;Bacilli;Lactobacillales;Streptococcaceae;Lactococcus;        Lactococcus lactis subsp. cremoris MG1363       58938 -->
-</div>
 </div>
 
 

@@ -1481,248 +1481,725 @@ border-radius: 0px;
 <h1 class="title toc-ignore">make a custom <code>GreenGenes2</code>
 database (v2024.09) for <code>Kraken2</code></h1>
 <h4 class="author"><a href="mailto:jamie.fitzgerald@mtu.ie"><code>jamie.fitzgerald@mtu.ie</code></a></h4>
-<h4 class="date">26 November, 2025</h4>
+<h4 class="date">27 November, 2025</h4>
 
 </div>
 
 
 <hr />
 <blockquote>
-<p>Just the code for building the Silva138.2 database? - <a href="#r">click here</a> / end of page</p>
+<p>Just the code? - <a href="#r">click here</a> / end of page</p>
 </blockquote>
 <blockquote>
-<p>Just download the Silva138.2 database for Kraken2? - <a href="#download-silva138.2-kraken2-database">click here</a> / end of
-page</p>
+<p>Just download the Kraken2 database? - <a href="#download-gg2-kraken2-database">click here</a> / end of page</p>
 </blockquote>
 <hr />
-<div id="all-the-talking-about-this-is-in-the-otehr-document" class="section level2">
-<h2>all the talking about this is in the otehr document</h2>
-<p>See here for that.</p>
+<div id="greengenes-2-son-of-greengenes" class="section level1">
+<h1>Greengenes 2: son of Greengenes</h1>
+<p>Greengenes was a popular and comprehensive 16S database representing
+201K sequences. Greengenes has been recently updated to a staggering 2M
+full-length (+21M V4 sequences) (<a href="https://greengenes2.ucsd.edu">GG2, 2024</a>).</p>
+<p>GG2 is not natively available for use with <code>Kraken2</code>,
+<del>everyone’s</del> my favourite <em>k</em>-mer based sequence
+classifier.</p>
+<p>This guide hopes to give quick guidance to parsing the GG2 database
+into a NCBI-like format (see taxdump), explicitly so that it can be used
+with the Kraken2 taxonomic classifier. Although the <a href="https://github.com/DerrickWood/kraken2/wiki">Kraken2 wiki</a> is
+extensive, the method for developing a custom database <em>from
+scratch</em> was not completely obvious, so it is being recorded here in
+with the foreknowledge that <code>jfg</code> <em>will</em> forget what
+he has done.</p>
+<hr />
 </div>
-<div id="species-level-silva-138.2---the-sca" class="section level2">
-<h2>species-level Silva 138.2 - the sca</h2>
-<pre><code>  - must create a &quot;species&quot; level in SILVA ranks
-  - must fake species-level taxids (not a prob, as SILVA makes these up anyway)
+<div id="intro-to-kraken2-databases" class="section level1">
+<h1>Intro to <code>kraken2</code> databases</h1>
+<p>We assume that you have <code>R</code> (+<code>Biostrings</code>,
++<code>parallel</code>) and <code>Kraken2</code> installed. First point
+is to read the guide on the <a href="https://github.com/DerrickWood/kraken2"><code>Kraken2</code>
+website</a> about making <a href="https://github.com/DerrickWood/kraken2/wiki/Manual#custom-databases">custom
+databases</a>.</p>
+<p>These custom databases allow you to <strong>customise what part of
+the NCBI</strong> you use, and generally go:</p>
+<pre class="bash"><code>## not run (successfully...)
 
-  - could prob also prepend &quot;x__&quot; guides, as we&#39;re going to guess anyway...
+# what you want
+customDBs=archaea,bacteria,viruses
+# where you want it
+ncbiDB=/path/to/custom_ncbi
 
-  nano $ref/k2__silva138.2/r_format_s1382-ALL-SEQS.R
+kraken2-build --download-taxonomy --db $ncbiDB
+kraken2-build --download-library $customDBs --db $ncbiDB
+kraken2-build --add-to-library extra_seqs.fa --db $ncbiDB         # add extra_seqs.fa if needed
+kraken2-build --build --db $ncbiDB --threads 10</code></pre>
+<p>Pretty cool! Having read this however, you might note that there are
+guides for customising many database formats from Silva, GTDB, NCBI -
+but <em>not creating one from scratch</em>. Nor is Greengenes2 an
+officially supported database that can be downloaded elsewhere, so we
+will:</p>
+<p><br></p>
+<ol style="list-style-type: decimal">
+<li>download the correct GG2 sequences for the (<a href="https://ftp.microbio.me/greengenes_release/current/"><code>2024.09</code></a>)
+release</li>
+<li>download the correct GG2 taxonomy for the (<a href="https://ftp.microbio.me/greengenes_release/current/"><code>2024.09</code></a>)
+release, based on Greengenes2 “ID” (and <em>not</em> ASV or MD5)</li>
+</ol>
+<p>Then, in <code>R</code>:</p>
+<ol start="3" style="list-style-type: decimal">
+<li>get each unique taxon in the GG2 taxonomic tree</li>
+<li>using the Greengenes2 taxonomy, assign new, simple
+<code>taxids</code> to each node in the GG2 tree</li>
+<li>make a new <code>names.dmp</code>, including the new
+<code>taxid</code>s for each node</li>
+<li>make a new <code>nodes.dmp</code>, including the new
+<code>taxid</code>s for each node and that node’s parent (basically
+flattening the tree into a metadata table)</li>
+<li>saving out the files (<code>nodes.dmp</code>,
+<code>names.dmp</code>) with the correct delimiter for
+<code>Kraken2</code> (<code>\t|\t</code>)</li>
+</ol>
+<p>and finally, in <code>bash</code>:</p>
+<ol start="8" style="list-style-type: decimal">
+<li>build and check the custom Greengenes2 database with
+<code>Kraken2</code></li>
+</ol>
+<p><br></p>
+<hr />
+<p><br></p>
+</div>
+<div id="build-a-gg2-database---walkthrough" class="section level1">
+<h1>Build a GG2 database - walkthrough</h1>
+<p><br></p>
+<div id="get-the-correct-files" class="section level2">
+<h2>1. &amp; 2. - get the correct files</h2>
+<p>We’re using the most recent GG2 release, currently <a href="https://ftp.microbio.me/greengenes_release/current/"><code>2024.09</code></a>,
+available at the <a href="https://greengenes2.ucsd.edu">Greengenes2
+development server</a> - all due thanks to the authors &amp; maintainers
+(see also their <a href="https://github.com/biocore/greengenes2/">github</a>).</p>
+<p>These files are hosted at <a href="https://ftp.microbio.me/greengenes_release/current" class="uri">https://ftp.microbio.me/greengenes_release/current</a>,
+along with several other outputs for their paper. Some of these are a
+<code>backbone</code> subset of sequences for the tree they created,
+some are intended for use with QIIME2 (<code>.QZA</code>), phylogenetics
+(everything marked “phylo”), others replace the header info with <a href="https://github.com/benjjneb/dada2">ASV</a> or <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> sequences: we are only
+interested in the full list of sequences used (<code>FASTA</code>
+format), and the associated taxonomic information which lists each
+sequences’ identifying <code>FASTA</code> header and taxonomic
+ranks.</p>
+<p>It can be a little difficult to see the full filenames on the
+download site, so try hovering your mouse over the links / checking the
+linked filenames to be sure you have the right version:</p>
+<ul>
+<li><a href="https://ftp.microbio.me/greengenes_release/current/2024.09.seqs.fna.gz">2024.09.seqs.fna.gz</a>
+- 23M sequences, some full length, some way too long, some V4 only</li>
+<li><a href="https://ftp.microbio.me/greengenes_release/current/2024.09.taxonomy.id.tsv.gz">2024.09.taxonomy.id.tsv.gz</a>
+- entry for each sequence, with the accession (the proper FASTA header
+ID in this case) in the first column; taxonomic ranks in the second
+column</li>
+</ul>
+<pre class="bash"><code>
+# make a home for your database + assoc files; go there; download sequences
+k2db=/path/to/custom_gg2
 
+# we add folders that Kraken2 will expect
+mkdir -p $k2db $k2db/taxonomy $k2db/library 
 
-  # we probably should use SILVA_138.2_SSURef_tax_silva.fasta.gz and not the NR99 version
-  - thinking is that we can use the additional info for better classification
-  - BUT benjjneb and co. use NR99 for their NB-RDP method. should we follow suit?
-  - - prob NO, as we are not proposing a two-step solution.
-  - - use the full set
-  - - though note that these are not aligned
-  
-  
-  
-## this is all we need : 
+cd $k2db
+wget https://ftp.microbio.me/greengenes_release/current/2024.09.seqs.fna.gz
+wget https://ftp.microbio.me/greengenes_release/current/2024.09.taxonomy.id.tsv.gz
 
-  # names:
-   - name
-   - taxid
-   - bunch of other stuff
-
-  # nodes:
-   - taxid
-   - parent taxid
-   - rank !!!
-   - bunch of other stuff
-
-  # seqmap:
-   - accession
-   - taxid</code></pre>
-<div id="r" class="section level3">
-<h3><code>R</code></h3>
-<pre class="r"><code>      rm(list=ls()) ; gc() 
+for f in ./*gz ;
+do
+  gzip -dc $f | head -10 ; 
+done
+</code></pre>
+<p><br></p>
+<p>The <code>taxonomy.id</code> file should look like below: the long
+accessions are NCBI, and the short numbers are from the 23M V4 sequences
+added to the tree. Note the poor confidence scores: 0.3. These
+“<code>confidence</code>” estimated are an artefact of <a href="https://github.com/biocore/greengenes2/issues/15#issuecomment-3564865961">compatibility</a>,
+and are not relevant here. Note also that <code>Taxon</code> is a
+<em>single column</em>, with the different <code>d__; c__; o__;</code>
+ranks joined together by whitespace.</p>
+<pre><code>Feature ID      Taxon   Confidence
+GB-GCA-003568775.1-MWMI01000008.1       d__Bacteria; p__; c__; o__; f__; g__; s__       0.3
+GB-GCA-001552015.1-CP010514.1   d__Bacteria; p__; c__; o__; f__; g__; s__       0.3
+GB-GCA-000008085.1-AE017199.1   d__Bacteria; p__; c__; o__; f__; g__; s__       0.3
+22383138        d__Bacteria; p__; c__; o__; f__; g__; s__       0.3
+07656960        d__Bacteria; p__; c__; o__; f__; g__; s__       0.3
+01537540        d__Bacteria; p__; c__; o__; f__; g__; s__       0.3
+</code></pre>
+<p><br></p>
+</div>
+<div id="get-each-unique-taxon" class="section level2">
+<h2>3. get each unique taxon</h2>
+<p><code>Session</code> on. We start <code>R</code>, clear the workspace
+&amp; memory, load libraries, load the files.</p>
+<p>Loading <code>seqs.fna</code> and <code>taxonomy.id.tsv</code> can
+take a long time. If you want to experiment / debug, use a smaller set
+of taxonomy and sequences:</p>
+<ul>
+<li>use <code>bash</code> to make a smaller <code>seqs.fna</code> file:
+e.g. <code>gzip -dc 2024.09.seqs.fna | head -n 20000 &gt; subseqs.fna</code>
+to use the first e.g. 10k FASTA sequences, load that instead.</li>
+<li>add <code>nrows</code> to your <code>read.table</code> call,
+e.g. <code>read.table( ... nrows=10000 )</code> to read in only the
+first e.g. 10K lines only</li>
+</ul>
+<p>Just be aware that the smaller these test subsets are the less likely
+they are to match up with one another! Next, we also make
+<code>path</code> the same as your database directory (but it could be
+any <code>dir</code> where you want to save the outputs), and chose how
+many <code>n_cores</code> to use in parallel (<code>15</code> here
+because v. fancy).</p>
+<pre class="r"><code>rm(list=ls()) ; gc() 
+library(&quot;Biostrings&quot;)
+library(&quot;parallel&quot;)
       
-    # attributes, names, length, hist etc. for DNA work
+# read in seqs.fna - 23,467,470 seqs
+length(seqs &lt;- readDNAStringSet( filepath = paste0(path, &quot;/2024.09.seqs.fna.gz&quot; ))) 
+
+# read in ID taxonomy - 23M lines
+head(tax &lt;- read.table(paste0( path, &quot;/2024.09.taxonomy.id.tsv.gz&quot;), header = TRUE, sep = &quot;\t&quot;))   
+
+
+n_cores &lt;- 15
+path &lt;- &quot;/path/to/custom_gg2&quot;</code></pre>
+<p><br></p>
+<p>We make a vector that holds the rank levels (see step 4), and we’ll
+break up that taxonomy into different columns, making a handy dataframe
+of all the taxa and accessions in GG2:</p>
+<pre class="r"><code># note, taxonomy lacks root@1
+rank_is &lt;- c( &quot;d__&quot; = &quot;domain&quot;, &quot;p__&quot; = &quot;phylum&quot;, &quot;c__&quot; = &quot;class&quot;, &quot;o__&quot; = &quot;order&quot;, &quot;f__&quot; = &quot;family&quot;, &quot;g__&quot; = &quot;genus&quot;, &quot;s__&quot; = &quot;species&quot;)      
+
+# tax_dummies, just in case theres weird extra ranks (there aren&#39;t)
+tax_dummies &lt;- 3  
+taxs &lt;- as.data.frame(do.call(&quot;rbind&quot;, mclapply( tax$Taxon, function(aa){   # aa &lt;- tax$Taxon[727748]                       ## parallel
+  bb &lt;- unlist(strsplit( aa, split = &quot;\\; &quot;))[1:(7+tax_dummies)]
+  bb
+}, mc.cores = n_cores, mc.cleanup = TRUE)), stringsAsFactors = FALSE)
+colnames(taxs) &lt;- rank_is
+taxs$header &lt;- tax$Feature.ID
+rownames(taxs) &lt;- taxs$header
+head(taxs)</code></pre>
+<pre><code># rownames removed!
+       domain phylum class order family genus species                            header
+d__Bacteria    p__   c__   o__    f__   g__     s__ GB-GCA-003568775.1-MWMI01000008.1
+d__Bacteria    p__   c__   o__    f__   g__     s__     GB-GCA-000008085.1-AE017199.1
+d__Bacteria    p__   c__   o__    f__   g__     s__                          22383138
+d__Bacteria    p__   c__   o__    f__   g__     s__                          07656960
+d__Bacteria  p__Pates...  c__Pacei..  o__UBA9973  f__UBA9973  g__UBA9973     s__ 05829965
+d__Bacteria  p__Pates...  c__Pacei..  o__UBA9973  f__UBA9973  g__UBA9973     s__ 09474592</code></pre>
+<p><br></p>
+<p>Next, <code>lapply</code> over that dataframe (in
+parallel=<code>mclapply</code>), creating a list with a unique entry for
+each unique taxon - this will be the key for assigning each unique taxon
+their own unique <code>taxid.</code></p>
+<pre class="r"><code>taxs$effective_taxon &lt;- mclapply( 1:nrow(taxs), function(aa){   # aa &lt;- 400    aa &lt;- taxs[ 400 , 1:(7+tax_dummies) ]                  ## parallel
+  bb &lt;- taxs[ aa, 1:(7+tax_dummies) ]
+  unlist(bb[ max(which( !( grepl(&quot;__$&quot;, bb, perl = TRUE) | is.na(bb) ) ))  ])
+},  mc.cores = n_cores, mc.cleanup = TRUE)
+head(taxs)
+
+uniq_tax &lt;- apply( taxs[, 1:(7+tax_dummies)], 2, function(aa){
+  bb &lt;- aa[ !( is.na(aa) ) ]     #  prob need to keep these in order to match later?| grepl(&quot;__$&quot;, aa, perl = TRUE)
+  sort(unique(unlist(bb)))
+  })</code></pre>
+<p><br></p>
+<p>Here, it might be useful to <strong>remove 16S sequences below a
+certain threshold length</strong> - so we only keep those longer than
+1.4kbp, and shorter than 1.65 kbp. This means we’re losing 21M V4
+regions, but that data sounds like a bad idea, and this will greatly
+simplify database building.</p>
+<pre class="r"><code>s_widths &lt;- width(seqs)
+length(seqs_w &lt;- seqs[ s_widths &gt; 1400 &amp; s_widths &lt; 1650 ])         # 332,588
+length( usable_seqs &lt;- seqs_w[ names(seqs_w) %in% taxs$header ] )   # 312,905 </code></pre>
+<p><br></p>
+</div>
+<div id="assign-new-simple-taxids" class="section level2">
+<h2>4. assign new, simple <code>taxid</code>s</h2>
+<p>Above, we have an entry for each unique taxon (node) in the GG2 tree.
+Because of how <code>Kraken2</code> works, the fake <code>taxid</code>’s
+we make need to start at <strong><code>1</code></strong>
+(<code>root</code>), and should <em>not</em> start with a <code>0</code>
+(apparently). We use <code>floop</code> to count how many
+<code>taxids</code> have been given out so far.</p>
+<p>Note the <code>python</code>-like <code>universal assignment</code>
+of values outside of the <code>apply</code> call using
+<code>&lt;&lt;-</code> - this is not recommended practice in
+<code>R</code>.</p>
+<pre class="r"><code>## root is 1, so floop/domains start from 2...
+floop &lt;- 1    
+
+taxid_proto &lt;- lapply( names(uniq_tax)[ sapply( uniq_tax, function(aa){ !identical( aa, character(0)) })],                  ## can&#39;t parallelise counting!!!
+                function(aa){   # aa &lt;- &quot;phylum&quot;                                                                            ## is very fast in any case
+  if( aa == &quot;domain&quot;){ floop &lt;&lt;- 1 }
+  bb &lt;- uniq_tax[ aa ][[1]]
+  # cc &lt;- stringr::str_pad( (floop+1):(floop+length(bb)), width = 7, pad = &quot;0&quot; )
+  cc &lt;- (floop+1):(floop+length(bb))
+  floop &lt;&lt;- floop + length(cc)
+  list( &quot;name_txt&quot; = bb, &quot;taxid&quot; = cc)
+})
+names(taxid_proto) &lt;- rank_is</code></pre>
+<p><br></p>
+<p>Here, avoid having to do a dictionary-style lookup of
+<code>taxon:taxid</code>: instead write a <code>fn</code> to decide rank
+ahead of time using <code>rank_is</code> &amp; <code>grepl</code>
+through that rank alone (i.e. based on matching “<code>x__</code>”
+prefix) to find each taxons correct <code>taxid</code> (and a similar fn
+to find each taxon’s <em>parent’s</em> <code>taxid</code>):</p>
+<pre class="r"><code>identify &lt;- function(aa){
+    bb_rank &lt;- rank_is[ gsub(&quot;__.*&quot;, &quot;__&quot;, aa )]                           # aa &lt;- &quot;g__GWA2-37-10&quot;
+    if( aa %in% taxid_proto[[bb_rank]][[1]] ){
+      taxid_proto[[bb_rank]][[2]][ match(aa, taxid_proto[[bb_rank]][[1]] ) ]
+    }else{
+      print(paste0(&quot;taxon &quot;, aa, &quot; wasn&#39;t in the taxid map&quot;))
+    }
+  }
+
+identify_parent &lt;- function(aa){   # aa &lt;- &quot;g__UBA6532&quot;         aa &lt;- &quot;s__&quot;
+  if( grepl(&quot;d__&quot;, aa)){
+    # &quot;0000000&quot;                      # snilches get zilches    -     possibly no leading 0s
+    &quot;1&quot;                      # snoonos get unos ~~snilches get zilches
+  }else{
+    bb_rank &lt;- rank_is[ gsub(&quot;__.*&quot;, &quot;__&quot;, aa) ]
+    cc &lt;- taxs[ match(aa, taxs[ , bb_rank ]) , ( which( names(taxs) == bb_rank) -1) ] 
+    identify( cc )
+    }   
+  }</code></pre>
+<p><br></p>
+</div>
+<div id="make-a-new-names.dmp" class="section level2">
+<h2>5. make a new <code>names.dmp</code></h2>
+<p>Here we’re copying the expected format of <code>nodes</code> &amp;
+<code>names.dmp</code> files. It can be useful to look at a “normal”
+version and see how it looks
+(i.e. <code>less -S $STANDARD_KRAKEN2DB/taxonomy/names.dmp</code>), but
+it looks much like this (note the special <code>\t|\t</code> field
+delimiters between columns <em>and at the end</em> - we’ll deal with
+those in steps 7. &amp; 8.):</p>
+<pre><code>13    |     Dictyoglomus    |               |       scientific name |
+14    |     ATCC 35947      |   ATCC 35947 &lt;type strain   |     type material  |
+14    |     Dictyoglomus sp. Rt46-B1        |   |       includes        |
+14    |     Dictyoglomus thermophilum Saiki et al. 1985   |   |   authority  |
+14    |     Dictyoglomus thermophilum       |       |       scientific name |
+14    |     DSM 3960        |       DSM 3960 &lt;type strain  |     type material   |
+14    |     strain H-6-12   |       strain H-6-12 &lt;type strain   |    type material   |
+16    |     Methyliphilus   |               |       equivalent name |</code></pre>
+<p><br></p>
+<p>We copy this format as best we can, using the <code>identify()</code>
+fn we made above, to look up each unique taxon we identified (3.), and
+find the unique <code>taxid</code> we assigned it (4.):</p>
+<pre class="r"><code>names_proto &lt;- data.frame(
+  &quot;tax_id&quot; = unlist( mclapply(                    # the id of node associated with this name
+                              unlist( uniq_tax),
+                              identify, mc.cores = n_cores, mc.cleanup = TRUE )),
+  &quot;name_txt&quot; = unlist( uniq_tax),                 # name itself
+  &quot;unique name&quot; = unlist( uniq_tax),              # the unique variant of this name if name not unique
+  &quot;name class&quot; = &quot;scientific name&quot;,               # synonym, common name, ... all lower case.
+  stringsAsFactors = FALSE
+)
+
+head(names_proto)</code></pre>
+<p><br></p>
+</div>
+<div id="make-a-new-nodes.dmp" class="section level2">
+<h2>6. make a new <code>nodes.dmp</code></h2>
+<p>Same idea here! Only major change is that we also use the
+<code>identify_parent()</code> fn we made to also get the
+<code>taxid</code> of each taxons parent taxon (e.g. for a given
+species, what is the <code>taxid</code> of the genus it belongs
+to?).</p>
+<p>The other difference is that nodes.dmp has more fields - but note
+that we bascially give rows 4-13 a fixed value for all
+Bacterial/Archaeal taxa. It won’t affect <code>Kraken2</code>.</p>
+<pre class="r"><code>nodes_proto &lt;- data.frame(
+  # &quot;tax_id&quot; = unlist(sapply( names_proto$name_txt, identify )),                                           ## parallel
+  &quot;tax_id&quot; = unlist(mclapply( names_proto$name_txt, identify, mc.cores = n_cores, mc.cleanup = TRUE )),                                           ## parallel
+  &quot;parent tax_id&quot; = unlist( mclapply( names_proto$name_txt, identify_parent, mc.cores = n_cores, mc.cleanup = TRUE )),                             ## parallel
+  &quot;rank&quot; = rank_is[ unlist( mclapply( names_proto$name_txt, function(aa){ gsub(&quot;(^\\w__).*&quot;, &quot;\\1&quot;, aa) }, mc.cores = n_cores, mc.cleanup = TRUE )) ] ,     ## parallel
+  &quot;embl code&quot; = &quot;&quot;,                  # no one seems to know about this one
+  &quot;division id&quot; = 0,                  # 0 = Bacteria (but also apparently Archaea...)
+  &quot;inherited div flag&quot; = 1,           # 1 if node inherits division code from parent
+  &quot;genetic code id&quot; = 11,           # 11 = Bact/Arch/plastid
+  &quot;inherited GC&quot; = 1,                # 1 if node inherits genetic code from parent
+  &quot;mitochondrial genetic code&quot; = 0,  # see gencode.dmp file
+  &quot;inherited MGC&quot; = 1,                # 1 if node inherits mitochondrial gencode from parent
+  &quot;GenBank hidden&quot; = 0,               # 1 if name is suppressed in GenBank entry lineage
+  &quot;hidden subtree root&quot; = 0,          # 1 if this subtree has no sequence data yet
+  &quot;comments&quot; = &quot;&quot;)
+
+head(nodes_proto)</code></pre>
+<p><br></p>
+<p>Crucially to both <code>nodes.dmp</code> and <code>names.dmp</code>,
+we must <strong>root</strong> our new fake <code>taxid</code>, with the
+“<strong><code>root</code></strong>” taxon, which must be at
+<code>taxid</code> <strong><code>1</code></strong> (I think…feel free to
+check and let us know).</p>
+<pre class="r"><code># - nodes.dmp (note 8,0,1, instread of 11,1,0)
+nodes_proto &lt;- rbind( 
+  c( &quot;1&quot;,&quot;1&quot;,&quot;no rank&quot;,&quot;&quot;,&quot;8&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;&quot;),
+  nodes_proto
+)
+
+# - and names.dmp
+names_proto &lt;- rbind( 
+  c( &quot;1&quot;, &quot;all&quot;, &quot;all&quot;, &quot;synonym&quot;),
+  c( &quot;1&quot;, &quot;root&quot;, &quot;root&quot;, &quot;scientific name&quot;),
+  names_proto
+)</code></pre>
+<p><br></p>
+<p>Equally, the <strong>sequences need new accessions</strong> which
+reflect the newly created taxid that we’ve added to
+<code>nodes.dmp</code> and <code>names.dmp</code>. These names are
+include:</p>
+<ul>
+<li>the accession text the sequence came with</li>
+<li>a string that reads “<code>kraken:taxid</code>”, which I assume
+<code>Kraken2</code> uses to find the next bit:</li>
+<li>the all-important new <code>taxid</code>.</li>
+</ul>
+<p>These are separated by a pipe (the “<code>|</code>” character), and
+put together should look like this:</p>
+<pre><code>MJ030-2-barcode69-umi1705bins-ubs-122|kraken:taxid|1491</code></pre>
+<p><code>Kraken2</code>’s documentation on Custom database building
+indicates that “<code>kraken:taxid|123456</code>” could be at the front
+or back, as long as it is properly delimited by <code>|</code>;
+troubleshooting via genAI suggested that the above order is preferred
+(but again, feel free to explore this variable).</p>
+<pre class="r"><code>names(usable_seqs) &lt;- paste0( 
+  names(usable_seqs), 
+  &quot;|kraken:taxid|&quot;, 
+  unlist( mclapply( taxs[ names(usable_seqs) , &quot;effective_taxon&quot;], identify, mc.cores = n_cores, mc.cleanup = TRUE ) 
+          )
+  )</code></pre>
+<p><br></p>
+</div>
+<div id="saving-out-the-files" class="section level2">
+<h2>7. saving out the files</h2>
+<p>Always worth checking the structure and look of these files.
+Certainly easier to examine in a local session on <code>Rstudio</code>
+or similar, but they should look similar (identical) to the standard
+<code>Kraken2</code> ones:</p>
+<pre class="r"><code>head( nodes_proto )
+head( names_proto )
+head( usable_seqs )</code></pre>
+<p><br></p>
+<p>Finally, write out <code>nodes.dmp</code> &amp;
+<code>names.dmp</code>. Check out that weird <code>sep</code> arg -
+again, this is a key part of how NCBI taxdump files are structured, so
+<code>Kraken2</code> <em>needs</em> it:</p>
+<pre class="r"><code># reference FASTA sequences first:
+writeXStringSet( usable_seqs, 
+                 filepath = paste0( path, &quot;/gg2_2024.09__FullLength313k__seqs.fna&quot;), 
+                 compress = FALSE, format = &quot;fasta&quot; )
+
+# nodes and names.dmp files, with odd &quot;\t|\t&quot; separator 
+write.table(names_proto, file = paste0( path, &quot;/gg2_2024.09__FullLength313k__names.dmp&quot;), 
+            sep = &#39;\t|\t&#39;, col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+write.table(nodes_proto, file = paste0( path, &quot;/gg2_2024.09__FullLength313k__nodes.dmp&quot;), 
+            sep = &#39;\t|\t&#39;, col.names = FALSE, row.names = FALSE, quote = FALSE)</code></pre>
+<p><br></p>
+</div>
+<div id="kraken2-build-the-gg2-database" class="section level2">
+<h2>8. <code>kraken2-build</code> the GG2 database</h2>
+<div id="structuring-yr-kraken2-database" class="section level3">
+<h3>Structuring yr <code>Kraken2</code> database</h3>
+<p>This will work! Kraken2 only needs the three files, in two folders,
+inside your database directory as below to build a database. All the
+other taxdump files (<code>accessions2taxid</code>s, other
+<code>.dmp</code> files) are ancillary. <strong>Step 1</strong> is to
+arrange this manually.</p>
+<blockquote>
+<p><strong>NB:</strong> Doing this manually skips the first step in the
+standard database building
+(e.g. <code>kraken2-build --download-library bacteria --db $k2db</code>)</p>
+</blockquote>
+<pre><code>$ tree $k2db
+# &gt;  ├── library
+# &gt;  │   └── seqs.fna
+# &gt;  └── taxonomy
+# &gt;      ├── names.dmp
+# &gt;      └── nodes.dmp</code></pre>
+<p><br></p>
+<p>Make folders, copy the files over. Note that the files end up named
+<code>nodes.dmp</code>, <code>names.dmp</code>, <code>seqs.fna</code>
+(non-compressed):</p>
+<pre class="bash"><code># where you saved the dmp &amp; fna files from R
+outdir=/path/to/custom_outputs/
+
+# where you want your database to go
+k2db=/path/to/custom_gg2_database/
+mkdir -p $k2db $k2db/taxonomy $k2db/library
+
+# copy from wherever you made it, to wherever your database is going
+cp $outdir/*nodes.dmp $k2db/taxonomy/nodes.dmp
+cp $outdir/*names.dmp $k2db/taxonomy/names.dmp
+cp $outdir/*seqs.fna $k2db/library/seqs.fna
+
+head $k2db/taxonomy/nodes.dmp
+head $k2db/taxonomy/names.dmp
+head $k2db/library/seqs.fna
+</code></pre>
+<p><br></p>
+<p>Originally, I was also building <code>seqid2taxid.map</code> too, but
+Kraken2 is quite happy to do that step itself, so let it away. However,
+we <em>do</em> still need to add a <code>\t|\t</code> delimiter at the
+end of the <code>.dmp</code> files - otherwise the database will work
+and classify <code>taxid</code>s, but will not tell you what the actual
+<em>taxon ranks</em> are - which would not be much use.</p>
+<pre class="bash"><code>sed -i -e &#39;s/$/\t|/g&#39; $k2db/taxonomy/names.dmp
+sed -i -e &#39;s/$/\t|/g&#39; $k2db/taxonomy/nodes.dmp
+</code></pre>
+<p><br></p>
+</div>
+<div id="starting-yr-kraken2-database" class="section level3">
+<h3>Starting yr <code>Kraken2</code> database</h3>
+<p>If making your own database <em>from scratch</em>, <strong>step
+2</strong> is to add sequences into the database structure from step 1.
+Note here we skip masking of repetitive sequences, as we’re working with
+16S sequences (we need all the signal we can get from this restricted
+range of sequences, and some “low” information stretches are
+structurally important. As ever, thoughts welcome on this).</p>
+<pre class="bash"><code>kraken2-build --add-to-library $k2db/library/seqs.fna --db $k2db --no-masking</code></pre>
+<p>Once all the pieces are in place, it’s (theoretically) as simple
+as:</p>
+<pre class="bash"><code># rub your hands together and 
+kraken2-build --build --db $k2db --threads 15
+    # &gt;  Added &quot;$k2db/library/seqs.fna&quot; to library (/path/to/custom_gg2_database/)
+    # &gt;  Creating sequence ID to taxonomy ID map (step 1)...
+    # &gt;  Sequence ID to taxonomy ID map complete. [0.182s]
+    # &gt;  Estimating required capacity (step 2)...
+    # &gt;  Estimated hash table requirement: 38361964 bytes
+    # &gt;  Capacity estimation complete. [4.503s]
+    # &gt;  Building database files (step 3)...
+    # &gt;  Taxonomy parsed and converted.
+    # &gt;  CHT created with 15 bits reserved for taxid.
+    # &gt;  Completed processing of 625810 sequences, 938680526 bp        &lt;&lt;&lt; much better! 
+    # &gt;  Writing data to disk...  complete.
+    # &gt;  Database files completed. [3m8.402s]
+    # &gt;  Database construction complete. [Total: 3m13.129s]</code></pre>
+<p>Inspecting the database itself (long output curtailed):</p>
+<pre class="bash"><code># press Q to exit from `less`
+kraken2-inspect --db $k2db | less  
+    # &gt;  # &gt;  Database options: nucleotide db, k = 35, l = 31
+    # &gt;  # &gt;  Spaced mask = 11111111111111111111111111111111110011001100110011001100110011
+    # &gt;  # &gt;  Toggle mask = 1110001101111110001010001100010000100111000110110101101000101101
+    # &gt;  # &gt;  Total taxonomy nodes: 18637
+    # &gt;  # &gt;  Table size: 6672071
+    # &gt;  # &gt;  Table capacity: 9590491
+    # &gt;  # &gt;  Min clear hash value = 0
+    # &gt;  100.00  6672071 3502    R       1       root
+    # &gt;  97.61  6512515 309649  R1      3         d__Bacteria
+    # &gt;  17.49  1167211 7021    P       109         p__Pseudomonadota
+    # &gt;  12.18  812446  98233   C       255           c__Gammaproteobacteria
+    # &gt;  2.21  147697  13331   O       590             o__Burkholderiales
+    # &gt;  0.90  60050   14680   F       1682              f__Burkholderiaceae_A_595421
+    # &gt;  0.05  3614    401     G       8717                g__Solimicrobium
+    # &gt;  0.04  2647    2647    S       21332                 s__Solimicrobium aquaticum
+    # &gt;  0.00  324     324     S       21333                 s__Solimicrobium silvestre
+    # &gt;  0.00  115     115     S       23410                 s__Undibacterium aquatile
+    # &gt;  0.00  102     102     S       23413                 s__Undibacterium seohonense
+    # &gt;  0.00  25      25      S       23412                 s__Undibacterium nitidum
+    # &gt;  0.04  2868    371     G       7552                g__Paraburkholderia_580243
+    # &gt;  [...] etc.
+</code></pre>
+<p>Much success.</p>
+<p><br></p>
+</div>
+</div>
+<div id="use-kraken2-with-the-gg2-database" class="section level2">
+<h2>9. use <code>kraken2</code> with the GG2 database</h2>
+<p>That’s only the beginning. Lets try apply it to a <code>DADA2</code>
+output of assigned ASVs:</p>
+<pre class="bash"><code>kraken2 --db $k2db \
+  --use-names $WRK2/dada2_output/assigned_ASVs__2632.fna \
+  --report-zero-counts --report $k2db/temp_k2_report | less -S </code></pre>
+<p>All 100% classified (though not necessarily to species level, as
+expected…):</p>
+<pre><code># &gt;  2632 sequences (1.08 Mbp) processed in 0.254s (622.7 Kseq/m, 256.12 Mbp/m).
+# &gt;    2632 sequences classified (100.00%)
+# &gt;    0 sequences unclassified (0.00%)
+
+# classification output:
+C       asv__4308       f__Rhizobiaceae (taxid 2720)    399     3:32 109:1   [...]
+C       asv__4315       s__Actinotignum schaalii_A_386418 (taxid 10669) 415  [...]
+C       asv__4326       s__Gemmiger_A_73129 qucibialis (taxid 14717)    425  [...]
+C       asv__4334       g__Peptoniphilus_A (taxid 7692) 398     3:18 1217:4  [...]
+C       asv__4405       g__Lentihominibacter (taxid 6546)       401     3:51 [...]
+C       asv__4445       s__Neisseria sp000186165 (taxid 18038)  424     3:14 [...]
+[...]
+</code></pre>
+<p>If we look at the <code>Kraken2</code> report, we see everything
+broken down by <code>taxid</code>, and hierarchical taxonomy.</p>
+<pre class="bash"><code>less -S $k2db/temp_k2_report </code></pre>
+<pre><code>  0.00  0       0       U       0       unclassified
+100.00  2632    0       R       1       root
+100.00  2632    0       R1      3         d__Bacteria
+ 39.86  1049    0       P       14          p__Bacillota_A_368345
+ 39.86  1049    0       C       191           c__Clostridia_258483
+ 21.12  556     1       O       883             o__Lachnospirales
+ 19.98  526     91      F       2360              f__Lachnospiraceae
+  3.50  92      10      G       4377                g__Blautia_A_141781
+  1.10  29      29      S       12002                 s__Blautia_A_141781 obeum
+  0.91  24      24      S       12003                 s__Blautia_A_141781 wexlerae
+  0.68  18      18      S       12000                 s__Blautia_A_141781 fusiformis
+  0.34  9       9       S       11999                 s__Blautia_A_141781 caecimuris</code></pre>
+<p><br></p>
+<p>Best of luck in yr bughunts.</p>
+<hr />
+</div>
+</div>
+<div id="build-a-gg2-database---code-only" class="section level1">
+<h1>Build a GG2 database - code only</h1>
+<p>Just the code plx? Shur shur shur.</p>
+<div id="r" class="section level2">
+<h2><code>R</code></h2>
+<pre class="r"><code>      rm(list=ls()) ; gc() 
+
+  ## here, download to /dl/path from R
+      system(&quot;cd /dl/path&quot;)
+      system(&quot;wget https://ftp.microbio.me/greengenes_release/current/2024.09.seqs.fna.gz&quot;)
+      system(&quot;wget https://ftp.microbio.me/greengenes_release/current/2024.09.taxonomy.id.tsv.gz&quot;)
+
+      
+  ##   get sequences   =========================================================
+      
+      # attributes, names, length, hist etc. for DNA work
       library(&quot;Biostrings&quot;)
       library(&quot;parallel&quot;)
+      n_cores &lt;- 15
+      path &lt;- &quot;/dl/path&quot;
+      length(seqs &lt;- readDNAStringSet( filepath = paste0(path, &quot;/2024.09.seqs.fna.gz&quot; )))  #   23,467,470
+      head(tax &lt;- read.table(paste0( path, &quot;/2024.09.taxonomy.id.tsv.gz&quot;), header = TRUE, sep = &quot;\t&quot;))   # 23M lines
+
+
+  ##   make taxonomy   =========================================================
       
-      n_cores &lt;- 6
-      path &lt;- &quot;~/Downloads&quot;
-      length(seqs &lt;- DNAStringSet( readRNAStringSet( filepath = paste0(path, &quot;/SILVA_138.2_SSURef_tax_silva__sub50k.fasta.gz&quot; ))) )  # 2437...
-      head(tax &lt;- read.table(paste0( path, &quot;/taxmap_slv_ssu_ref_138.2.txt.gz&quot;), header = TRUE, sep = &quot;\t&quot;, nrows = 10000, quote = &quot;&quot;))   # 2,224,691 lines
-    ## ----------
-      # n_cores &lt;- 15
-      # path &lt;- &quot;/mnt/workspace2/jamie/ref/k2__silva138.2&quot;
-      # length(seqs &lt;- DNAStringSet( readRNAStringSet( filepath = paste0(path, &quot;/SILVA_138.2_SSURef_tax_silva.fasta.gz&quot; ))))  #   2,224,690
-      # head(tax &lt;- read.table(paste0( path, &quot;/taxmap_slv_ssu_ref_138.2.txt.gz&quot;), header = TRUE, sep = &quot;\t&quot;, quote = &quot;&quot;, comment= &quot;&quot; ))   # 2,224,691 lines
+      rank_is &lt;- c( &quot;d__&quot; = &quot;domain&quot;, &quot;p__&quot; = &quot;phylum&quot;, 
+                    &quot;c__&quot; = &quot;class&quot;, &quot;o__&quot; = &quot;order&quot;, 
+                    &quot;f__&quot; = &quot;family&quot;, &quot;g__&quot; = &quot;genus&quot;,
+                    &quot;s__&quot; = &quot;species&quot;)      
       
-        ## errors with quotes and hashes 
-            
-      # silva has an existing taxon-rank map - ranks!
-      ranks &lt;- read.table(paste0( path, &quot;/tax_slv_ssu_138.2.txt.gz&quot;), header = FALSE, sep = &quot;\t&quot;, quote = &quot;&quot;)   # 2,224,691 lines
-      colnames(ranks) &lt;- c(&quot;path&quot;, &quot;taxid&quot;, &quot;rank&quot;, &quot;comment&quot;, &quot;release&quot;)
-
-      head(ranks)
-      head(tax)
-        
-
-    ## get parent_taxid
-      ranks$effective_taxon &lt;- gsub( &quot;.*;([\\w\\s\\.\\-\\(\\)\\[\\]]*);$&quot;, &quot;\\1&quot;, ranks$path, perl = TRUE )      
-      ranks$path_debracket &lt;- gsub(&quot;\\(|\\)&quot;, &quot;_&quot;, 
-                                   gsub(&quot;\\[|\\]&quot;, &quot;_&quot;, ranks$path))      
-      ranks$parent_taxid &lt;- unlist( mclapply( 1:nrow(ranks), function(aa){   # aa &lt;- 13
-
-        bb &lt;- strsplit( ranks[ aa , ][&quot;path&quot;][[1]], &quot;;&quot;)[[1]]
-        if( length(bb) &gt; 1){
-          cc &lt;- unlist( ranks[ grep(
-            gsub(&quot;\\(|\\)&quot;, &quot;_&quot;, 
-                      paste0( c(bb[ 1:length(bb)-1 ],&quot;$&quot;), collapse=&quot;;&quot;),
-                 perl=TRUE),
-            ranks$path_debracket, perl = TRUE) , &quot;taxid&quot; ])
-        }else{
-          cc &lt;- 1   # assume its at domain level
-        }
-        if( length( cc ) == 0 ){
-          0
-        }else if( identical( cc, character(0)) | is.na(cc) | is.null(cc) ){
-          NA
-        }else{
-          cc
-          }
-      }, mc.cores = n_cores, mc.cleanup = TRUE, mc.preschedule = TRUE))
-      head(ranks)
-
-                  
-##   expand SILVA taxid to include SPECIES    ----------------------------------
-
-    ## new taxid for species (&amp; strains, substrains, etc.)
-      tax$taxid_novo &lt;- tax$taxid
-      floop &lt;- 13370000
-      # with each unique taxid in tax, get all taxa sharing that parent, and count up from floop
-      taxf &lt;- do.call( &quot;rbind&quot;, lapply( unique(tax$taxid), function(aa){   # aa &lt;- 58941
-        bb &lt;- tax[ tax$taxid_novo == aa , ]
-        cc &lt;- floop+nrow(bb)
-        bb[ , &quot;parent_taxid&quot; ] &lt;- aa
-        bb[ , &quot;taxid_novo&quot; ] &lt;- (floop+1):cc
-        floop &lt;&lt;- cc
+      # 3 taxonomic dummy levels added here for fun
+      tax_dummies &lt;- 3  
+      taxs &lt;- as.data.frame(do.call(&quot;rbind&quot;, mclapply( tax$Taxon, function(aa){  
+        bb &lt;- unlist(strsplit( aa, split = &quot;\\; &quot;))[1:(7+tax_dummies)]
         bb
-      }))  
+      }, mc.cores = n_cores, mc.cleanup = TRUE)), stringsAsFactors = FALSE)
+      colnames(taxs) &lt;- rank_is
+      taxs$header &lt;- tax$Feature.ID
+      rownames(taxs) &lt;- taxs$header
+    
+    ## crucial - accession - taxon map
+      taxs$effective_taxon &lt;- unlist( mclapply( 1:nrow(taxs), function(aa){  
+        bb &lt;- taxs[ aa, 1:(7+tax_dummies) ]
+        bb[ max(which( !( grepl(&quot;__$&quot;, bb, perl = TRUE) | is.na(bb) ) ))  ]
+      },  mc.cores = n_cores, mc.cleanup = TRUE))
+
+      uniq_tax &lt;- apply( taxs[, 1:(7+tax_dummies)], 2, function(aa){
+        bb &lt;- aa[ !( is.na(aa) ) ]
+        sort(unique(unlist(bb)))
+        })
+
+
+  ## subset to seqs in 1.4-1.65kbp range    ====================================
       
-    # update rank assignment
-      taxf$rank &lt;- sapply( taxf$organism_name, function(aa){
-        if( grepl( &quot;substr&quot;, aa)){
-          &quot;substrain&quot;
-        }else if( grepl( &quot;subsp&quot;, aa)){
-          &quot;strain&quot;
-        }else if( grepl( &quot;subsp&quot;, aa)){
-          &quot;subspecies&quot;
-        }else{
-        &quot;species&quot;
-        }
+      s_widths &lt;- width(seqs)
+      # 332,588 in full version
+      length(seqs_w &lt;- seqs[ s_widths &gt; 1400 &amp; s_widths &lt; 1650 ])
+      # match with those in taxs -  312,905 in full version
+      length( usable_seqs &lt;- seqs_w[ names(seqs_w) %in% taxs$header ] )
+      
+      
+  ## taxid proto   -----------------------------------------------------------
+
+    ## root is 1, so floop/domains start from 2...
+      floop &lt;- 1    
+    ## counter with universal assignment to var
+      taxid_proto &lt;- lapply( names(uniq_tax)[ 
+        sapply( uniq_tax, function(aa){ !identical( aa, character(0)) })
+        ], function(aa){   
+          if( aa == &quot;domain&quot;){ floop &lt;&lt;- 1 }
+          bb &lt;- uniq_tax[ aa ][[1]]
+          cc &lt;- (floop+1):(floop+length(bb))    #  stringr::str_pad( (floop+1):(floop+length(bb)), width = 7, pad = &quot;0&quot; )
+          floop &lt;&lt;- floop + length(cc)
+          list( &quot;name_txt&quot; = bb, &quot;taxid&quot; = cc)
       })
-      
-      head(taxf)
+      names(taxid_proto) &lt;- rank_is
+
+    ## no mult lookups - decide rank ahead of time, use rank_is &amp; grep through that alone (e.g. based on prefix)
+      identify &lt;- function(aa){
+        bb_rank &lt;- rank_is[ gsub(&quot;__.*&quot;, &quot;__&quot;, aa )]                           # aa &lt;- &quot;g__GWA2-37-10&quot;
+        if( aa %in% taxid_proto[[bb_rank]][[1]] ){
+          taxid_proto[[bb_rank]][[2]][ match(aa, taxid_proto[[bb_rank]][[1]] ) ]
+        }else{
+          print(paste0(&quot;taxon &quot;, aa, &quot; wasn&#39;t in the taxid map&quot;))
+        }
+      }
+
+      identify_parent &lt;- function(aa){   # aa &lt;- &quot;g__UBA6532&quot;         aa &lt;- &quot;s__&quot;
+        if( grepl(&quot;d__&quot;, aa)){
+          &quot;1&quot;                      # snoonos get unos
+        }else{
+          bb_rank &lt;- rank_is[ gsub(&quot;__.*&quot;, &quot;__&quot;, aa) ]
+          cc &lt;- taxs[ match(aa, taxs[ , bb_rank ]) , ( which( names(taxs) == bb_rank) -1) ] 
+          identify( cc )
+          }   
+        }
+
+
+  ## names proto   -----------------------------------------------------------
+  
+      names_proto &lt;- data.frame(
+        &quot;tax_id&quot; = unlist( mclapply( unlist( uniq_tax), identify, mc.cores = n_cores, mc.cleanup = TRUE )),
+        &quot;name_txt&quot; = unlist( uniq_tax),
+        &quot;unique name&quot; = &quot;&quot;,                   # safety net ignored.
+        &quot;name class&quot; = &quot;scientific name&quot;,     # synonym, common name, ... lower case!
+        stringsAsFactors = FALSE
+      )
 
       
-## proto names   -----------------------------------------------------------
+  ## proto nodes   -----------------------------------------------------------
       
-      head( 
-        spec_names &lt;- rbind(
-          
-          # spec level stuffing
-          data.frame( 
-            taxid = taxf$taxid_novo,
-            name_txt = taxf$organism_name,
-            &quot;unique name&quot; = &quot;&quot;,
-            &quot;name class&quot; = &quot;scientific name&quot;,
-            stringsAsFactors = FALSE),
-          
-          # everything else
-          data.frame( 
-            taxid = ranks$taxid,
-            name_txt = ranks$effective_taxon,
-            &quot;unique name&quot; = &quot;&quot;,
-            &quot;name class&quot; = &quot;scientific name&quot;,
-            stringsAsFactors = FALSE)
-          
-          ) )
+      nodes_proto &lt;- data.frame(
+        &quot;tax_id&quot; = unlist(mclapply( names_proto$name_txt, identify, mc.cores = n_cores, mc.cleanup = TRUE )),                                           ## parallel
+        &quot;parent tax_id&quot; = unlist( mclapply( names_proto$name_txt, identify_parent, mc.cores = n_cores, mc.cleanup = TRUE )),                             ## parallel
+        &quot;rank&quot; = rank_is[ unlist( mclapply( names_proto$name_txt, function(aa){ gsub(&quot;(^\\w__).*&quot;, &quot;\\1&quot;, aa) }, mc.cores = n_cores, mc.cleanup = TRUE )) ] ,     ## parallel
+        &quot;embl code&quot; = &quot;&quot;,                  # no one seems to know about this one
+        &quot;division id&quot; = 0,                  # 0 = Bacteria (but also apparently Archaea...)
+        &quot;inherited div flag&quot; = 1,                            
+        &quot;genetic code id&quot; = 11,                   # 11 = Bact/Arch/plastid
+        &quot;inherited GC&quot; = 1,                     # 1 if node inherits genetic code from parent
+        &quot;mitochondrial genetic code&quot; = 0,       # see gencode.dmp file
+        &quot;inherited MGC&quot; = 1,                # 1 if node inherits mitochondrial gencode from parent
+        &quot;GenBank hidden&quot; = 0,               # 1 if name is suppressed in GenBank entry lineage
+        &quot;hidden subtree root&quot; = 0,          # 1 if this subtree has no sequence data yet
+        &quot;comments&quot; = &quot;&quot;)
 
             
-## proto nodes   -----------------------------------------------------------
-      
-      head(
-        spec_nodes &lt;- rbind( 
-      
-          data.frame(
-            &quot;tax_id&quot; = taxf$taxid_novo,
-            &quot;parent tax_id&quot; = taxf$parent_taxid,
-            &quot;rank&quot; = taxf$rank,
-            &quot;embl code&quot; = &quot;&quot;,                   # no one seems to know about this one
-            &quot;division id&quot; = 0,                  # 0 = Bacteria (but also apparently Archaea...)
-            &quot;inherited div flag&quot; = 1,                            
-            &quot;genetic code id&quot; = 11,                   # 11 = Bact/Arch/plastid
-            &quot;inherited GC&quot; = 1,                     # 1 if node inherits genetic code from parent
-            &quot;mitochondrial genetic code&quot; = 0,       # see gencode.dmp file
-            &quot;inherited MGC&quot; = 1,                # 1 if node inherits mitochondrial gencode from parent
-            &quot;GenBank hidden&quot; = 0,               # 1 if name is suppressed in GenBank entry lineage
-            &quot;hidden subtree root&quot; = 0,          # 1 if this subtree has no sequence data yet
-            &quot;comments&quot; = &quot;&quot;),
-      
-        data.frame(
-          &quot;tax_id&quot; = ranks$taxid,
-          &quot;parent tax_id&quot; = ranks$parent_taxid,
-          &quot;rank&quot; = ranks$rank,
-          &quot;embl code&quot; = &quot;&quot;,
-          &quot;division id&quot; = 0,         
-          &quot;inherited div flag&quot; = 1,
-          &quot;genetic code id&quot; = 11,
-          &quot;inherited GC&quot; = 1,
-          &quot;mitochondrial genetic code&quot; = 0,
-          &quot;inherited MGC&quot; = 1,
-          &quot;GenBank hidden&quot; = 0,
-          &quot;hidden subtree root&quot; = 0,
-          &quot;comments&quot; = &quot;&quot;)
-      
-        ) )
-      
     ## rooting the tree - must be appended to :
-      # - names.dmp
+      # - nodes.dmp (note 8,0,1, instead of 11,1,0)
+      nodes_proto &lt;- rbind( 
+        c( &quot;1&quot;,&quot;1&quot;,&quot;no rank&quot;,&quot;&quot;,&quot;8&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;&quot;),
+        nodes_proto
+      )
+      # - and names.dmp
       names_proto &lt;- rbind( 
         c( &quot;1&quot;, &quot;all&quot;, &quot;all&quot;, &quot;synonym&quot;),
         c( &quot;1&quot;, &quot;root&quot;, &quot;root&quot;, &quot;scientific name&quot;),
-        spec_names
+        names_proto
       )
-      # - and nodes.dmp (note 8,0,1, instead of 11,1,0)
-      nodes_proto &lt;- rbind( 
-        c( &quot;1&quot;,&quot;1&quot;,&quot;no rank&quot;,&quot;&quot;,&quot;8&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;&quot;),
-        spec_nodes
-      )
-      
-      
-## modify the seq headers    =================================================
-
-    ## en fait, accessions dont matter to us at all if not building seqid2taxid - dont change accessions     
-      s_widths &lt;- width(seqs)    #  subset :: 569 - 1180 - 2260
-      # length(seqs_w &lt;- seqs[ s_widths &gt; 1000 &amp; s_widths &lt; 1650 ])        #  2,072,388 
-    ## small difference in sets does ont motivate making two different entries
-      length(seqs_w &lt;- seqs)                                             #  2,224,690
 
       
-    ## seqs in current subset
-      length( usable_seqs &lt;- seqs_w[ gsub(&quot;\\..*&quot;, &quot;&quot;, names(seqs_w)) %in% tax$primaryAccession ] )    #  2,224,690
-
-    ## DB issue: some accessions represent multiple overlapping htis
-      # bad_acctors &lt;- unlist(sapply(unique(taxf$primaryAccession), function(aa){ if( sum( taxf$primaryAccession == aa) &gt; 1){aa} }))
-      # dplyr::filter(taxf, primaryAccession %in% bad_acctors )
-      # # - solution :: ignore, as the seq-idf relationship remains valid
+  ## modify the seq headers    =================================================
       
-      
-    ## accession-wrangling not necessary elsewhere, as we allow K2 to build the seqid2taxid map for us
       names(usable_seqs) &lt;- paste0(
         names(usable_seqs), 
         &quot;|kraken:taxid|&quot;, 
-        unlist( mclapply( names(usable_seqs), function(aa){      # aa &lt;- names(seqs_w)[403]
-          # - first match only below, due to nested hits in the DB
-          taxf[ match( gsub( &quot;\\..*&quot;,&quot;&quot;, aa), taxf$primaryAccession ) , &quot;taxid_novo&quot; ]
-        }, mc.cores = n_cores, mc.cleanup = TRUE, mc.preschedule = TRUE ))
-      )
-
+        unlist( mclapply( taxs[ names(usable_seqs) , &quot;effective_taxon&quot;], identify, mc.cores = n_cores, mc.cleanup = TRUE )
+                )
+        )
+            
 
 ##   out that!   ---------------------------------------------------------------
 
@@ -1731,18 +2208,21 @@ page</p>
       # head( usable_seqs )
 
       ## note sep for nodes &amp; names
-      writeXStringSet( usable_seqs, filepath = paste0( path, &quot;/silva_138.2__complete2.2M__seqs.fna&quot;), 
+      writeXStringSet( usable_seqs, filepath = paste0( path, &quot;/gg2_2024.09__FullLength313k__seqs.fna&quot;), 
                        compress = FALSE, format = &quot;fasta&quot; )
-
-      write.table(names_proto, file = paste0( path, &quot;/silva_138.2__complete2.2M__names.dmp&quot;), 
+      
+      write.table(names_proto, file = paste0( path, &quot;/gg2_2024.09__FullLength313k__names.dmp&quot;), 
                   sep = &#39;\t|\t&#39;, col.names = FALSE, row.names = FALSE, quote = FALSE)
-      write.table(nodes_proto, file = paste0( path, &quot;/silva_138.2__complete2.2M__nodes.dmp&quot;), 
+      write.table(nodes_proto, file = paste0( path, &quot;/gg2_2024.09__FullLength313k__nodes.dmp&quot;), 
                   sep = &#39;\t|\t&#39;, col.names = FALSE, row.names = FALSE, quote = FALSE)</code></pre>
+<p><br></p>
 </div>
-<div id="bash" class="section level3">
-<h3><code>bash</code></h3>
-<pre class="r"><code>outdir=/mnt/workspace2/jamie/ref/k2__silva138.2
-k2db=/mnt/workspace2/jamie/ref/k2__silva138.2
+<div id="bash" class="section level2">
+<h2><code>bash</code></h2>
+<p>Swap to <code>bash:</code></p>
+<pre class="bash"><code>
+outdir=/dl/path
+k2db=/ref/gg2_db
 # rm -rf $k2db
 mkdir -p $k2db $k2db/taxonomy $k2db/library
 
@@ -1750,13 +2230,13 @@ cp $outdir/*nodes.dmp $k2db/taxonomy/nodes.dmp
 cp $outdir/*names.dmp $k2db/taxonomy/names.dmp
 cp $outdir/*seqs.fna $k2db/library/seqs.fna
 
-# fix delimiters!
+# fix delimiters! 
 sed -i -e &#39;s/$/\t|/g&#39; $k2db/taxonomy/names.dmp
 sed -i -e &#39;s/$/\t|/g&#39; $k2db/taxonomy/nodes.dmp
 
 kraken2-build --add-to-library $k2db/library/seqs.fna --db $k2db --no-masking
 
-# full thing takes GG2: ~90 mins  Silva138.2:
+# full thing takes ~90 mins
 kraken2-build --build --db $k2db --threads 15
 
 
@@ -1765,18 +2245,107 @@ kraken2-inspect --db $k2db | head -n20
 
 
 kraken2 --db $k2db \
---use-names ${yourdata}/query16S.fna \
---report-zero-counts --report ./query16S.report &gt; ./query16S.output
+  --use-names ${yourdata}/query16S.fna \
+  --report-zero-counts --report ./query16S.report &gt; ./query16S.output 
 
-head -n25  ./query16S.report</code></pre>
+head -n25  ./query16S.report
+
+# here endeth the guessin</code></pre>
+<hr />
 </div>
-<div id="download-silva138.2-kraken2-database" class="section level3">
-<h3>download Silva138.2 Kraken2 database</h3>
+</div>
+<div id="download-gg2-kraken2-database" class="section level1">
+<h1>Download GG2-Kraken2 database</h1>
+<div id="greengenes2-for-kraken2-1.3-1.65kbp-subset-331k-seqs" class="section level3">
+<h3>GreenGenes2 for Kraken2: 1.3-1.65kbp subset (331K seqs)</h3>
+<p>Filtered the original 23M sequences to keep only sequences
+<strong>between 1.3Kbp and 1.65Kbp only</strong> (331K sequences).</p>
 <ul>
-<li>…</li>
-<li>…</li>
-<li>…</li>
-<li>…</li>
+<li><code>hash.k2d</code> - 38MB</li>
+<li><code>opts.k2d</code> - 64B</li>
+<li><code>taxo.k2d</code> - 1.5MB</li>
+</ul>
+<p>Should you feel so inclined</p>
+<ul>
+<li><code>full_db_tar.gz</code> - includes the <code>hash</code>,
+<code>opts</code>, &amp; <code>taxo.k2d</code>, as well as
+<code>nodes</code>, <code>map</code>, &amp; <code>seq.fna</code> files
+used: 170MB</li>
+</ul>
+<p><a href="https://zenodo.org/records/17674218?preview=1&amp;token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImY2NDBmM2FlLWMxYjYtNGNmMS04NGNiLTczMjAyYmE1Y2Q4OCIsImRhdGEiOnt9LCJyYW5kb20iOiI1MjlhYWYwNjNmMTg4N2U4MTI5Zjk4Y2FhMWVjNGEwNSJ9.Ulg9pB-PM9q8WQ4ie_7I9geXDFz3qtvL2sHOZbENml00II47PrRam75JuLuFNBxEZ71N4e0BPeuDl7vNKJxePw">Download
+here (Zenodo.org)</a></p>
+</div>
+<div id="greengenes2-for-kraken2-complete-release-23m-seqs" class="section level3">
+<h3>GreenGenes2 for Kraken2: complete release (23M seqs)</h3>
+<p>Built from the complete release, contains all sequences with a
+matching accession (ought to be 23M seqs).</p>
+<ul>
+<li><code>hash.k2d</code> - 184MB</li>
+<li><code>opts.k2d</code> - 64B</li>
+<li><code>taxo.k2d</code> - 1.8MB</li>
+</ul>
+<p>Or indeed, run away with yrself:</p>
+<ul>
+<li><code>full_db_tar.gz</code> - includes the <code>hash</code>,
+<code>opts</code>, &amp; <code>taxo.k2d</code>, as well as
+<code>nodes</code>, <code>map</code>, &amp; <code>seq.fna</code> files
+used: 1.27GB</li>
+</ul>
+<p><a href="https://zenodo.org/records/17702026?preview=1&amp;token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImY1MTFjNTcwLTYyZGItNGJhZC05NzY5LWE3MGM2Y2JjNDQ4MiIsImRhdGEiOnt9LCJyYW5kb20iOiI2MGI2MDcwMzlmM2FjYTFiNmYwODYxZTVjZjY2M2FjMSJ9.qoBo92vjMaVLUDhLyHMRDoAjm1aO_VLJq_3jPrl_NCGph2L6f7klG6YZR8ejZRQvVzwFs7Go9bkBhsQ_XHtSpw">Download
+here (Zenodo.org)</a></p>
+<hr />
+</div>
+</div>
+<div id="appendix" class="section level1">
+<h1>Appendix</h1>
+<div id="considerations" class="section level3">
+<h3>Considerations</h3>
+<p>Things to be aware of if using this data for your work:</p>
+<ul>
+<li>Cake is a made up drug<a href="https://youtu.be/k0tMvxV-GC4?si=yQIageBDkjnXyoTA&amp;t=223">.</a>
+We made completely fake <code>taxid</code>s, so <strong>none of these
+will match NCBI</strong> taxonomy.</li>
+<li>We did <strong>not</strong> mask repetitive sequences. Not certain
+whether avoiding DUSTmasking for 16S is “better”, but there is a strong
+&amp; sensible case for avoiding it.</li>
+<li>as mentioned, database was first built with only “full length”
+sequences (1.4 - 1.65Kbp; 331K sequences) for the subset. It is now
+extended to the full GG2 2024.09 release too.</li>
+</ul>
+</div>
+<div id="notes" class="section level3">
+<h3>Notes</h3>
+<p>A number of issues that needed to be taken care of <em>en route</em>
+to the bottom of the page.</p>
+<ul>
+<li>incorrect root (needed to be 1, not 0) (unclear how important this
+actually is)</li>
+<li><code>.dmps</code>: incorrect seps on <code>.dmps</code> (needed to
+be </li>
+<li><code>.dmps</code>: no sep (<code>\t|\t</code>) at <em>end</em> of
+each line in <code>.dmps</code> (the end of a line is traditionally not
+delimited by sep, but by a newline, so go figure.)</li>
+<li><code>.dmps</code>: column 4 in <code>names.dmp</code> needed to be
+lower-case in order to report taxonomies (<code>taxid</code> assignment
+worked fine, but it wouldn’t tell you who they were)</li>
+<li>not clear whether <code>&lt;acc&gt;|kraken:taxid|000000</code> is
+better than <code>kraken:taxid|000000|&lt;acc&gt;</code></li>
+<li>remove sarcasm, bad jokes, curt insensitivities. Partially
+successful.</li>
+</ul>
+<p><br></p>
+</div>
+<div id="links" class="section level3">
+<h3>Links</h3>
+<ul>
+<li>field guidance :: <a href="https://github.com/guyleonard/taxdump_edit?tab=readme-ov-file#new-group" class="uri">https://github.com/guyleonard/taxdump_edit?tab=readme-ov-file#new-group</a></li>
+<li><a href="https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz">taxdump</a>,
+which was the real confusion when starting</li>
+<li><a href="https://sherrillmix.github.io/taxonomizr/reference/getNamesAndNodes.html"><code>taxonomizR</code></a>
+- interface to NCBI’s taxdump, which was the real confusion when
+starting</li>
+<li>some debugging help from openAI’s GPT5.0, notably issues with format
+above. Neither ashamed nor proud.</li>
 </ul>
 </div>
 </div>

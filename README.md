@@ -17,7 +17,7 @@ Here we work around those issues for anyone working on 16S assignment:
 
 ### GreenGenes2 16S species-level database for Kraken2:
 
-  - [__`code` & walkthrough:__](https://handibles.github.io/documents/k2db_from_gg2.` html) approach and code for for making __species-level__ Kraken2 databases (v2024.09).
+  - [__`code` & walkthrough:__](https://handibles.github.io/documents/k2db_from_gg2.html) approach and code for for making __species-level__ Kraken2 databases (v2024.09).
   - [download __subset K2 db__:](https://zenodo.org/records/17674218?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImY2NDBmM2FlLWMxYjYtNGNmMS04NGNiLTczMjAyYmE1Y2Q4OCIsImRhdGEiOnt9LCJyYW5kb20iOiI1MjlhYWYwNjNmMTg4N2U4MTI5Zjk4Y2FhMWVjNGEwNSJ9.Ulg9pB-PM9q8WQ4ie_7I9geXDFz3qtvL2sHOZbENml00II47PrRam75JuLuFNBxEZ71N4e0BPeuDl7vNKJxePw) 1.3-1.65kbp subset (331K seqs, 170MB)
   - [download __complete K2 db__:](https://zenodo.org/records/17702026?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImY1MTFjNTcwLTYyZGItNGJhZC05NzY5LWE3MGM2Y2JjNDQ4MiIsImRhdGEiOnt9LCJyYW5kb20iOiI2MGI2MDcwMzlmM2FjYTFiNmYwODYxZTVjZjY2M2FjMSJ9.qoBo92vjMaVLUDhLyHMRDoAjm1aO_VLJq_3jPrl_NCGph2L6f7klG6YZR8ejZRQvVzwFs7Go9bkBhsQ_XHtSpw) complete (21M seqs, 1.3GB)
  
