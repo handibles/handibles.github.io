@@ -7,7 +7,7 @@
 
 <br>
 
-## Species-level 16S databases for Kraken2 
+## :: Species-level 16S databases for Kraken2:
 
 Big fan of `Kraken2`(+`Bracken`!), but the existing `Silva 138` database creates issues with assignment to **species** level (`Silva` gives each species the `taxid` from it's parent genus - so `Kraken2` can only go as far as genus). `GreenGenes2` requires an even larger degree of wriggling in order to parse the database.
 
@@ -30,14 +30,15 @@ Here we work around those issues for anyone working on 16S assignment:
 
 <br> 
 
-__NB:__ both `Silva` and `Greengenes2` use `taxid`s that __do not match NCBI `taxid`s__. The taxonomies (names!) are fine, and if you are not using `taxid`s, this should not matter to you at all. For `Silva 138.2`, we assign new (fake) `taxid`s to all ranks below genus (i.e. species, strains, subspecies, submarines, substrains). With `Greengenes`, this code assigns completely new (fake) `taxid`s. 
+__NB:__ both `Silva` and `Greengenes2` use `taxid`s that __do not match NCBI `taxid`s__. The taxonomies (names!) are fine, and if you are not using `taxid`s, this should not matter to you at all. For `Silva 138.2`, we assign new (fake) `taxid`s to all ranks below genus (i.e. species, strains, subspecies, submarines, substrains). With `Greengenes`, this code assigns completely new (fake) `taxid`s to all ranks. 
 
 See also a list of [other possible issues](https://handibles.github.io/documents/k2db_from_gg2.html#Appendix##Considerations) with this approach, and [feel free to list your own](https://github.com/handibles/handibles.github.io/issues), like [my concern about reference length...](...)
 
-
 ---
 
-## `CLI`, `M`icro`b`ial `E`cology, and `R` - `CLIMBER` guide to Microbial Ecology
+<br> 
+
+## :: `CLI`, `M`icro`b`ial `E`cology, and `R` - `CLIMBER` guide to Microbial Ecology
 
 Some basic steps in microbial ecology, focusing on the processing of `2ndGen` Illumina `fastq` data, into either `amplicon` (e.g. 16S) or `metagenomic` (e.g. shotgun) datasets, followed by ecology-based analysis of the communities and patterns we find in that data. Now with less emojis.
 
@@ -45,12 +46,61 @@ Some basic steps in microbial ecology, focusing on the processing of `2ndGen` Il
 
 ---
 
-## \#thing3 
-Did and with the place of not yet although with and also  -  making presentation un up
+<br>
+
+## :: [Own work](https://orcid.org/0000-0003-1060-816X)
+
+You'd think this would be the first thing to go in, but no.
 
 ---
 
-## \#thing4
-It's not any sheer to put underneath with an unless  -  see with and folder
+<br> 
+
+### :: things to finish writing up 
+
+#### the Centre Log-Ratio transform:
+
+  - CLR transform and pathways (_many_ one-to-many relationships)
+  - ALR transform and pathways (a _single_ set of one-to-many relationships)
+  - effect of Multiplicative Replacement (`zCompositions::cMultRepl`) in the CLR transform
+  - effect of sequencing depth on residuals of linear modelling of CLR values
+  - effect of sequencing depth on residuals - employ Lasso on CLR values?
+  - subsetting ALDEx2 datasets (...really don't remember doing this)
+
+
+#### Microbial Diversity:
+
+- all the promised `R` ecology stuff
+- how to choose 40 colours and live
+-	subsetting databases to sequence length
+
+
+#### Ecological Diversity:
+
+- personal walkthrough of [Willis' class stuff on rethinking alpha diversity](https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2019.02407/full)
+-	Bray-Curtis on transformed data
+-	Alpha diversity omnibus testing (KW, F, W)
+-	Dirichlet Multinomial Modelling (DMM) and diversity
+-	how much does Bracken affect ecological diversity? (not a huge amount)
+-	toy diversity in data
+-	filtering features: k & A 
+-	singleton effects in diversity
+
+
+#### `CLI:`
+
+-	downloading files from RefSeq/Gene/NCBI/`entrez-direct`
+-	downloading files from ENA
+-	downloading files from illumina
+-	renaming accessions for KMA/CCMetagen
+-	hashing over dictionaries in bash for building databases (KMA/CCMetagen)
+-	PLS-DA-Kfold.R
+
+---
+
+<br>
+ 
+### \#thing4
+It's not any sheer to put underneath with an unless  -  see with and folder. But, did and with the place of not yet although with and also?  -  making presentation un up
 
 ---
