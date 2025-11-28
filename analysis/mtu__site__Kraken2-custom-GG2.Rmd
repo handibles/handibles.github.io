@@ -869,7 +869,7 @@ Or indeed, run away with yrself:
 
 ### Considerations
 
-Things to be aware of if using this data for your work:
+Things to be aware of if using this data for your work (generally same between GG2 / S138.2):
 
   -   Cake is a made up drug[.](https://youtu.be/k0tMvxV-GC4?si=yQIageBDkjnXyoTA&t=223) We made completely fake `taxid`s, so __none of these will match NCBI__ taxonomy.
   -   We did __not__ mask repetitive sequences. Not certain whether avoiding DUSTmasking for 16S is "better", but there is a strong & sensible case for avoiding it.
@@ -881,7 +881,7 @@ Things to be aware of if using this data for your work:
 A number of issues that needed to be taken care of _en route_ to the bottom of the page.
 
   -   incorrect root (needed to be 1, not 0) (unclear how important this actually is)
-  -   `.dmps`: incorrect seps on `.dmps` (needed to be \t|\t)
+  -   `.dmps`: incorrect seps on `.dmps` (needed to be `\t|\t`)
   -   `.dmps`: no sep (`\t|\t`) at _end_ of each line in `.dmps` (the end of a line is traditionally not delimited by sep, but by a newline, so go figure.)
   -   `.dmps`: column 4 in `names.dmp` needed to be lower-case in order to report taxonomies (`taxid` assignment worked fine, but it wouldn't tell you who they were)
   -   not clear whether `<acc>|kraken:taxid|000000` is better than `kraken:taxid|000000|<acc>`

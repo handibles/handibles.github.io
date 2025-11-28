@@ -1481,7 +1481,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">make a custom <code>Silva</code> database
 (v138.2) for <code>Kraken2</code></h1>
 <h4 class="author"><a href="mailto:jamie.fitzgerald@mtu.ie"><code>jamie.fitzgerald@mtu.ie</code></a></h4>
-<h4 class="date">27 November, 2025</h4>
+<h4 class="date">28 November, 2025</h4>
 
 </div>
 
@@ -1826,7 +1826,7 @@ header</strong>.</li>
 ## modify the seq headers    -------------------------------------------------
 
       ## small difference in sets does not motivate making a subset DB like in GG2
-        # s_widths &lt;- width(seqs)    #  subset :: 569 - 1180 - 2260
+        # s_widths &lt;- width(seqs)    #  subset lengths :: Q1:569 - median:1180 - Q3:2260
         # length(seqs_w &lt;- seqs[ s_widths &gt; 1000 &amp; s_widths &lt; 1650 ]) #  2,072,388 
       length(seqs_w &lt;- seqs)                                          #  2,224,690
 
@@ -1850,7 +1850,7 @@ header</strong>.</li>
     ## DB issue: some accessions represent multiple overlapping htis
       # bad_acctors &lt;- unlist(sapply(unique(taxf$primaryAccession), function(aa){ if( sum( taxf$primaryAccession == aa) &gt; 1){aa} }))
       # dplyr::filter(taxf, primaryAccession %in% bad_acctors )
-      # # - solution :: ignore, as the seq-idf relationship remains valid
+      # # - solution :: ignore, as the seq-id relationship remains valid
       
 
 ##   out that!   ---------------------------------------------------------------
@@ -1878,7 +1878,7 @@ We still need to do a small fix to the end of the <code>nodes.dmp</code>
 and <code>names.dmp</code> files, as below. I couldn’t get the database
 to build without doing that.</p>
 <blockquote>
-<p><strong>NB:</strong> Buildign a database from scratch skips the first
+<p><strong>NB:</strong> Building a database from scratch skips the first
 step in the standard database building
 (e.g. <code>kraken2-build --download-library bacteria --db $k2db</code>)</p>
 </blockquote>
@@ -1909,7 +1909,7 @@ GG2!</p>
 # note that we avoid masking, to maximise content of 16S
 kraken2-build --add-to-library $k2db/library/seqs.fna --db $k2db --no-masking
 
-# full thing takes GG2: ~90 mins  Silva138.2:
+# full thing takes GG2: ~90 mins  Silva138.2: about ~100 mins
 time kraken2-build --build --db $k2db --threads 15
 
 
@@ -1932,37 +1932,84 @@ sequences). <code>Silva</code> is highly curated, thus filtering by
 sequence length did not really impact the dataset size/feasibility.
 Enjoy working with the full dataset!</p>
 <ul>
-<li><code>hash.k2d</code> - ___MB</li>
-<li><code>opts.k2d</code> - ___B</li>
-<li><code>taxo.k2d</code> - ___MB</li>
+<li><code>hash.k2d</code> - 172MB</li>
+<li><code>opts.k2d</code> - 64B</li>
+<li><code>taxo.k2d</code> - 163MB</li>
 </ul>
 <p>Or indeed, run back and forth, forever:</p>
 <ul>
 <li><code>full_db_tar.gz</code> - includes the <code>hash</code>,
 <code>opts</code>, &amp; <code>taxo.k2d</code>, as well as
 <code>nodes</code>, <code>map</code>, &amp; <code>seq.fna</code> files
-used: ____B</li>
+used: 1.01GB</li>
 </ul>
-<p><a href="#r">Still processing… <del>Download here
-(Zenodo.org)</del></a></p>
+<p><a href="https://zenodo.org/records/17738675?preview=1&amp;token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImM4NmViOGIzLTQzNzAtNGRjMi1iNTlmLWM0MmYzNDU1YWNjMCIsImRhdGEiOnt9LCJyYW5kb20iOiI2OGM2NmU1OWEwYjg0NmUxMGMzOTg2ZWViZjRhM2M0OCJ9.rSOPiIiK8rl8Jn1t5qp_UhL0zUhO9JJqnGZ5gL1oJvNLY34Mq937KTekQtTPz7Kw7O22Z8EkgLIoOYCLXDyTVA">Still
+processing… <del>Download here (Zenodo.org)</del></a></p>
+<pre><code>$ tree $k2db
+# &gt;  ├── library
+# &gt;  │   ├── added
+# &gt;  │   └── seqs.fna
+# &gt;  └── taxonomy
+# &gt;  │   ├── names.dmp
+# &gt;  │   ├── nodes.dmp
+# &gt;  │   └── prelim_map.txt
+# &gt;  ├── seqid2taxid.map
+# &gt;  ├── hash.k2d
+# &gt;  ├── opts.k2d
+# &gt;  └── taxo.k2d</code></pre>
 <hr />
 </div>
-<div id="section" class="section level1">
-<h1></h1>
-<p>Honestly, I did <em>try</em> to keep this brief, but it <em>is</em>
-better now that I’ve removed all the haikus</p>
-<!-- ``` -->
-<!-- Archaea;        2       domain   -->
-<!-- Archaea;Aenigmarchaeota;        11084   phylum          123 -->
-<!-- Archaea;Aenigmarchaeota;Aenigmarchaeia; 42913   class           138 -->
-<!-- Archaea;Aenigmarchaeota;Aenigmarchaeia;Aenigmarchaeales;        42914   order           138 -->
-<!-- ``` -->
-<!-- Below we have an example of three model organism entries - one for the brown rat, one for the house fly, and one for _L. lcatis_! "_L.lactis_ isn't a model organism!" you roar from the footpath, but this reproach is torn away under the noise of the traffic. Look at how long the eukaryotic paths are!  -->
-<!-- ``` -->
-<!-- primaryAccession        start   stop    path    organism_name   taxid -->
-<!-- AX664486        3       1987    Eukaryota;Amorphea;Obazoa;Opisthokonta;Holozoa;Choanozoa;Metazoa;Animalia;BCP clade;Bilateria;Protostomia;Ecdysozoa;Arthropoda;Hexapoda;Insecta;Pterygota;Neoptera;Diptera;     Drosophila melanogaster (fruit fly)     47180 -->
-<!-- CS214259        13      1872    Eukaryota;Amorphea;Obazoa;Opisthokonta;Holozoa;Choanozoa;Metazoa;Animalia;BCP clade;Bilateria;Deuterostomia;Chordata;Vertebrata;Gnathostomata;Euteleostomi;Tetrapoda;Mammalia;  Rattus norvegicus (Norway rat)  47087 -->
-<!-- BH771024        532     2058    Bacteria;Bacillota;Bacilli;Lactobacillales;Streptococcaceae;Lactococcus;        Lactococcus lactis subsp. cremoris MG1363       58938 -->
+<div id="appendix" class="section level1">
+<h1>Appendix</h1>
+<div id="considerations" class="section level3">
+<h3>Considerations</h3>
+<p>Things to be aware of if using this data for your work:</p>
+<ul>
+<li>Cake is a made up drug<a href="https://youtu.be/k0tMvxV-GC4?si=yQIageBDkjnXyoTA&amp;t=223">.</a>
+We made completely fake <code>taxid</code>s, so <strong>none of these
+will match NCBI</strong> taxonomy (but none of these 16S databases match
+that anyway).</li>
+<li>We did <strong>not</strong> mask repetitive sequences. Not certain
+whether avoiding DUSTmasking for 16S is “better”, but there is a strong
+&amp; sensible case for avoiding it.</li>
+</ul>
+</div>
+<div id="notes" class="section level3">
+<h3>Notes</h3>
+<p>A number of issues that needed to be taken care of <em>en route</em>
+to the bottom of the page.</p>
+<ul>
+<li>incorrect root (needed to be 1, not 0) (unclear how important this
+actually is)</li>
+<li><code>.dmps</code>: incorrect seps on <code>.dmps</code> (needed to
+be <code>\t|\t</code>)</li>
+<li><code>.dmps</code>: no sep (<code>\t|\t</code>) at <em>end</em> of
+each line in <code>.dmps</code> (the end of a line is traditionally not
+delimited by sep, but by a newline, so go figure.)</li>
+<li><code>.dmps</code>: column 4 in <code>names.dmp</code> needed to be
+lower-case in order to report taxonomies (<code>taxid</code> assignment
+worked fine, but it wouldn’t tell you who they were)</li>
+<li>not clear whether <code>&lt;acc&gt;|kraken:taxid|000000</code> is
+better than <code>kraken:taxid|000000|&lt;acc&gt;</code></li>
+<li>Add haikus, then remove, and then embed in text as acrostics.
+Partially successful.</li>
+</ul>
+<p><br></p>
+</div>
+<div id="links" class="section level3">
+<h3>Links</h3>
+<ul>
+<li>field guidance :: <a href="https://github.com/guyleonard/taxdump_edit?tab=readme-ov-file#new-group" class="uri">https://github.com/guyleonard/taxdump_edit?tab=readme-ov-file#new-group</a></li>
+<li><a href="https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz">taxdump</a>,
+which was the real confusion when starting</li>
+<li><a href="https://sherrillmix.github.io/taxonomizr/reference/getNamesAndNodes.html"><code>taxonomizR</code></a>
+- interface to NCBI’s taxdump, which was the real confusion when
+starting</li>
+<li>some debugging help from openAI’s GPT5.0, notably issues with format
+above. Neither ashamed nor proud.</li>
+</ul>
+<hr />
+</div>
 </div>
 
 

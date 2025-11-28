@@ -316,7 +316,7 @@ From `Silva`, we need to create the following using the `taxid`s we copy from Si
 ## modify the seq headers    -------------------------------------------------
 
       ## small difference in sets does not motivate making a subset DB like in GG2
-        # s_widths <- width(seqs)    #  subset :: 569 - 1180 - 2260
+        # s_widths <- width(seqs)    #  subset lengths :: Q1:569 - median:1180 - Q3:2260
         # length(seqs_w <- seqs[ s_widths > 1000 & s_widths < 1650 ]) #  2,072,388 
       length(seqs_w <- seqs)                                          #  2,224,690
 
@@ -340,7 +340,7 @@ From `Silva`, we need to create the following using the `taxid`s we copy from Si
     ## DB issue: some accessions represent multiple overlapping htis
       # bad_acctors <- unlist(sapply(unique(taxf$primaryAccession), function(aa){ if( sum( taxf$primaryAccession == aa) > 1){aa} }))
       # dplyr::filter(taxf, primaryAccession %in% bad_acctors )
-      # # - solution :: ignore, as the seq-idf relationship remains valid
+      # # - solution :: ignore, as the seq-id relationship remains valid
       
 
 ##   out that!   ---------------------------------------------------------------
@@ -366,7 +366,7 @@ From `Silva`, we need to create the following using the `taxid`s we copy from Si
 
 Having made the species levels & `taxid`s, and output the `nodes.dmp`, `names.dmp`, & `seqs.fna`, we now build the `Kraken2` database. We still need to do a small fix to the end of the `nodes.dmp` and `names.dmp` files, as below. I couldn't get the database to build without doing that.
 
-> __NB:__ Buildign a database from scratch skips the first step in the standard database building (e.g. `kraken2-build --download-library bacteria --db $k2db`)
+> __NB:__ Building a database from scratch skips the first step in the standard database building (e.g. `kraken2-build --download-library bacteria --db $k2db`)
 
 <br>
 
@@ -405,7 +405,7 @@ Now try building the database:    CHECK PRELIMMAP again! compare with GG2!
 # note that we avoid masking, to maximise content of 16S
 kraken2-build --add-to-library $k2db/library/seqs.fna --db $k2db --no-masking
 
-# full thing takes GG2: ~90 mins  Silva138.2:
+# full thing takes GG2: ~90 mins  Silva138.2: about ~100 mins
 time kraken2-build --build --db $k2db --threads 15
 
 
@@ -426,36 +426,61 @@ head -n25  ./query16S.report
 
 Complete, species-level 16S Silva database for Kraken2 (2.2M sequences). `Silva` is highly curated, thus filtering by sequence length did not really impact the dataset size/feasibility. Enjoy working with the full dataset!
 
-  -   `hash.k2d` - ___MB 
-  -   `opts.k2d` - ___B 
-  -   `taxo.k2d` - ___MB 
+  -   `hash.k2d` - 172MB 
+  -   `opts.k2d` - 64B 
+  -   `taxo.k2d` - 163MB 
   
 Or indeed, run back and forth, forever:
 
-  -   `full_db_tar.gz` - includes the `hash`, `opts`, & `taxo.k2d`, as well as `nodes`, `map`, & `seq.fna` files used:  ____B 
+  -   `full_db_tar.gz` - includes the `hash`, `opts`, & `taxo.k2d`, as well as `nodes`, `map`, & `seq.fna` files used:  1.01GB 
 
-[Still processing... ~~Download here (Zenodo.org)~~](#r)
+[Still processing... ~~Download here (Zenodo.org)~~](https://zenodo.org/records/17738675?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImM4NmViOGIzLTQzNzAtNGRjMi1iNTlmLWM0MmYzNDU1YWNjMCIsImRhdGEiOnt9LCJyYW5kb20iOiI2OGM2NmU1OWEwYjg0NmUxMGMzOTg2ZWViZjRhM2M0OCJ9.rSOPiIiK8rl8Jn1t5qp_UhL0zUhO9JJqnGZ5gL1oJvNLY34Mq937KTekQtTPz7Kw7O22Z8EkgLIoOYCLXDyTVA)
 
+```
+$ tree $k2db
+# >  ├── library
+# >  │   ├── added
+# >  │   └── seqs.fna
+# >  └── taxonomy
+# >  │   ├── names.dmp
+# >  │   ├── nodes.dmp
+# >  │   └── prelim_map.txt
+# >  ├── seqid2taxid.map
+# >  ├── hash.k2d
+# >  ├── opts.k2d
+# >  └── taxo.k2d
+```
 
 ---
 
-#
+# Appendix
 
-Honestly, I did _try_ to keep this brief, but it _is_ better now that I've removed all the haikus
+### Considerations
 
-<!-- ``` -->
-<!-- Archaea;        2       domain   -->
-<!-- Archaea;Aenigmarchaeota;        11084   phylum          123 -->
-<!-- Archaea;Aenigmarchaeota;Aenigmarchaeia; 42913   class           138 -->
-<!-- Archaea;Aenigmarchaeota;Aenigmarchaeia;Aenigmarchaeales;        42914   order           138 -->
-<!-- ``` -->
+Things to be aware of if using this data for your work:
+
+  -   Cake is a made up drug[.](https://youtu.be/k0tMvxV-GC4?si=yQIageBDkjnXyoTA&t=223) We made completely fake `taxid`s, so __none of these will match NCBI__ taxonomy (but none of these 16S databases match that anyway).
+  -   We did __not__ mask repetitive sequences. Not certain whether avoiding DUSTmasking for 16S is "better", but there is a strong & sensible case for avoiding it.
 
 
-<!-- Below we have an example of three model organism entries - one for the brown rat, one for the house fly, and one for _L. lcatis_! "_L.lactis_ isn't a model organism!" you roar from the footpath, but this reproach is torn away under the noise of the traffic. Look at how long the eukaryotic paths are!  -->
+### Notes
 
-<!-- ``` -->
-<!-- primaryAccession        start   stop    path    organism_name   taxid -->
-<!-- AX664486        3       1987    Eukaryota;Amorphea;Obazoa;Opisthokonta;Holozoa;Choanozoa;Metazoa;Animalia;BCP clade;Bilateria;Protostomia;Ecdysozoa;Arthropoda;Hexapoda;Insecta;Pterygota;Neoptera;Diptera;     Drosophila melanogaster (fruit fly)     47180 -->
-<!-- CS214259        13      1872    Eukaryota;Amorphea;Obazoa;Opisthokonta;Holozoa;Choanozoa;Metazoa;Animalia;BCP clade;Bilateria;Deuterostomia;Chordata;Vertebrata;Gnathostomata;Euteleostomi;Tetrapoda;Mammalia;  Rattus norvegicus (Norway rat)  47087 -->
-<!-- BH771024        532     2058    Bacteria;Bacillota;Bacilli;Lactobacillales;Streptococcaceae;Lactococcus;        Lactococcus lactis subsp. cremoris MG1363       58938 -->
+A number of issues that needed to be taken care of _en route_ to the bottom of the page.
 
+  -   incorrect root (needed to be 1, not 0) (unclear how important this actually is)
+  -   `.dmps`: incorrect seps on `.dmps` (needed to be `\t|\t`)
+  -   `.dmps`: no sep (`\t|\t`) at _end_ of each line in `.dmps` (the end of a line is traditionally not delimited by sep, but by a newline, so go figure.)
+  -   `.dmps`: column 4 in `names.dmp` needed to be lower-case in order to report taxonomies (`taxid` assignment worked fine, but it wouldn't tell you who they were)
+  -   not clear whether `<acc>|kraken:taxid|000000` is better than `kraken:taxid|000000|<acc>`
+  -   Add haikus, then remove, and then embed in text as acrostics. Partially successful.    
+
+<br> 
+
+### Links 
+
+  -   field guidance :: https://github.com/guyleonard/taxdump_edit?tab=readme-ov-file#new-group
+  -   [taxdump](https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz), which was the real confusion when starting
+  -   [`taxonomizR`](https://sherrillmix.github.io/taxonomizr/reference/getNamesAndNodes.html) - interface to NCBI's taxdump, which was the real confusion when starting
+  -   some debugging help from openAI's GPT5.0, notably issues with format above. Neither ashamed nor proud.
+
+---

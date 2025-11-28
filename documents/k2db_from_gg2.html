@@ -1481,7 +1481,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">make a custom <code>GreenGenes2</code>
 database (v2024.09) for <code>Kraken2</code></h1>
 <h4 class="author"><a href="mailto:jamie.fitzgerald@mtu.ie"><code>jamie.fitzgerald@mtu.ie</code></a></h4>
-<h4 class="date">27 November, 2025</h4>
+<h4 class="date">28 November, 2025</h4>
 
 </div>
 
@@ -2300,7 +2300,8 @@ here (Zenodo.org)</a></p>
 <h1>Appendix</h1>
 <div id="considerations" class="section level3">
 <h3>Considerations</h3>
-<p>Things to be aware of if using this data for your work:</p>
+<p>Things to be aware of if using this data for your work (generally
+same between GG2 / S138.2):</p>
 <ul>
 <li>Cake is a made up drug<a href="https://youtu.be/k0tMvxV-GC4?si=yQIageBDkjnXyoTA&amp;t=223">.</a>
 We made completely fake <code>taxid</code>s, so <strong>none of these
@@ -2321,7 +2322,7 @@ to the bottom of the page.</p>
 <li>incorrect root (needed to be 1, not 0) (unclear how important this
 actually is)</li>
 <li><code>.dmps</code>: incorrect seps on <code>.dmps</code> (needed to
-be </li>
+be <code>\t|\t</code>)</li>
 <li><code>.dmps</code>: no sep (<code>\t|\t</code>) at <em>end</em> of
 each line in <code>.dmps</code> (the end of a line is traditionally not
 delimited by sep, but by a newline, so go figure.)</li>

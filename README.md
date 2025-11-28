@@ -22,16 +22,17 @@ Here we work around those issues for anyone working on 16S assignment:
   - [download __complete K2 db__:](https://zenodo.org/records/17702026?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImY1MTFjNTcwLTYyZGItNGJhZC05NzY5LWE3MGM2Y2JjNDQ4MiIsImRhdGEiOnt9LCJyYW5kb20iOiI2MGI2MDcwMzlmM2FjYTFiNmYwODYxZTVjZjY2M2FjMSJ9.qoBo92vjMaVLUDhLyHMRDoAjm1aO_VLJq_3jPrl_NCGph2L6f7klG6YZR8ejZRQvVzwFs7Go9bkBhsQ_XHtSpw) complete (21M seqs, 1.3GB)
  
 
+
 ### Silva 16S species-level database for Kraken2:
 
   - [__`code` only:__](https://handibles.github.io/documents/k2db_from_silva138.2.html) sparse code for making __species-level__ Kraken2 databases (v138.2).
-  - ~~[download __complete K2 db__:]()~~ ...not yet you dont
+  - [download __complete K2 db__:](https://zenodo.org/records/17738675?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImM4NmViOGIzLTQzNzAtNGRjMi1iNTlmLWM0MmYzNDU1YWNjMCIsImRhdGEiOnt9LCJyYW5kb20iOiI2OGM2NmU1OWEwYjg0NmUxMGMzOTg2ZWViZjRhM2M0OCJ9.rSOPiIiK8rl8Jn1t5qp_UhL0zUhO9JJqnGZ5gL1oJvNLY34Mq937KTekQtTPz7Kw7O22Z8EkgLIoOYCLXDyTVA)
 
 <br> 
 
 __NB:__ both `Silva` and `Greengenes2` use `taxid`s that __do not match NCBI `taxid`s__. The taxonomies (names!) are fine, and if you are not using `taxid`s, this should not matter to you at all. For `Silva 138.2`, we assign new (fake) `taxid`s to all ranks below genus (i.e. species, strains, subspecies, submarines, substrains). With `Greengenes`, this code assigns completely new (fake) `taxid`s. 
 
-See also a list of [other possible issues](https://handibles.github.io/documents/k2db_from_gg2.html#Appendix##Considerations) with this approach, and [feel free to list your own](https://github.com/handibles/handibles.github.io/issues).
+See also a list of [other possible issues](https://handibles.github.io/documents/k2db_from_gg2.html#Appendix##Considerations) with this approach, and [feel free to list your own](https://github.com/handibles/handibles.github.io/issues), like [my concern about reference length...](...)
 
 
 ---
