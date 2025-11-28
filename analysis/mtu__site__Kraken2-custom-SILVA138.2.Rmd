@@ -24,13 +24,15 @@ knitr::opts_chunk$set(
 )
 ```
 
+<br>
 
+### [ ↑ back to main ](https://handibles.github.io)
 
 ---
 
-> `Silva138.2-Kraken2` database: [download here](#download-silva138.2-kraken2-database) / see end of page
+> `Silva138.2-Kraken2` database: [**download here**](#download-silva138.2-kraken2) / see end of page
 
-> `Silva138.2-Kraken2` database: [skip to code only](#r-re-format-silva)
+> `Silva138.2-Kraken2` database: [**skip to code only**](#r-re-format-silva)
 
 ---
         
@@ -39,7 +41,7 @@ knitr::opts_chunk$set(
 
 Here we take the most recent release of the [Silva](https://www.arb-silva.de/) database (v.138.2 Silva; 2.2M sequences, [varying lengths](https://www.arb-silva.de/documentation/release-1382#c4414)), and format it for use explicitly with the Kraken2 classifier. 
 
-See also all the roundabout talk regarding [the GG2 version](./documents/k2db_from_gg2.html), including a basic [intro to building Kraken2 databases](./documents/k2db_from_gg2.html#intro-to-kraken2-databases).
+**See also** all the roundabout talk regarding [the GG2 version](./documents/k2db_from_gg2.html), including a basic [intro to building Kraken2 databases](./documents/k2db_from_gg2.html#intro-to-kraken2-databases).
 
  
 ---
@@ -80,7 +82,7 @@ Each organism's:
   -   a comment (or not): `a` for enironmental; `w` for due update; or blank.
   -   `Silva` DB version number. 
   
-The last two do not matter for this, but `path-taxid-rank` is very helpful. 
+The last two do not matter for this, but `path-taxid-rank` are very helpful. 
 
 
 <br>
@@ -114,18 +116,12 @@ The reference `FASTA` sequences, complete with all-important header:
 
 <br> 
 
-# Build S138.2 database to species-level - tasks
+# Build S138.2 to species-level - tasks
 
 <!-- -   should prob also prepend "x__" guides, as we're going to guess anyway (not implemented) -->
       
-Good to keep in mind, `Kraken2` just wants matching `names.dmp`, `nodes.dmp`, and `seqs.fna`, as per the screenshot below. Note that for `names.dmp` and `nodes.dmp`, each field is delimited by `\t|\t` (tab, pipe, tab), including one at the very end for `nodes.dmp`! We set these when we write out the file from `R`, using the `sep = "..."` arg, and we fix that final field in `bash`.
-
-<br>
-<!-- {#id .class width=1350 height=450px} -->
-![](../vis/names-nodes-seqs.png)
 
 
-<br>
 
 From `Silva`, we need to create the following using the `taxid`s we copy from Silva/create for species level: 
 
@@ -133,9 +129,17 @@ From `Silva`, we need to create the following using the `taxid`s we copy from Si
   -   `nodes.dmp`: `taxid`, `parent_taxid`, `rank`,  and a bunch more unimportant stuff, which we can also fake
   -   `seqs.fna`:   `FASTA`-format DNA sequences, with the header __reformatted__ as: "`>---#1---|kraken:taxid|---#2---`", where `---#1---` is the accession the sequence came with, and `---#2---` is the `taxid` value (either the one copied from `Silva`, or the one we create for species-level assignment). Any additional fields must be separated with a pipe (`|`), and __spaces are not allowed in the header__.
 
+<br>
+
+Good to keep in mind, `Kraken2` just wants matching `names.dmp`, `nodes.dmp`, and `seqs.fna`, as per the screenshot below. Note that for `names.dmp` and `nodes.dmp`, each field is delimited by `\t|\t` (tab, pipe, tab), including one at the very end for `nodes.dmp`! We set these when we write out the file from `R`, using the `sep = "..."` arg, and we fix that final field in `bash`.
+
+<br>
+<!-- {#id .class width=1350 height=450px} -->
+![](../vis/names-nodes-seqs.png)
+
 ---        
 
-# Build S138.2 database to species-level - `code`        
+# Build S138.2 to species-level - `code`        
 
 ## `R`: re-format `Silva`
         
@@ -398,7 +402,7 @@ $ tree $k2db
 # >      └── nodes.dmp
 ```
 
-Now try building the database:    CHECK PRELIMMAP again! compare with GG2! 
+Now try building the database:
 
 ```{bash more_bash}
 
@@ -421,8 +425,11 @@ head -n25  ./query16S.report
 
 ```
 
+---
 
-# Download S138.2-Kraken2 database
+<br>
+
+# Download S138.2-Kraken2
 
 Complete, species-level 16S Silva database for Kraken2 (2.2M sequences). `Silva` is highly curated, thus filtering by sequence length did not really impact the dataset size/feasibility. Enjoy working with the full dataset!
 
@@ -434,7 +441,7 @@ Or indeed, run back and forth, forever:
 
   -   `full_db_tar.gz` - includes the `hash`, `opts`, & `taxo.k2d`, as well as `nodes`, `map`, & `seq.fna` files used:  1.01GB 
 
-[Still processing... ~~Download here (Zenodo.org)~~](https://zenodo.org/records/17738675?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImM4NmViOGIzLTQzNzAtNGRjMi1iNTlmLWM0MmYzNDU1YWNjMCIsImRhdGEiOnt9LCJyYW5kb20iOiI2OGM2NmU1OWEwYjg0NmUxMGMzOTg2ZWViZjRhM2M0OCJ9.rSOPiIiK8rl8Jn1t5qp_UhL0zUhO9JJqnGZ5gL1oJvNLY34Mq937KTekQtTPz7Kw7O22Z8EkgLIoOYCLXDyTVA)
+[Download here (Zenodo.org - might still be processing...)](https://zenodo.org/records/17738675?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImM4NmViOGIzLTQzNzAtNGRjMi1iNTlmLWM0MmYzNDU1YWNjMCIsImRhdGEiOnt9LCJyYW5kb20iOiI2OGM2NmU1OWEwYjg0NmUxMGMzOTg2ZWViZjRhM2M0OCJ9.rSOPiIiK8rl8Jn1t5qp_UhL0zUhO9JJqnGZ5gL1oJvNLY34Mq937KTekQtTPz7Kw7O22Z8EkgLIoOYCLXDyTVA)
 
 ```
 $ tree $k2db

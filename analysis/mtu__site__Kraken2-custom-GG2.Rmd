@@ -24,13 +24,16 @@ knitr::opts_chunk$set(
 )
 ```
 
+<br>
+
+### [ ↑ back to main ](https://handibles.github.io)
 
 
 ---
 
-> Just the code?  - [click here](#r) / end of page
+> `GreenGenes2-Kraken2` database: [**download here**](#download-gg2-kraken2-database) / end of page
 
-> Just download the Kraken2 database?  - [click here](#download-gg2-kraken2-database) / end of page
+> `GreenGenes2-Kraken2` database: [**skip to code only**](#r) / end of page
 
 ---
 
