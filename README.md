@@ -60,12 +60,12 @@ You'd think this would be the first thing to go in, but no.
 
 #### the Centre Log-Ratio transform:
 
+  - subsetting ALDEx2 datasets (expanded - see [here](https://github.com/ggloor/ALDEx_bioc/issues/30#issuecomment-3998022251))
   - CLR transform and pathways (_many_ one-to-many relationships)
   - ALR transform and pathways (a _single_ set of one-to-many relationships)
   - effect of Multiplicative Replacement (`zCompositions::cMultRepl`) in the CLR transform
   - effect of sequencing depth on residuals of linear modelling of CLR values
   - effect of sequencing depth on residuals - employ Lasso on CLR values?
-  - subsetting ALDEx2 datasets (...really don't remember doing this)
 
 
 #### Microbial Diversity:
