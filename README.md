@@ -1,7 +1,17 @@
 <br>
 
-```Jamie.FitzGerald -a- MTU.ie```
-<img src="vis/mtu.png" width="150" align="right" />    
+```Jamie.FitzGerald -a- UCC.ie```
+<img src="vis/ucc.png" width="150" align="right" />    
+
+---
+
+<br> 
+
+## :: `CLI`, `M`icro`b`ial `E`cology, and `R` - `CLIMBER` guide to Microbial Ecology
+
+Updated (!) steps in microbial ecology, focusing on the processing of `2ndGen` short-read `fastq` `metagenomic` (e.g. shotgun) datasets. Work continues on `amplicon` methods (e.g. 16S), and ecology-based analysis of the communities and patterns we find in that data. Almost zero emojis now.
+
+> check out [`climber`](https://handibles.github.io/documents/climber.html)
 
 ---
 
@@ -36,15 +46,6 @@ See also a list of [other possible issues](https://handibles.github.io/documents
 
 ---
 
-<br> 
-
-## :: `CLI`, `M`icro`b`ial `E`cology, and `R` - `CLIMBER` guide to Microbial Ecology
-
-Some basic steps in microbial ecology, focusing on the processing of `2ndGen` Illumina `fastq` data, into either `amplicon` (e.g. 16S) or `metagenomic` (e.g. shotgun) datasets, followed by ecology-based analysis of the communities and patterns we find in that data. Now with less emojis.
-
-> check out [`climber`](https://handibles.github.io/documents/shotgun_assembly.html)
-
----
 
 <br>
 
