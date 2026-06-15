@@ -1867,10 +1867,10 @@ Mad I know.</p>
 to your computer and have a look:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a></span>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co"># 143.239.34.1 is the address for the HPC - we use -o ProxyJump to send the request through garrison.ucc.ie</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co"># XXX.YYY.34.1 is the address for the HPC (replace XXX.YYY with our real prefix) - we use -o ProxyJump to send the request through garrison.ucc.ie</span></span>
 <span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a></span>
 <span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co"># run this command on the server (to get the correct paths etc.), then copy and paste on your local (UNIX) machine</span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -o ProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@143.239.34.1:</span><span class="va">$qc</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_raw_multi/multiqc_report.html ./Desktop/&quot;</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -o ProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">$qc</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_raw_multi/multiqc_report.html ./Desktop/&quot;</span></span>
 <span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a></span>
 <span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co"># in your browser, open the `multiqc_report.html` that has appeared on your desktop </span></span></code></pre></div>
 <p><br></p>
@@ -2126,7 +2126,7 @@ and that we want something powerful and quick (and good).</p>
 <span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="fu">cp</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__krakenStnd_abundances.tsv <span class="va">${KRAK}</span><span class="pp">*</span>/<span class="va">${proj}</span>__krakenStnd_taxonomy.tsv <span class="va">$mat</span>/output/</span>
 <span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a></span>
 <span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">## quick exports </span></span>
-<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="fu">scp</span> <span class="at">-i</span> .ssh/id_file <span class="at">-oProxyJump</span><span class="op">=</span><span class="va">${self}</span>@garrison.ucc.ie <span class="va">${path}</span>/<span class="va">${proj}</span>.tar.gz <span class="va">${self}</span>@143.239.34.1:<span class="va">$basepath</span>/</span></code></pre></div>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="fu">scp</span> <span class="at">-i</span> .ssh/id_file <span class="at">-oProxyJump</span><span class="op">=</span><span class="va">${self}</span>@garrison.ucc.ie <span class="va">${path}</span>/<span class="va">${proj}</span>.tar.gz <span class="va">${self}</span>@XXX.YYY.34.1:<span class="va">$basepath</span>/</span></code></pre></div>
 </div>
 
 
