@@ -1626,13 +1626,15 @@ shotgun short-read sequencing datasets. Bugs/discussion <a href="https://github.
 <h2>0. setup &amp; configure</h2>
 <div id="folders-etc." class="section level3">
 <h3>folders etc.</h3>
-<p>A type of shortcut called a <code>local variable</code> will help us
-keep things tidy. First, “<code>assign</code>” your directory path
-(folder) to a short name, like <code>basepath</code> - now, we can use
-that shortcut to refer to the long name anywhere in our script, by
+<p>A type of nick-name called a <code>local variable</code> will help us
+keep things tidy. First, “<code>assign</code>” a short name like
+<code>basepath</code> to the folder location (a.k.a. <code>path</code>)
+where you want to do your work - now, we can use that short name to
+refer to the long sequence of folder names anywhere in our script, by
 adding <code>$</code> to the variable: <code>$basepath</code>.</p>
-<p>If our folder path ever changes, we only need to update where we
-define the variable. Much easier to read, copy, remember, and type.</p>
+<p>If our folder path ever changes, we only need to update the one place
+where we define the variable - the nickname stays the same. Much easier
+to read, copy, remember, and type.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># should match your ID on HPC/server/garrison</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="va">self</span><span class="op">=</span>cleverusername</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
@@ -2057,9 +2059,9 @@ then QC the outputs:</p>
 <p><br></p>
 <p>A <strong>crucial</strong> step is to check the output from
 <code>trimmomatic</code>, looking at the forward and reverse outputs
-separately. This is especially true when you have more than one sample
-type (e.g. faecal &amp; vaginal), and also when you have challenging
-sample types (vaginal).</p>
+separately to see how trimming has affected them. This is especially
+true when you have more than one sample type (e.g. faecal &amp;
+vaginal), and also when you have challenging sample types (vaginal).</p>
 <p>Luckily, we can use the same <code>FQC/MQC</code> code that we wrote
 above, and simply change the files we want to check:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="co"># remove unpaired stuff</span></span>
@@ -2249,6 +2251,9 @@ be v similar to the above)
 </div>
 <div id="exit-stage-left" class="section level2">
 <h2>exit stage left</h2>
+<p>A speedrun through a specific type of metagenomic processing is done.
+Analysis and exploration are the next steps, and these typically take
+place on a local computer.</p>
 <p>Getting outputs back to the desktop can be daunting, but there are a
 few ways of doing it. <code>scp</code> is a quick go-to (assuming it’s
 available to you).</p>
