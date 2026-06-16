@@ -1624,6 +1624,17 @@ shotgun short-read sequencing datasets. Bugs/discussion <a href="https://github.
 </div>
 <div id="setup-configure" class="section level2">
 <h2>0. setup &amp; configure</h2>
+<div id="crucial-first-step" class="section level3">
+<h3>crucial first step!</h3>
+<p>First, start a <code>screen</code> session. As well as other fancy
+stuff, <code>screen</code> keeps your stuff running, even if you get
+disconnected / crash your computer etc. You can keep coming back to this
+window and continue your work.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># start (or reconnect to) a stable screen session called &quot;femmebio&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="ex">screen</span> <span class="at">-RD</span> femmebio</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># to disconnect, press Ctrl+A, and then D (or just close the window)</span></span></code></pre></div>
+</div>
 <div id="folders-etc." class="section level3">
 <h3>folders etc.</h3>
 <p>A type of nick-name called a <code>local variable</code> will help us
@@ -1635,43 +1646,43 @@ adding <code>$</code> to the variable: <code>$basepath</code>.</p>
 <p>If our folder path ever changes, we only need to update the one place
 where we define the variable - the nickname stays the same. Much easier
 to read, copy, remember, and type.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># should match your ID on HPC/server/garrison</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="va">self</span><span class="op">=</span>cleverusername</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># pick a fancyname</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="va">proj</span><span class="op">=</span>fancy__games_dot_com</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># use $self from above to define your working directory</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="va">basepath</span><span class="op">=</span>/home/<span class="va">$self</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co"># check them - if the $var doesnt exist they&#39;ll print empty</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$self</span> <span class="va">$proj</span> <span class="va">$basepath</span> <span class="va">$thisdoesntexist</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co"># beware of undefined (empty) vars, and vars assigned to typos/nonsense/outdated data</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co"># computer doesn&#39;t know the difference. yet.</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># should match your ID on HPC/server/garrison</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="va">self</span><span class="op">=</span>cleverusername</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># pick a fancyname</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="va">proj</span><span class="op">=</span>fancy__games_dot_com</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co"># use $self from above to define your working directory</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="va">basepath</span><span class="op">=</span>/home/<span class="va">$self</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co"># check them - if the $var doesnt exist they&#39;ll print empty</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$self</span> <span class="va">$proj</span> <span class="va">$basepath</span> <span class="va">$thisdoesntexist</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co"># beware of undefined (empty) vars, and vars assigned to typos/nonsense/outdated data</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co"># computer doesn&#39;t know the difference. yet.</span></span></code></pre></div>
 <p><br></p>
 <p>First, save each folder name as a <code>local variable</code>, then
 pass those <code>local variables</code> to <code>mkdir</code> to
 <em>make</em> those folders <em>real</em>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># using basepath from above</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="va">raw</span><span class="op">=</span><span class="va">$basepath</span>/raws/<span class="va">${proj}</span>__raw</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="va">wrk</span><span class="op">=</span><span class="va">$basepath</span>/work/<span class="va">$proj</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co"># for storing metadata etc.</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="va">mat</span><span class="op">=</span><span class="va">$wrk</span>/Materials</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co"># assumed location, update as necess</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="va">db</span><span class="op">=</span><span class="va">$basepath</span>/db   </span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="va">qc</span><span class="op">=</span><span class="va">$wrk</span>/1__qc</span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="va">filt</span><span class="op">=</span><span class="va">$wrk</span>/2__filt</span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="va">host</span><span class="op">=</span><span class="va">$wrk</span>/3__deacon</span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="va">krak</span><span class="op">=</span><span class="va">$wrk</span>/4__krak2</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">## make folders from vars</span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$raw</span> <span class="va">$wrk</span> <span class="va">$qc</span> <span class="va">$filt</span> <span class="va">$host</span> <span class="va">$krak</span> <span class="va">$mat</span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_raw <span class="va">$qc</span>/<span class="va">${proj}</span>_filt <span class="va">$qc</span>/<span class="va">${proj}</span>_raw_multi <span class="va">$qc</span>/<span class="va">${proj}</span>_filt_multi</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># using basepath from above</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="va">raw</span><span class="op">=</span><span class="va">$basepath</span>/raws/<span class="va">${proj}</span>__raw</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="va">wrk</span><span class="op">=</span><span class="va">$basepath</span>/work/<span class="va">$proj</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># for storing metadata etc.</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="va">mat</span><span class="op">=</span><span class="va">$wrk</span>/Materials</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co"># assumed location, update as necess</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="va">db</span><span class="op">=</span><span class="va">$basepath</span>/db   </span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="va">qc</span><span class="op">=</span><span class="va">$wrk</span>/1__qc</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="va">filt</span><span class="op">=</span><span class="va">$wrk</span>/2__filt</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="va">host</span><span class="op">=</span><span class="va">$wrk</span>/3__deacon</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="va">krak</span><span class="op">=</span><span class="va">$wrk</span>/4__krak2</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">## make folders from vars</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$raw</span> <span class="va">$wrk</span> <span class="va">$qc</span> <span class="va">$filt</span> <span class="va">$host</span> <span class="va">$krak</span> <span class="va">$mat</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_raw <span class="va">$qc</span>/<span class="va">${proj}</span>_filt <span class="va">$qc</span>/<span class="va">${proj}</span>_raw_multi <span class="va">$qc</span>/<span class="va">${proj}</span>_filt_multi</span></code></pre></div>
 <p><br></p>
 </div>
 <div id="programmes-etc." class="section level3">
@@ -1684,83 +1695,83 @@ have to do it once.
 <p><br></p>
 <p><code>mamba</code> (i.e. a quicker version of <code>conda</code>) is
 your new best friend.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># folder for your programmes - adapt as best suits you</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="va">b_path</span><span class="op">=</span>~/bin  </span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$b_path</span> <span class="kw">;</span> <span class="bu">cd</span> <span class="va">$b_path</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co"># first, get mamba (miniforge) and run through installation</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">wget</span> <span class="st">&quot;https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-</span><span class="va">$(</span><span class="fu">uname</span><span class="va">)</span><span class="st">-</span><span class="va">$(</span><span class="fu">uname</span> <span class="at">-m</span><span class="va">)</span><span class="st">.sh&quot;</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">bash</span> Miniforge3-<span class="va">$(</span><span class="fu">uname</span><span class="va">)</span>-<span class="va">$(</span><span class="fu">uname</span> <span class="at">-m</span><span class="va">)</span>.sh</span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co"># install tools needed into fresh environments using mamba. or dont.</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="ex">mamba</span> create <span class="at">-n</span> mgx <span class="at">-c</span> bioconda <span class="at">-c</span> conda-forge trimmomatic fastqc multiqc bowtie2 samtools hostile deacon <span class="at">-y</span>   <span class="co"># 346MB</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="ex">mamba</span> create <span class="at">-n</span> k2 <span class="at">-c</span> bioconda bracken kraken2 krakentools <span class="at">-y</span> <span class="co"># &gt;300MB</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># folder for your programmes - adapt as best suits you</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="va">b_path</span><span class="op">=</span>~/bin  </span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$b_path</span> <span class="kw">;</span> <span class="bu">cd</span> <span class="va">$b_path</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># first, get mamba (miniforge) and run through installation</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="fu">wget</span> <span class="st">&quot;https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-</span><span class="va">$(</span><span class="fu">uname</span><span class="va">)</span><span class="st">-</span><span class="va">$(</span><span class="fu">uname</span> <span class="at">-m</span><span class="va">)</span><span class="st">.sh&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="fu">bash</span> Miniforge3-<span class="va">$(</span><span class="fu">uname</span><span class="va">)</span>-<span class="va">$(</span><span class="fu">uname</span> <span class="at">-m</span><span class="va">)</span>.sh</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co"># install tools needed into fresh environments using mamba. or dont.</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="ex">mamba</span> create <span class="at">-n</span> mgx <span class="at">-c</span> bioconda <span class="at">-c</span> conda-forge trimmomatic fastqc multiqc bowtie2 samtools hostile deacon <span class="at">-y</span>   <span class="co"># 346MB</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="ex">mamba</span> create <span class="at">-n</span> k2 <span class="at">-c</span> bioconda bracken kraken2 krakentools <span class="at">-y</span> <span class="co"># &gt;300MB</span></span></code></pre></div>
 <p>Most programmes have resources they need to get - time to get the
 ones you need (only need to get them once).</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># recall we defined a $db var for databases etc.</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$db</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co"># filtering &amp; trimming - trimmomatic standard reference sequences to be removed</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;&gt;Ampli_Tru_Seq_adapter__MOST_IMPORTANT_FEEEL_ME</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="st">CTGTCTCTTATACACATCT</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="st">&gt;Transposase_Adap__for_tagmentation_1</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="st">TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="st">&gt;Transposase_Adap__for_tagmentation_2</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="st">GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="st">&gt;PCR_primer_index_1</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="st">CAAGCAGAAGACGGCATACGAGATNNNNNNNGTCTCGTGGGCTCGG</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="st">&gt;PCR_primer_index_2</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="st">AATGATACGGCGACCACCGAGATCTACACNNNNNTCGTCGGCAGCGTC</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="st">&gt;TruSeq_single_index_LT_CD_HT__1</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="st">AGATCGGAAGAGCACACGTCTGAACTCCAGTCA</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="st">&gt;TruSeq_single_index_LT_CD_HT__2</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="st">AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="st">&gt;PCR-Free_Prep__Tagm__additional_seq</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="st">ATGTGTATAAGAGACA</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="st">&gt;Ampli_Tru_Seq_adapter__MOST_IMPORTANT_FEEEL_ME__mate_RC</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="st">AGATGTGTATAAGAGACAG</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="st">&gt;Transposase_Adap__for_tagmentation_1.RC:</span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="st">CTGTCTCTTATACACATCTGACGCTGCCGACGA</span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="st">&gt;Transposase_Adap__for_tagmentation_2.RC:</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="st">CTGTCTCTTATACACATCTCCGAGCCCACGAGAC</span></span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="st">&gt;PCR_primer_index_1_RC:</span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="st">CCGAGCCCACGAGACNNNNNNNATCTCGTATGCCGTCTTCTGCTTG</span></span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="st">&gt;PCR_primer_index_2_RC:</span></span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="st">GACGCTGCCGACGANNNNNGTGTAGATCTCGGTGGTCGCCGTATCATT</span></span>
-<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="st">&gt;TruSeq_single_index_LT_CD_HT__1_RC:</span></span>
-<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="st">TGACTGGAGTTCAGACGTGTGCTCTTCCGATCT</span></span>
-<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="st">&gt;TruSeq_single_index_LT_CD_HT__2_RC:</span></span>
-<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="st">ACACTCTTTCCCTACACGACGCTCTTCCGATCT</span></span>
-<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="st">&gt;PCR-Free_Prep__Tagm__additional_seq_RC:</span></span>
-<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="st">TGTCTCTTATACACAT</span></span>
-<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="st">&gt;polG_just_from_PCF_concerns</span></span>
-<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="st">GGGGGGGGGGGGGGGGGGGGGGGG</span></span>
-<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="st">&gt;polA_just_from_PCF_concerns</span></span>
-<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="st">AAAAAAAAAAAAAAAAAAAAAAAA&#39;</span><span class="op">&gt;</span> <span class="va">$mat</span>/fqc_trimmo_ill_ref.fa</span>
-<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a></span>
-<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co"># decontamination - Download validated 3GB human pangenome index (version 0.13.0 or later)</span></span>
-<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="ex">deacon</span> index fetch panhuman-1 <span class="at">-o</span> <span class="va">$db</span>/deacon_db</span>
-<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a></span>
-<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co"># assignment - kraken2 / Bracken</span></span>
-<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co"># get this db!</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co"># recall we defined a $db var for databases etc.</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$db</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co"># filtering &amp; trimming - trimmomatic standard reference sequences to be removed</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;&gt;Ampli_Tru_Seq_adapter__MOST_IMPORTANT_FEEEL_ME</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="st">CTGTCTCTTATACACATCT</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="st">&gt;Transposase_Adap__for_tagmentation_1</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="st">TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="st">&gt;Transposase_Adap__for_tagmentation_2</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="st">GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="st">&gt;PCR_primer_index_1</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="st">CAAGCAGAAGACGGCATACGAGATNNNNNNNGTCTCGTGGGCTCGG</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="st">&gt;PCR_primer_index_2</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="st">AATGATACGGCGACCACCGAGATCTACACNNNNNTCGTCGGCAGCGTC</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="st">&gt;TruSeq_single_index_LT_CD_HT__1</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="st">AGATCGGAAGAGCACACGTCTGAACTCCAGTCA</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="st">&gt;TruSeq_single_index_LT_CD_HT__2</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="st">AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="st">&gt;PCR-Free_Prep__Tagm__additional_seq</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="st">ATGTGTATAAGAGACA</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="st">&gt;Ampli_Tru_Seq_adapter__MOST_IMPORTANT_FEEEL_ME__mate_RC</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="st">AGATGTGTATAAGAGACAG</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="st">&gt;Transposase_Adap__for_tagmentation_1.RC:</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="st">CTGTCTCTTATACACATCTGACGCTGCCGACGA</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="st">&gt;Transposase_Adap__for_tagmentation_2.RC:</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="st">CTGTCTCTTATACACATCTCCGAGCCCACGAGAC</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="st">&gt;PCR_primer_index_1_RC:</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="st">CCGAGCCCACGAGACNNNNNNNATCTCGTATGCCGTCTTCTGCTTG</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="st">&gt;PCR_primer_index_2_RC:</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="st">GACGCTGCCGACGANNNNNGTGTAGATCTCGGTGGTCGCCGTATCATT</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="st">&gt;TruSeq_single_index_LT_CD_HT__1_RC:</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="st">TGACTGGAGTTCAGACGTGTGCTCTTCCGATCT</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="st">&gt;TruSeq_single_index_LT_CD_HT__2_RC:</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="st">ACACTCTTTCCCTACACGACGCTCTTCCGATCT</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="st">&gt;PCR-Free_Prep__Tagm__additional_seq_RC:</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="st">TGTCTCTTATACACAT</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="st">&gt;polG_just_from_PCF_concerns</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="st">GGGGGGGGGGGGGGGGGGGGGGGG</span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="st">&gt;polA_just_from_PCF_concerns</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="st">AAAAAAAAAAAAAAAAAAAAAAAA&#39;</span><span class="op">&gt;</span> <span class="va">$mat</span>/fqc_trimmo_ill_ref.fa</span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co"># decontamination - Download validated 3GB human pangenome index (version 0.13.0 or later)</span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="ex">deacon</span> index fetch panhuman-1 <span class="at">-o</span> <span class="va">$db</span>/deacon_db</span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co"># assignment - kraken2 / Bracken</span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co"># get this db!</span></span></code></pre></div>
 <p>Non-<code>mamba</code>: install <code>basespace</code> from illumina,
 for getting sequence data: firstly, get an Illumina account <a href="https://login.illumina.com">here</a>.</p>
 <pre><code>## record your own username and password as best you see fit:
 &gt; u: _____________
 &gt; p: _____________</code></pre>
 <p>Then get and activate the <code>bs</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="va">bs</span><span class="op">=</span><span class="va">$b_path</span>/bs</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">## if you don&#39;t have it, download the basepspace programme (aka bs) to $bs :</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">wget</span> <span class="st">&quot;https://launch.basespace.illumina.com/CLI/latest/amd64-linux/bs&quot;</span> <span class="at">-O</span> <span class="va">$bs</span> <span class="kw">;</span> <span class="fu">chmod</span> 775 <span class="va">$bs</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co"># follow instructions to complete setup:</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="va">$bs</span> auth</span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co"># more info if you like: (press Q to exit)</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="va">$bs</span> download <span class="at">-h</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="va">bs</span><span class="op">=</span><span class="va">$b_path</span>/bs</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">## if you don&#39;t have it, download the basepspace programme (aka bs) to $bs :</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">wget</span> <span class="st">&quot;https://launch.basespace.illumina.com/CLI/latest/amd64-linux/bs&quot;</span> <span class="at">-O</span> <span class="va">$bs</span> <span class="kw">;</span> <span class="fu">chmod</span> 775 <span class="va">$bs</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># follow instructions to complete setup:</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="va">$bs</span> auth</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co"># more info if you like: (press Q to exit)</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="va">$bs</span> download <span class="at">-h</span></span></code></pre></div>
 <p>Hoo. Nearly there.</p>
 </details>
 <p><br></p>
@@ -1772,13 +1783,8 @@ into a drop-down box like the one below - <strong>ignore these for
 now</strong>.</p>
 <p><br></p>
 </div>
-<div id="two-last-crucial-steps" class="section level3">
-<h3>two last crucial steps!</h3>
-<p>First, start a screen session. Ask about <code>screen</code>!</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># start (or reconnect to) a stable screen session called &quot;femmebio&quot;</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="ex">screen</span> <span class="at">-RD</span> femmebio</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># to disconnect, press Ctrl+A, and then D (or just close the window)</span></span></code></pre></div>
+<div id="final-crucial-step" class="section level3">
+<h3>final crucial step!</h3>
 <p>Last thing - because we used <code>mamba</code> to install our
 programmes above into the <code>mgx</code> environment, we need to
 “activate” the <code>mgx</code> environment before use or the computer
@@ -2253,16 +2259,54 @@ be v similar to the above)
 <h2>exit stage left</h2>
 <p>A speedrun through a specific type of metagenomic processing is done.
 Analysis and exploration are the next steps, and these typically take
-place on a local computer.</p>
-<p>Getting outputs back to the desktop can be daunting, but there are a
-few ways of doing it. <code>scp</code> is a quick go-to (assuming it’s
-available to you).</p>
+place on a local computer. Lets save out our data into a single
+small(er) file:</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a></span>
-<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="fu">mkdir</span> <span class="va">$mat</span>/output</span>
-<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="fu">cp</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__krakenStnd_abundances.tsv <span class="va">${KRAK}</span><span class="pp">*</span>/<span class="va">${proj}</span>__krakenStnd_taxonomy.tsv <span class="va">$mat</span>/output/</span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="fu">mkdir</span> <span class="va">$mat</span>/<span class="va">${proj}</span>_output</span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="fu">cp</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__krakenStnd_abundances.tsv <span class="va">${KRAK}</span><span class="pp">*</span>/<span class="va">${proj}</span>__krakenStnd_taxonomy.tsv <span class="va">$mat</span>/<span class="va">${proj}</span>_output/</span>
 <span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a></span>
-<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a><span class="co">## quick exports </span></span>
-<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="fu">scp</span> <span class="at">-i</span> .ssh/id_file <span class="at">-oProxyJump</span><span class="op">=</span><span class="va">${self}</span>@garrison.ucc.ie <span class="va">${path}</span>/<span class="va">${proj}</span>.tar.gz <span class="va">${self}</span>@XXX.YYY.34.1:<span class="va">$basepath</span>/</span></code></pre></div>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a><span class="co"># compress all that to a single gzipped archive file</span></span>
+<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-czvf</span> <span class="va">${mat}</span>/<span class="va">${proj}</span>_output.tar.gz <span class="va">${mat}</span>/<span class="va">${proj}</span>_output</span></code></pre></div>
+<p><br></p>
+<p>Getting outputs back to the desktop can be daunting, but there are a
+few ways of doing it (e.g. <a href="https://filezilla-project.org/download.php?type=client"><code>FileZilla</code></a>,
+<code>MobaXterm</code>) - <code>scp</code> is a built in go-to.</p>
+<p>In your terminal, run the following: this will (should) print out the
+<em>full</em> command with the correct names (again, using the
+<code>local variables</code> above):</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -i .ssh/id_file -oProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">${mat}</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_output.tar.gz ~/Desktop/&quot;</span></span></code></pre></div>
+<p><br></p>
+<p>The command has a few parts (copy this to <code>plaintext</code> if
+it helps read it):</p>
+<pre><code>&lt;1&gt;  ---&lt; 2 &gt;-------  ------------&lt; 3 &gt;------------------  ---------------&lt; 4 &gt;----------------------  ---&lt; 5 &gt;---
+scp  -i .ssh/id_file  -oProxyJump=${self}@garrison.ucc.ie  ${self}@XXX.YYY.34.1:${mat}/${proj}.tar.gz  ~/Desktop/</code></pre>
+<ol style="list-style-type: decimal">
+<li><code>scp</code>, or “secure copy” - a mix of <code>ssh</code> and
+<code>cp</code></li>
+<li>ID file - your authentication key. Not always necessary</li>
+<li>proxy - all your connections are passing through this computer, for
+great security</li>
+<li>user+IP+path of the file being sent</li>
+<li>location file is going to (presume its on your local computer)</li>
+</ol>
+<p><br></p>
+<p>Because <em>4.</em> has the user+IP+path, and <em>5.</em> just has
+where the file is going, we can tell that this command is supposed to be
+run on your local computer (where the file will be going). <strong>Copy
+and paste</strong> the command above into a new terminal window on your
+<em>local</em> computer (desktop, laptop, etc.):</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="co">## run this from YOUR computer to copy the compressed archive to your desktop </span></span>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="fu">scp</span> <span class="at">-i</span> .ssh/id_file <span class="at">-oProxyJump</span><span class="op">=</span><span class="va">${self}</span>@garrison.ucc.ie <span class="va">${self}</span>@XXX.YYY.34.1:<span class="va">${mat}</span>/<span class="va">${proj}</span>.tar.gz ~/Desktop/</span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a><span class="co"># should be here:</span></span>
+<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a><span class="ex">~/Desktop/</span><span class="va">${proj}</span><span class="ex">.tar.gz</span></span>
+<span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" tabindex="-1"></a><span class="co"># uncompress it again - first go to whereever the file is located :</span></span>
+<span id="cb35-8"><a href="#cb35-8" tabindex="-1"></a><span class="bu">cd</span> ~/Desktop</span>
+<span id="cb35-9"><a href="#cb35-9" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzvf</span> ~/Desktop/<span class="va">${proj}</span>.tar.gz</span></code></pre></div>
+<p>Hopefully this has allll magically worked, and you’re ready to push
+this data into <code>R</code>/<code>excel</code>/<code>GraphPad</code>
+etc. Easy peasy.</p>
 </div>
 
 
