@@ -1714,7 +1714,10 @@ your new best friend.</p>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a></span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co"># install tools needed into fresh environments using mamba. or dont.</span></span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="ex">mamba</span> create <span class="at">-n</span> mgx <span class="at">-c</span> bioconda <span class="at">-c</span> conda-forge trimmomatic fastqc multiqc bowtie2 samtools hostile deacon <span class="at">-y</span>   <span class="co"># 346MB</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="ex">mamba</span> create <span class="at">-n</span> k2 <span class="at">-c</span> bioconda bracken kraken2 krakentools <span class="at">-y</span> <span class="co"># &gt;300MB</span></span></code></pre></div>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="ex">mamba</span> create <span class="at">-n</span> k2 <span class="at">-c</span> bioconda bracken kraken2 krakentools <span class="at">-y</span> <span class="co"># &gt;300MB</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co"># while here, get KrakenTools for later</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/jenniferlu717/KrakenTools.git</span></code></pre></div>
 <p>We can also write our own (simple!) programmes - this one compares
 samples in a folder against a sample list, and reports back any missing
 samples:</p>
@@ -2465,6 +2468,8 @@ partition is available : check with <code>sinfo</code>.</p>
 <span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a><span class="cf">do</span> </span>
 <span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__kraken2.sh <span class="va">$fq</span> <span class="va">$host</span> <span class="va">$krak</span> <span class="va">$db</span>/kraken2_plusPF_langmead</span>
 <span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a><span class="cf">done</span></span></code></pre></div>
+</details>
+<p><br></p>
 <p>Turn one-output-per-sample into a single file with all of the outputs
 (like an excel table: Rows*Columns). We also take this chance to create
 a taxonomy table for all the entries, which will make exploring the data
@@ -2473,16 +2478,20 @@ much easier.</p>
 repo from the excellent <a href="https://github.com/jenniferlu717">Jennifer Lu</a> (author of
 <code>Bracken</code> and co-author of <code>Kraken2</code>) - see the
 installation section above if you havent got them.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="co">## combine</span></span>
-<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a><span class="ex">combine_bracken_outputs.py</span> <span class="at">--files</span> <span class="va">$krak</span>/<span class="pp">*</span>.bracken <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="op">&gt;&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>_krak2_bracken.log                    </span>
-<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a></span>
-<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a><span class="co">## for the taxonomy file, we first convert to MPA format (its just useful)</span></span>
-<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a><span class="ex">kreport2mpa.py</span> <span class="at">-r</span> <span class="va">$krak</span>/<span class="va">${test}</span>_kraken_report <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken_mpa</span>
-<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-h</span> <span class="st">&#39;|s_&#39;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken_mpa <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f</span> 1 <span class="kw">|</span>   <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="kw">|</span> <span class="fu">sed</span> <span class="st">&#39;s/|/\t/g&#39;</span> <span class="op">&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span>
+<div class="sourceCode" id="cb38"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="co">## in case you&#39;ve forgotten, your bin and KrakenTools folder are here:</span></span>
+<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span></span>
+<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span>/KrakenTools</span>
+<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a></span>
+<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a><span class="co">## combine</span></span>
+<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools</span> combine_bracken_outputs.py <span class="at">--files</span> <span class="va">$krak</span>/<span class="pp">*</span>.bracken <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="op">&gt;&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>_krak2_bracken.log                    </span>
 <span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a></span>
-<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a><span class="co">## have a lük</span></span>
-<span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a><span class="fu">less</span> <span class="at">-S</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span></code></pre></div>
-</details>
+<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a><span class="co">## for the taxonomy file, we first convert to MPA format (its just useful)</span></span>
+<span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools</span> kreport2mpa.py <span class="at">-r</span> <span class="va">$krak</span>/<span class="va">${test}</span>_kraken_report <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken_mpa</span>
+<span id="cb38-10"><a href="#cb38-10" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-h</span> <span class="st">&#39;|s_&#39;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken_mpa <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f</span> 1 <span class="kw">|</span>   <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="kw">|</span> <span class="fu">sed</span> <span class="st">&#39;s/|/\t/g&#39;</span> <span class="op">&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span>
+<span id="cb38-11"><a href="#cb38-11" tabindex="-1"></a></span>
+<span id="cb38-12"><a href="#cb38-12" tabindex="-1"></a><span class="co">## have a lük</span></span>
+<span id="cb38-13"><a href="#cb38-13" tabindex="-1"></a><span class="fu">less</span> <span class="at">-S</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span></code></pre></div>
+<p><br></p>
 </div>
 </div>
 <div id="exit-stage-left" class="section level2">
