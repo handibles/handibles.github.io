@@ -9,10 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="jfg, Jun 2026" />
 
 
-<title>metagenomics speed run (v0.4)</title>
+<title>MGX speed run</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1589,30 +1588,26 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">metagenomics speed run (v0.4)</h1>
-<h4 class="author"><a href="mailto:jamie.fitzgerald@ucc.ie"><code>jfg</code></a>, Jun
-2026</h4>
+<h1 class="title toc-ignore">MGX speed run</h1>
+<h3 class="subtitle">climber <code>v0.4</code>, Jun 2026 - <a href="mailto:jamie.fitzgerald@ucc.ie"><code>jfg</code></a></h3>
 
 </div>
 
 
+<!-- UPDATE THE CODE-ONLY  -->
 <!-- > **should we decontam before everything else?** -->
 <!-- Should we process tihngs separately? easy to do for overlord, but at this point? -->
 <!-- consider also Kaiju & CCMetagen & the LLM revolution. Metaphlan, you stay in the bin Metaphlan. Could easily be made into a pipeline script. -->
 <hr />
-<div id="home-getting-started-troubleshooting-code-only" class="section level3">
-<h3><a href="https://handibles.github.io">↞ home</a> | <a href="https://handibles.github.io/documents/approacher.html">↑ getting
-started</a> | <a href="https://handibles.github.io/documents/troubleshooting.html">↑
+<div id="home-server-access-troubleshooting-code-only" class="section level3">
+<h3><a href="https://handibles.github.io">↞ home</a> | <a href="https://handibles.github.io/documents/approacher.html">↑ server
+access</a> | <a href="https://handibles.github.io/documents/troubleshooting.html">↑
 troubleshooting</a> | <a href="https://handibles.github.io/analysis/climber_justthecode.sh">⭬
 <code>code only</code></a></h3>
 <hr />
 </div>
 <div id="hello" class="section level2">
 <h2>hello</h2>
-<blockquote>
-<p>For a quick overview on connecting to the server <a href="https://handibles.github.io/documents/approacher">see
-here</a>.</p>
-</blockquote>
 <p>This is a quick(er), simplified(ier) guide to processing large
 shotgun short-read sequencing datasets. Please forward
 bugs/suggestions/typos <a href="https://github.com/handibles/handibles.github.io/issues">here</a>.</p>
@@ -1729,7 +1724,7 @@ samples:</p>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="co"># -23 : suppress files present in DirCheck / common to both - show just missing samples from samplelist</span></span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="fu">comm</span> <span class="at">-23</span> <span class="dt">\</span></span>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>    <span class="op">&lt;(</span> <span class="fu">sort</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__samples.txt <span class="op">)</span> <span class="dt">\</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="op">&lt;(</span> <span class="fu">ls</span> <span class="va">$DirCheck</span> <span class="kw">|</span> <span class="fu">sed</span> <span class="at">-E</span> <span class="st">&#39;s/_R.*//g&#39;</span> <span class="kw">|</span> <span class="fu">sort</span>  <span class="at">-u</span><span class="op">)</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="op">&lt;(</span> <span class="fu">ls</span> <span class="va">$DirCheck</span> <span class="kw">|</span> <span class="fu">sed</span> <span class="at">-E</span> <span class="st">&#39;s/_(S[0-9]*).*/_\1/g&#39;</span> <span class="kw">|</span> <span class="fu">sort</span>  <span class="at">-u</span><span class="op">)</span></span>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="kw">}</span></span>
 <span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a></span>
@@ -2355,9 +2350,10 @@ are also smaller databases that can be used - see <a href="https://github.com/De
 and <a href="https://benlangmead.github.io/aws-indexes/k2">here</a>.</p>
 <p><br></p>
 <p><strong>Note:</strong> you’ll need to have made (or downloaded)
-matching databases for <code>Kraken2</code> and <code>Bracken</code> -
-see the <code>programmes</code> drop-down box earlier in this
-document.</p>
+matching databases for <code>Kraken2</code> and <code>Bracken</code>, as
+well as downloading <code>KrakenTools</code> from github - see the
+<code>programmes</code> drop-down box earlier in this document for more
+details.</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="co"># activate the conda env wiht kraken2 and bracken installed</span></span>
 <span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="ex">mamba</span> activate k2</span>
 <span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a></span>
@@ -2463,13 +2459,28 @@ partition is available : check with <code>sinfo</code>.</p>
 <span id="cb36-47"><a href="#cb36-47" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot; + + +   sample </span><span class="va">${samp}</span><span class="st"> completed Kraken2/Bracken&quot;</span></span>
 <span id="cb36-48"><a href="#cb36-48" tabindex="-1"></a><span class="cf">fi</span></span></code></pre></div>
 <p>Send to <code>SLURM</code>:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="co"># for fq in $( cat $mat/${proj}__tester.txt );</span></span>
-<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a><span class="cf">for</span> fq <span class="kw">in</span> <span class="va">$(</span> <span class="fu">cat</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__samples.txt <span class="va">)</span><span class="kw">;</span></span>
-<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a><span class="cf">do</span> </span>
-<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__kraken2.sh <span class="va">$fq</span> <span class="va">$host</span> <span class="va">$krak</span> <span class="va">$db</span>/kraken2_plusPF_langmead</span>
-<span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a><span class="cf">done</span></span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="co"># ## put the database to memory once, to avoid multiple re-reads:</span></span>
+<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a><span class="co"># #cp -r $db/kraken2_plusPF_langmead /dev/shm/</span></span>
+<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a><span class="co"># ## use vmtouch to flag (?) it for the computer (&quot;touch it into memory&quot;)? Possibly this step not necess at all</span></span>
+<span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a><span class="co"># #vmtouch -t /dev/shm/k2/*.k2d</span></span>
+<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a><span class="ex">vmtouch</span> <span class="at">-t</span>  <span class="va">$db</span>/kraken2_plusPF_langmead/<span class="pp">*</span>.k2d</span>
+<span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a><span class="co"># for fq in $( cat $mat/${proj}__tester.txt );</span></span>
+<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a><span class="co"># for fq in $( cat $mat/${proj}__samples.txt );</span></span>
+<span id="cb37-11"><a href="#cb37-11" tabindex="-1"></a><span class="cf">for</span> fq <span class="kw">in</span> <span class="va">$(</span> <span class="ex">catcher</span> <span class="va">$krak</span> <span class="va">)</span><span class="kw">;</span></span>
+<span id="cb37-12"><a href="#cb37-12" tabindex="-1"></a><span class="cf">do</span> </span>
+<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__kraken2.sh <span class="va">$fq</span> <span class="va">$host</span> <span class="va">$krak</span> <span class="va">$db</span>/kraken2_plusPF_langmead</span>
+<span id="cb37-14"><a href="#cb37-14" tabindex="-1"></a><span class="cf">done</span></span></code></pre></div>
+<blockquote>
+<p>why does a <code>glob</code> not work here?…</p>
+</blockquote>
 </details>
 <p><br></p>
+<p>We get large <code>oom</code> errors, and consider memory mapping the
+database:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode bash"><code class="sourceCode bash"></code></pre></div>
 <p>Turn one-output-per-sample into a single file with all of the outputs
 (like an excel table: Rows*Columns). We also take this chance to create
 a taxonomy table for all the entries, which will make exploring the data
@@ -2478,19 +2489,22 @@ much easier.</p>
 repo from the excellent <a href="https://github.com/jenniferlu717">Jennifer Lu</a> (author of
 <code>Bracken</code> and co-author of <code>Kraken2</code>) - see the
 installation section above if you havent got them.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="co">## in case you&#39;ve forgotten, your bin and KrakenTools folder are here:</span></span>
-<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span></span>
-<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span>/KrakenTools</span>
-<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a></span>
-<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a><span class="co">## combine</span></span>
-<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools</span> combine_bracken_outputs.py <span class="at">--files</span> <span class="va">$krak</span>/<span class="pp">*</span>.bracken <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="op">&gt;&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>_krak2_bracken.log                    </span>
-<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a></span>
-<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a><span class="co">## for the taxonomy file, we first convert to MPA format (its just useful)</span></span>
-<span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools</span> kreport2mpa.py <span class="at">-r</span> <span class="va">$krak</span>/<span class="va">${test}</span>_kraken_report <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken_mpa</span>
-<span id="cb38-10"><a href="#cb38-10" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-h</span> <span class="st">&#39;|s_&#39;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken_mpa <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f</span> 1 <span class="kw">|</span>   <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="kw">|</span> <span class="fu">sed</span> <span class="st">&#39;s/|/\t/g&#39;</span> <span class="op">&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span>
-<span id="cb38-11"><a href="#cb38-11" tabindex="-1"></a></span>
-<span id="cb38-12"><a href="#cb38-12" tabindex="-1"></a><span class="co">## have a lük</span></span>
-<span id="cb38-13"><a href="#cb38-13" tabindex="-1"></a><span class="fu">less</span> <span class="at">-S</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a><span class="co">## in case you&#39;ve forgotten, your bin and KrakenTools folder are here:</span></span>
+<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span></span>
+<span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span>/KrakenTools</span>
+<span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a><span class="co">## combine</span></span>
+<span id="cb39-6"><a href="#cb39-6" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools/combine_bracken_outputs.py</span> <span class="at">--files</span> <span class="va">$krak</span>/<span class="pp">*</span>.bracken <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="op">&gt;&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>_krak2_bracken.log                    </span>
+<span id="cb39-7"><a href="#cb39-7" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" tabindex="-1"></a><span class="co">## newer way with KTools?</span></span>
+<span id="cb39-9"><a href="#cb39-9" tabindex="-1"></a><span class="co"># $b_path/KrakenTools/combine_kreports.py - -  definitely not what we want!</span></span>
+<span id="cb39-10"><a href="#cb39-10" tabindex="-1"></a></span>
+<span id="cb39-11"><a href="#cb39-11" tabindex="-1"></a><span class="co">## for the taxonomy file, we first convert to MPA format (its just useful)</span></span>
+<span id="cb39-12"><a href="#cb39-12" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools</span> kreport2mpa.py <span class="at">-r</span> <span class="va">$krak</span>/<span class="va">${test}</span>_kraken_report <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken_mpa</span>
+<span id="cb39-13"><a href="#cb39-13" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-h</span> <span class="st">&#39;|s_&#39;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken_mpa <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f</span> 1 <span class="kw">|</span>   <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="kw">|</span> <span class="fu">sed</span> <span class="st">&#39;s/|/\t/g&#39;</span> <span class="op">&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span>
+<span id="cb39-14"><a href="#cb39-14" tabindex="-1"></a></span>
+<span id="cb39-15"><a href="#cb39-15" tabindex="-1"></a><span class="co">## have a lük</span></span>
+<span id="cb39-16"><a href="#cb39-16" tabindex="-1"></a><span class="fu">less</span> <span class="at">-S</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span></code></pre></div>
 <p><br></p>
 </div>
 </div>
@@ -2500,12 +2514,12 @@ installation section above if you havent got them.</p>
 Analysis and exploration are the next steps, and these typically take
 place on a local computer. Lets save out our data into a single
 small(er) file:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a></span>
-<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a><span class="fu">mkdir</span> <span class="va">$mat</span>/<span class="va">${proj}</span>_output</span>
-<span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a><span class="fu">cp</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="va">${KRAK}</span><span class="pp">*</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv <span class="va">$mat</span>/<span class="va">${proj}</span>_output/</span>
-<span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a></span>
-<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a><span class="co"># compress all that to a single gzipped archive file</span></span>
-<span id="cb39-6"><a href="#cb39-6" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-czvf</span> <span class="va">${mat}</span>/<span class="va">${proj}</span>_output.tar.gz <span class="va">${mat}</span>/<span class="va">${proj}</span>_output</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a></span>
+<span id="cb40-2"><a href="#cb40-2" tabindex="-1"></a><span class="fu">mkdir</span> <span class="va">$mat</span>/<span class="va">${proj}</span>_output</span>
+<span id="cb40-3"><a href="#cb40-3" tabindex="-1"></a><span class="fu">cp</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="va">${KRAK}</span><span class="pp">*</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv <span class="va">$mat</span>/<span class="va">${proj}</span>_output/</span>
+<span id="cb40-4"><a href="#cb40-4" tabindex="-1"></a></span>
+<span id="cb40-5"><a href="#cb40-5" tabindex="-1"></a><span class="co"># compress all that to a single gzipped archive file</span></span>
+<span id="cb40-6"><a href="#cb40-6" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-czvf</span> <span class="va">${mat}</span>/<span class="va">${proj}</span>_output.tar.gz <span class="va">${mat}</span>/<span class="va">${proj}</span>_output</span></code></pre></div>
 <p><br></p>
 <p>Getting outputs back to the desktop can be daunting, but there are a
 few ways of doing it (e.g. <a href="https://filezilla-project.org/download.php?type=client"><code>FileZilla</code></a>,
@@ -2513,7 +2527,7 @@ few ways of doing it (e.g. <a href="https://filezilla-project.org/download.php?
 <p>In your terminal, run the following: this will (should) print out the
 <em>full</em> command with the correct names (again, using the
 <code>local variables</code> above):</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -i .ssh/id_file -oProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">${mat}</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_output.tar.gz ~/Desktop/&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -i .ssh/id_file -oProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">${mat}</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_output.tar.gz ~/Desktop/&quot;</span></span></code></pre></div>
 <p><br></p>
 <p>The command has a few parts (copy this to <code>plaintext</code> if
 it helps read it):</p>
@@ -2534,24 +2548,24 @@ where the file is going, we can tell that this command is supposed to be
 run on your local computer (where the file will be going). <strong>Copy
 and paste</strong> the command above into a new terminal window on your
 <em>local</em> computer (desktop, laptop, etc.):</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a></span>
-<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a><span class="co"># run:</span></span>
-<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -i .ssh/id_file -oProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">${mat}</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_output.tar.gz ~/Desktop/&quot;</span></span>
-<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a></span>
-<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a><span class="co">## now, copy, paste, and run the command printed out above! </span></span>
-<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a><span class="co">## follow the instructions it gives you, or record the message if something goes wrong. </span></span>
-<span id="cb42-7"><a href="#cb42-7" tabindex="-1"></a></span>
-<span id="cb42-8"><a href="#cb42-8" tabindex="-1"></a><span class="co">## NB: you might need to replace $proj with the fancyname you picked for your project at the beginning</span></span>
-<span id="cb42-9"><a href="#cb42-9" tabindex="-1"></a><span class="co">## as you might not have assigned that local variable on your local machine</span></span>
-<span id="cb42-10"><a href="#cb42-10" tabindex="-1"></a></span>
-<span id="cb42-11"><a href="#cb42-11" tabindex="-1"></a><span class="co"># should be here (or just check your desktop)</span></span>
-<span id="cb42-12"><a href="#cb42-12" tabindex="-1"></a><span class="ex">~/Desktop/</span><span class="va">${proj}</span><span class="ex">.tar.gz</span></span>
-<span id="cb42-13"><a href="#cb42-13" tabindex="-1"></a></span>
-<span id="cb42-14"><a href="#cb42-14" tabindex="-1"></a><span class="co"># uncompress it again - first go to whereever the file is located :</span></span>
-<span id="cb42-15"><a href="#cb42-15" tabindex="-1"></a><span class="bu">cd</span> ~/Desktop</span>
-<span id="cb42-16"><a href="#cb42-16" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzvf</span> ~/Desktop/<span class="va">${proj}</span>.tar.gz</span>
-<span id="cb42-17"><a href="#cb42-17" tabindex="-1"></a></span>
-<span id="cb42-18"><a href="#cb42-18" tabindex="-1"></a><span class="co"># if its there, you could probably also double click it...</span></span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a></span>
+<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a><span class="co"># run:</span></span>
+<span id="cb43-3"><a href="#cb43-3" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -i .ssh/id_file -oProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">${mat}</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_output.tar.gz ~/Desktop/&quot;</span></span>
+<span id="cb43-4"><a href="#cb43-4" tabindex="-1"></a></span>
+<span id="cb43-5"><a href="#cb43-5" tabindex="-1"></a><span class="co">## now, copy, paste, and run the command printed out above! </span></span>
+<span id="cb43-6"><a href="#cb43-6" tabindex="-1"></a><span class="co">## follow the instructions it gives you, or record the message if something goes wrong. </span></span>
+<span id="cb43-7"><a href="#cb43-7" tabindex="-1"></a></span>
+<span id="cb43-8"><a href="#cb43-8" tabindex="-1"></a><span class="co">## NB: you might need to replace $proj with the fancyname you picked for your project at the beginning</span></span>
+<span id="cb43-9"><a href="#cb43-9" tabindex="-1"></a><span class="co">## as you might not have assigned that local variable on your local machine</span></span>
+<span id="cb43-10"><a href="#cb43-10" tabindex="-1"></a></span>
+<span id="cb43-11"><a href="#cb43-11" tabindex="-1"></a><span class="co"># should be here (or just check your desktop)</span></span>
+<span id="cb43-12"><a href="#cb43-12" tabindex="-1"></a><span class="ex">~/Desktop/</span><span class="va">${proj}</span><span class="ex">.tar.gz</span></span>
+<span id="cb43-13"><a href="#cb43-13" tabindex="-1"></a></span>
+<span id="cb43-14"><a href="#cb43-14" tabindex="-1"></a><span class="co"># uncompress it again - first go to whereever the file is located :</span></span>
+<span id="cb43-15"><a href="#cb43-15" tabindex="-1"></a><span class="bu">cd</span> ~/Desktop</span>
+<span id="cb43-16"><a href="#cb43-16" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzvf</span> ~/Desktop/<span class="va">${proj}</span>.tar.gz</span>
+<span id="cb43-17"><a href="#cb43-17" tabindex="-1"></a></span>
+<span id="cb43-18"><a href="#cb43-18" tabindex="-1"></a><span class="co"># if its there, you could probably also double click it...</span></span></code></pre></div>
 <p>Hopefully this has allll magically worked, and you’re ready to push
 this data into <code>R</code>/<code>excel</code>/<code>GraphPad</code>
 etc. Easy peasy.</p>
