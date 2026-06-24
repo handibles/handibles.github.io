@@ -1,5 +1,5 @@
 
-##   + + +    c l i m b e r    v 0 . 4    16.062026.jfg   ======================
+##   + + +    c l i m b e r    v 0 . 4    24.06.2026.jfg   ======================
 
 
 ## 0 setup and configure  ======================================================
@@ -25,6 +25,7 @@ echo $self $proj $basepath $thisdoesntexist
 
 # beware of undefined (empty) vars, and vars assigned to typos/nonsense/outdated data
 # computer doesn't know the difference. yet.
+
 
 # using basepath from above
 raw=$basepath/raws/${proj}__raw
@@ -59,10 +60,22 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 
 # install tools needed into fresh environments using mamba. or dont.
 mamba create -n mgx -c bioconda -c conda-forge trimmomatic fastqc multiqc bowtie2 samtools hostile deacon -y   # 346MB
-mamba create -n k2 -c bioconda bracken kraken2 krakentools -y # >300MB
+mamba create -n k2 -c bioconda bracken kraken2 krakentools parallel -y # >300MB
 
-# recall we defined a $db var for databases etc.
-lk $db
+# while here, get KrakenTools for later
+git clone https://github.com/jenniferlu717/KrakenTools.git
+
+# catcher to correct missed samples
+
+catcher (){
+  local DirCheck=$1
+  comm -23 \
+    <( sort $mat/${proj}__samples.txt ) \
+    <( ls $DirCheck | sed -E 's/_(S[0-9]*).*/_\1/g' | sort  -u)
+}
+
+
+## references 
 
 # filtering & trimming - trimmomatic standard reference sequences to be removed
 echo '>Ampli_Tru_Seq_adapter__MOST_IMPORTANT_FEEEL_ME
@@ -102,11 +115,19 @@ GGGGGGGGGGGGGGGGGGGGGGGG
 >polA_just_from_PCF_concerns
 AAAAAAAAAAAAAAAAAAAAAAAA'> $mat/fqc_trimmo_ill_ref.fa
 
+
+# recall we defined a $db var for databases etc.
+lk $db
+
 # decontamination - Download validated 3GB human pangenome index (version 0.13.0 or later)
 deacon index fetch panhuman-1 -o $db/deacon_db
 
-# assignment - kraken2 / Bracken
-# get this db!                            ***
+## assignment - kraken2 / Bracken
+cd $db
+wget https://genome-idx.s3.amazonaws.com/kraken/k2_pluspf_20260226.tar.gz
+
+## -Xtract Ze Vucking Files (extract, gzipped, verbose, file-destination: )
+tar -xzvf $db/kraken2_plusPF__langmead $db/k2_pluspf_20260226.tar.gz
 
 
 ## basespace   -----------------------------------------------------------------
@@ -146,10 +167,9 @@ $bs download project --id $projectID --output $raw --log=$f_path/fdl.log &
 ls $raw/*/*gz
 # use that to pull a sample list for constant re-use. always worth doublechecking.
 ls $raw/*/*gz | sed -r 's/.*\/(.*)_L00._R._001.fastq.gz/\1/g' | sort -u > $mat/${proj}__samples.txt
-
   
-##  tidy up - wrangle to remove _L00*_R*_001 from name. 
-time parallel -j 16 "cat $raw/*/{}_L00*_R1_001.fastq.gz >  ${raw}_2/{}_R1.fastq.gz ; cat $raw/*/{}_L00*_R2_001.fastq.gz >  ${raw}_2/{}_R2.fastq.gz" :::: $mat/${proj}__samples.txt
+##  tidy up - join lanes (L001, L002) and remove _L00*_R*_001 from name. 
+time parallel -j 16 "cat $raw/*/{}_L00*_R1_001.fastq.gz >  ${join}/{}_R1.fastq.gz ; cat $raw/*/{}_L00*_R2_001.fastq.gz >  ${join}/{}_R2.fastq.gz" :::: $mat/${proj}__samples.txt
 
   
 ## F / M Q C    ----------------------------------------------------------------
@@ -166,7 +186,7 @@ echo "scp -o ProxyJump=${self}@garrison.ucc.ie ${self}@XXX.YYY.34.1:$qc/${proj}_
 # in your browser, open the `multiqc_report.html` that has appeared on your desktop 
 
 
-## pick a tester
+## pick a tester  ----------------------
 
 # grep looks for the pattern "23-V" in $mat/${proj}__samples.txt and returns those lines, we send it to a new file with ">"
 grep "23-V" $mat/${proj}__samples.txt > $mat/${proj}__tester.txt
@@ -201,61 +221,79 @@ mkdir $filt/unpaired ; mv $filt/*unpaired* $filt/unpaired/
 fastqc -t 12 $filt/*_trimm.fastq.gz -o $qc/${proj}_filt ; multiqc $qc/${proj}_filt -o $qc/${proj}_filt_multi
 
 
-##  ====  < ! >    n o t e  :   n o t   c o m p l e t e d    b e l o w   < ! >   ========
-
-  
 ## 3 remove host sequences  ==========================================================
   
-# downloaded the correct (human) index when we installed
+## tester set:
+# time cat $mat/${proj}__tester.txt | parallel -j 8 "deacon filter -d \
 
-# Deplete short paired reads
-time cat $mat/${proj}__tester.txt | parallel -j 4 "deacon filter -d \
+# ~15mins
+time cat $mat/${proj}__samples.txt | parallel -j 8 "deacon filter -d \
   $db/deacon_db/panhuman-1.k31w15.idx \
   $filt/{}_R1_trimm.fastq.gz \
   $filt/{}_R2_trimm.fastq.gz \
   -o $host/{}_R1_deco.fastq.gz \
   -O $host/{}_R2_deco.fastq.gz \
   --threads 4 > $host/{}_hostless.log 2>&1"
-
   
+# need to see how that looks for the sequences  - FQC/ MQC, or grep -h "Retained" $host/*log 
+sbatch $mat/${proj}__slurm__fqc20.sh $host $qc/host 20
+
+
 ## 4 identify  =================================================================
 
-  ##  Kraken 2  -------------------------------------------------------------
+# activate the conda env with kraken2 and bracken installed
+mamba activate k2
+
+## check variables:
+kr_db=$db/kraken2_plusPF_langmead
+kr_threads=5
+br_r=100      # $br_leng = match the post-host length
+br_l=S
+br_t=50   # counts of microbes! not threads
+
+
+##  Kraken 2  -------------------------------------------------------------
+
+for test in $(cat $mat/${proj}__tester.txt | head -n 1 );
+do
+  echo " + + +   Kraken2 on ${test} -  conf 0.1, min-hits 5, min-qual 20; Bracken read:100bp, count:50"
+  kraken2 --db $kr_db \
+      $host/${test}_R1_deco.fastq.gz \
+      $host/${test}_R2_deco.fastq.gz \
+      --paired \
+      --threads $kr_threads \
+      --confidence 0.1 \
+      --gzip-compressed \
+      --report-zero-counts \
+      --minimum-hit-groups 5 \
+      --minimum-base-quality 20 \
+      --report $krak/${test}_kraken2_report \
+      --unclassified-out $krak/${test}_kraken_unclass# \
+      --output $krak/${test}_kraken_output  
       
-# minimum hit groups and confidence are major 
-while read samp ;
-do time kraken2 --db $lang \
-    $host/${samp}_hostless/${samp}_R1_trimm.clean_1.fastq.gz \
-    $host/${samp}_hostless/${samp}_R2_trimm.clean_2.fastq.gz \
-    --paired \
-    --threads 14 \
-    --confidence 0.1 \
-    --gzip-compressed \
-    --report-zero-counts \
-    --minimum-hit-groups 5 \
-    --minimum-base-quality 20 \
-    --report $krak/${samp}_kraken2_report \
-    --unclassified-out $krak/${samp}_kraken_unclass# \
-    --output $krak/${samp}_kraken_output > $krak/${samp}_krak2.log && echo " + + +   sample ${samp} completed task" >> $krak/kraken_okay.log ; 
-done< $mat/${proj}__samples.txt
-
-kreport2mpa.py -r $krak/${test}_kraken_report -o $krak/${proj}__${test}_kraken_mpa
-grep -h '|s_' $krak/${proj}__${test}_kraken_mpa | cut -f 1 |   sort | uniq | sed 's/|/\t/g' > $krak/${proj}__krakenStnd_taxonomy.tsv
-less -S $krak/${proj}__krakenStnd_taxonomy.tsv
+      kr_stat=$?
+      if [ ! $kr_stat -eq 0 ];
+      then 
+        echo " < ! >    sample ${test} failed Kraken2 :: $kr_stat"
+      else 
+        bracken -d $kr_db/ -i $krak/${test}_kraken2_report -o $krak/${test}.bracken -r $br_r -l $br_l -t $br_t &&
+        echo " + + +   sample ${test} completed Kraken2/Bracken"
+      fi
+      
+done
 
 
-  ##  Bracken  -------------------------------------------------------------
+## combine outputs  ---   < ! >   this part unclear!   < ! >  - - -  < ! >  - - -  < ! >  - - -  < ! >  - - -  < ! >  - - -   
 
-BR_r=150      # $BR_leng
-BR_l=S
-BR_t=50   # counts of microbes! not threads
-for i in $( cat $mat/${proj}__samples.txt );
-do 
-  bracken -d $db/kraken2_standard_langm/ -i $krak/${i}_kraken2_report -o $krak/${i}.bracken -r $BR_r -l $BR_l -t $BR_t ;
-done > $krak/${proj}_krak2_bracken.log                                                               
-combine_bracken_outputs.py --files $krak/*.bracken -o $krak/${proj}__krakenStnd_abundances.tsv >> $krak/${proj}_krak2_bracken.log                                                               
+## combine
+# -?- $b_path/KrakenTools/combine_bracken_outputs.py --files $krak/*.bracken -o $krak/${proj}__kraken2_plusPF_abundances.tsv >> $krak/${proj}_krak2_bracken.log                    
+# -?- $b_path/KrakenTools/combine_kreports.py - -  definitely not what we want!
 
-  
+## for the taxonomy file, we first convert to MPA format (its just useful)
+$b_path/KrakenTools kreport2mpa.py -r $krak/${test}_kraken_report -o $krak/${proj}__${test}_kraken_mpa
+grep -h '|s_' $krak/${proj}__${test}_kraken_mpa | cut -f 1 |   sort | uniq | sed 's/|/\t/g' > $krak/${proj}__kraken2_plusPF_taxonomy.tsv
+
+
 ## - Exit stage   ==============================================================  
   
 mkdir $mat/${proj}_output
