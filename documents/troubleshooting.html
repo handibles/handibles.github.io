@@ -1624,10 +1624,13 @@ the <code>HPC</code> killed those processes. However, because
 and these were picked up by <code>catcher</code>, which is why it looked
 like everything was fine. We can assume that these four files are
 broken, malformed, incomplete - or all of the above.</p>
+<<<<<<< HEAD
 <p>With Kraken2, we can see a similar thing (presumably due to server
 overloading):</p>
 <pre><code>Loading database information...slurmstepd: error: *** JOB 1230249 ON adacompute01 CANCELLED AT 2026-06-23T12:12:04 DUE TO TIME LIMIT ***</code></pre>
 <p><br></p>
+=======
+>>>>>>> refs/remotes/origin/basic_site
 <p>So wat do. We need to get those ID’s, increase the time limit on
 trimmomatic, and re-submit those 4 sample to <code>SLURM</code>. We
 could also consider deleting the incomplete outputs, just to be
@@ -1635,6 +1638,7 @@ safe.</p>
 <p>You can do this manually if you like (it would take about three
 minutes) but for funs’ sake we’re going to script it here (an hour to
 code, +1 second to run).</p>
+<<<<<<< HEAD
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># -L option just returns the logfile - we grab the id from that.</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-l</span> <span class="st">&quot;rror&quot;</span> ./omm__2<span class="pp">*</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co"># </span></span>
@@ -1652,6 +1656,25 @@ code, +1 second to run).</p>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co"># do</span></span>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co"># grep -E &quot;.*__join\/.*_R1.*&quot; $slrm | sed -E &#39;s/.*__join\/(.*)_R1.*/########\1#######/g&#39; ;</span></span>
 <span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co"># done</span></span></code></pre></div>
+=======
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># -L option just returns the logfile - we grab the id from that.</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-l</span> <span class="st">&quot;rror&quot;</span> ./omm__2<span class="pp">*</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># add that grep into a for-loop and search for samople IDs:</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="cf">for</span> slrm <span class="kw">in</span> <span class="va">$(</span> <span class="fu">grep</span> <span class="at">-l</span> <span class="st">&quot;rror&quot;</span> ./omm__2<span class="pp">*</span> <span class="va">)</span> <span class="kw">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="cf">do</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="fu">grep</span> <span class="at">-E</span> <span class="st">&quot;.*__join\/.*_R1.*&quot;</span> <span class="va">$slrm</span> <span class="kw">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">##  no fgood solve yet :(</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co"># # challenge: output is long, with multiple instances of that ID. how to parse properly?</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co"># for slrm in $( grep -l &quot;rror&quot; ./omm__2* ) ;</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co"># do</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co"># grep -E &quot;.*__join\/.*_R1.*&quot; $slrm | sed -E &#39;s/.*__join\/(.*)_R1.*/########\1#######/g&#39; ;</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co"># done</span></span></code></pre></div>
+>>>>>>> refs/remotes/origin/basic_site
 <p>Copy and paste and write it down. No shame.</p>
 <pre><code>vaginal-69-Visit-1_S36
 vaginal-95-Visit-1_S45
@@ -1659,6 +1682,7 @@ vaginal-98-Visit-3_S96
 vaginal-9-Visit-3_S56
 </code></pre>
 <p>First, inspect and then delete the broken versions:</p>
+<<<<<<< HEAD
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># always inspect before deleting something - just to be sure.</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$filt</span>/<span class="dt">{vaginal-69-Visit-1_S36</span><span class="op">,</span><span class="dt">vaginal-95-Visit-1_S45</span><span class="op">,</span><span class="dt">vaginal-98-Visit-3_S96</span><span class="op">,</span><span class="dt">vaginal-9-Visit-3_S56}</span><span class="pp">*</span></span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
@@ -1714,6 +1738,25 @@ this points us towards <code>vmtouch</code>, which a little
 <code>cp -r $lang/*k2d /dev/shm/ ; vmtouch -t /dev/shm/*.k2d</code></li>
 <li></li>
 </ul>
+=======
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># always inspect before deleting something - just to be sure.</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$filt</span>/<span class="dt">{vaginal-69-Visit-1_S36</span><span class="op">,</span><span class="dt">vaginal-95-Visit-1_S45</span><span class="op">,</span><span class="dt">vaginal-98-Visit-3_S96</span><span class="op">,</span><span class="dt">vaginal-9-Visit-3_S56}</span><span class="pp">*</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># Note: the $filt/{a,b,c,d}* format used finds any file matching that format. (a bash trick called globbing)</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co"># if youre sure, delete them!</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fu">rm</span> <span class="va">$filt</span>/<span class="dt">{vaginal-69-Visit-1_S36</span><span class="op">,</span><span class="dt">vaginal-95-Visit-1_S45</span><span class="op">,</span><span class="dt">vaginal-98-Visit-3_S96</span><span class="op">,</span><span class="dt">vaginal-9-Visit-3_S56}</span><span class="pp">*</span></span></code></pre></div>
+<p>then increase the max time limit on the <code>trimmo4.sh</code>
+script</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">nano</span> <span class="va">$mat</span>/ucc__fbio__slurm__trimmo4.sh    <span class="co"># from 20 to 30?</span></span></code></pre></div>
+<p>then refire with <code>SLURM</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="cf">for</span> id <span class="kw">in</span> vaginal-69-Visit-1_S36 vaginal-95-Visit-1_S45 vaginal-98-Visit-3_S96 vaginal-9-Visit-3_S56 <span class="kw">;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="cf">do</span> </span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__trimmo4.sh <span class="va">$id</span> <span class="va">$join</span> <span class="va">$filt</span> <span class="kw">;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="cf">done</span></span></code></pre></div>
+<p>Seems to work fine…</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"></code></pre></div>
+>>>>>>> refs/remotes/origin/basic_site
 </div>
 <div id="connection-issues" class="section level2">
 <h2>connection issues</h2>

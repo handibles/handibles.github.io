@@ -215,7 +215,10 @@ cat $mat/${proj}__tester.txt | parallel -j 4 "trimmomatic PE \
   CROP:105 \
   HEADCROP:19 \
   MINLEN:50 \
+<<<<<<< HEAD
   -validatePairs \ 
+=======
+>>>>>>> refs/remotes/origin/basic_site
   -threads 4 > $filt/{}_trim.log 2>&1"
 
 # remove unpaired stuff
