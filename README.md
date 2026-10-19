@@ -48,7 +48,7 @@ Some basic steps in microbial ecology, focusing on the processing of `2ndGen` Il
 
 <br>
 
-## :: [Own work](https://orcid.org/0000-0003-1060-816X)
+### :: [Own work (`link↑`)](https://orcid.org/0000-0003-1060-816X)
 
 You'd think this would be the first thing to go in, but no.
 
@@ -64,38 +64,38 @@ You'd think this would be the first thing to go in, but no.
   - ALR transform and pathways (a _single_ set of one-to-many relationships)
   - effect of Multiplicative Replacement (`zCompositions::cMultRepl`) in the CLR transform
   - effect of sequencing depth on residuals of linear modelling of CLR values
-  - effect of sequencing depth on residuals - employ Lasso on CLR values?
-  - subsetting ALDEx2 datasets (...really don't remember doing this)
+  - effect of sequencing depth on residuals - use of Lasso on CLR values
+  - subsetting ALDEx2 datasets
 
 
 #### Microbial Diversity:
-
-- all the promised `R` ecology stuff
-- how to choose 40 colours and live
--	subsetting databases to sequence length
+  
+  - all the promised `R` ecology stuff
+  - how to choose 40 colours and live
+  -	subsetting databases to sequence length
 
 
 #### Ecological Diversity:
-
-- personal walkthrough of [Willis' class stuff on rethinking alpha diversity](https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2019.02407/full)
--	Bray-Curtis on transformed data
--	Alpha diversity omnibus testing (KW, F, W)
--	Dirichlet Multinomial Modelling (DMM) and diversity
--	how much does Bracken affect ecological diversity? (not a huge amount)
--	toy diversity in data
--	filtering features: k & A 
--	singleton effects in diversity
+  
+  - personal walkthrough of [Willis' class stuff on rethinking alpha diversity](https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2019.02407/full)
+  -	Bray-Curtis on transformed data
+  -	Alpha diversity omnibus testing (KW, F, W)
+  -	Dirichlet Multinomial Modelling (DMM) and diversity
+  -	how much does Bracken affect ecological diversity? (not a huge amount)
+  -	toy diversity in data
+  -	filtering features: k & A 
+  -	singleton effects in diversity
 
 
 #### `CLI:`
-
--	downloading files from RefSeq/Gene/NCBI/`entrez-direct`
--	downloading files from ENA
--	downloading files from illumina
--	renaming accessions for KMA/CCMetagen
--	hashing over dictionaries in bash for building databases (KMA/CCMetagen)
--	PLS-DA-Kfold.R
-
+  
+  -	downloading files from RefSeq/Gene/NCBI/`entrez-direct`
+  -	downloading files from ENA
+  -	downloading files from illumina
+  -	renaming accessions for KMA/CCMetagen
+  -	hashing over dictionaries in bash for building databases (KMA/CCMetagen)
+  -	PLS-DA-Kfold.R
+  
 ---
 
 <br>

@@ -1,0 +1,67 @@
+
+
+    don't need any of this planning really - the structure is already decided by the layout of the script. 
+
+## ----------------
+
+   1. - bash processing
+   
+      1.0 PrePro 
+      1.1 download (and check)
+      1.2 clean (and check)
+      1.3 decontaminate (and check)
+      
+      Here, need to have a think about what is required or sensible for your own project - more interested in specifics (genomes) or in communities (metagenomes)? Genes more than taxa (pathway analysis)? Below we presume metagenomics and pathway are of interest. 
+   
+      
+      2.0 community estimation
+      2.1 get kraken database
+      2.2.1 identify sequences - probably *kraken2*, CCM, kaiju, centrifuge... 
+      2.2.2 if kraken2, estimate community abundances - *bracken*. Some degree of estimation/scaling required for e.g. CCM
+      
+      
+      3.0 gene mining 
+      
+      ...
+
+
+## ----------------
+
+   2. - R analysis
+   
+   
+   
+##  layout OMM2  ---------------
+
+# omm2 quickstart:
+
+## install
+install dependencies
+
+## run
+
+
+# intro
+
+# structure
+
+# what it does
+
+# proper startup:
+installation requirements, and what for
+state assumptions (paths, names, variables)
+
+# examples
+indispensable quickrun as above
+run with added flourish?
+additional humannisation
+
+
+# post hoc:
+## spreadsheeting
+## testing
+## plotting
+
+
+# apologies
+

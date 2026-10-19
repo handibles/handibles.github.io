@@ -1,0 +1,18 @@
+total 560
+-rw-------@ 1 jfg  staff    11K Jun 24 13:50 climber_justthecode__0.0.sh
+-rw-------@ 1 jfg  staff    10K Jun 25 21:33 climber_justthecode__0.1.sh
+-rw-------@ 1 jfg  staff    10K Jul  1 15:35 climber_justthecode.sh
+drwx------@ 5 jfg  staff   160B Nov 21  2025 excluded_dross
+-rw-------@ 1 jfg  staff     0B Sep 25 12:29 ls_output.txt
+drwx------@ 2 jfg  staff    64B Nov 21  2025 see also tutor material - useful for this
+-rw-------@ 1 jfg  staff    37K Nov 28  2025 ucc__site__Kraken2-custom-GG2.Rmd
+-rw-------@ 1 jfg  staff    19K Nov 28  2025 ucc__site__Kraken2-custom-SILVA138.2.Rmd
+-rw-------@ 1 jfg  staff   2.2K Jun 19 10:19 ucc__site__mermaidery__0.1.mmd
+-rw-------@ 1 jfg  staff   3.4K Jun 26 13:31 ucc__site__shot__approacher_0.1.RMD
+-rwx------@ 1 jfg  staff    43K Aug 11 12:59 ucc__site__shot__assembly_0.4.RMD
+-rw-------@ 1 jfg  staff   3.0K Apr  4  2024 ucc__site__site__analysis__phyloseq.rmd
+-rw-------@ 1 jfg  staff    83K Nov 21  2025 ucc__site__site__assembly__0.1.2.rmd
+-rw-------@ 1 jfg  staff    27K Jun  8 15:07 ucc__site__site__assembly__spreadsheets.rmd
+-rw-------@ 1 jfg  staff   1.8K Aug 11 12:58 ucc__site__site__bash_games_1.1.rmd
+-rw-------@ 1 jfg  staff   1.3K Jun 12 12:46 ucc__site__subchunk__layouting_0.0.rmd
+-rw-------@ 1 jfg  staff   6.6K Jun 23 17:42 ucc__site__subchunk__refiring_0.0.RMD

@@ -1,0 +1,179 @@
+---
+title: "troubleshooting"
+subtitle: "`climber_v0.4`"
+author: "[`jfg`](mailto:jamie.fitzgerald@ucc.ie), `r format(Sys.time(), '%b %Y')`"
+output:
+  html_document:
+    theme: yeti
+    highlight: arrow
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: false
+  word_document:
+    toc: true
+    toc_depth: '2'
+
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding=encoding, output_file='../documents/troubleshooting.html') })
+---
+
+ 
+ 
+```{r set_opts, include=FALSE}
+knitr::opts_chunk$set(
+  eval = FALSE
+)
+```
+
+## re-running samples 
+
+Always good to check your outputs. 
+
+In the `trimmomatic` step of our pipeline, we use our `catcher` function to see whether all samples were processed, and it suggests (because it should return missing samples) that everything went fine (i.e. it does not return any sample IDs.)
+  
+```{bash catch_trimms}
+# again, using the catcher function we wrote in the programme-set up stage. 
+catcher $filt 
+
+# looks okay, but...
+```
+ 
+**However**, __if we check the `slrm` log outputs__ from the `trimmomatic` step, we will see a different story:
+
+
+  
+```{bash grep_trimms}
+# again, using the catcher function we wrote in the programme-set up stage. 
+grep "rror" ./omm__2* 
+```
+
+```
+>  ./omm__2__trimmo4.1228821.slrm:slurmstepd: error: *** JOB 1228821 ON adacompute01 CANCELLED AT 2026-06-16T17:09:21 DUE TO TIME LIMIT ***
+>  ./omm__2__trimmo4.1228846.slrm:slurmstepd: error: *** JOB 1228846 ON adacompute01 CANCELLED AT 2026-06-16T17:36:51 DUE TO TIME LIMIT ***
+>  ./omm__2__trimmo4.1228851.slrm:slurmstepd: error: *** JOB 1228851 ON adacompute01 CANCELLED AT 2026-06-16T17:39:51 DUE TO TIME LIMIT ***
+>  ./omm__2__trimmo4.1228853.slrm:slurmstepd: error: *** JOB 1228853 ON adacompute01 CANCELLED AT 2026-06-16T17:43:21 DUE TO TIME LIMIT ***
+```
+We have a problem - 4 samples (note that the IDs are not mentioned) took took longer than we defined in our `slurm` script, so the `HPC` killed those processes. However, because `trimmomatic` was running, some files _were_ produced, and these were picked up by `catcher`, which is why it looked like everything was fine. We can assume that these four files are broken, malformed, incomplete - or all of the above. 
+
+With Kraken2, we can see a similar thing (presumably due to server overloading):
+
+```
+Loading database information...slurmstepd: error: *** JOB 1230249 ON adacompute01 CANCELLED AT 2026-06-23T12:12:04 DUE TO TIME LIMIT ***
+```
+
+<br>
+
+So wat do. We need to get those ID's, increase the time limit on trimmomatic, and re-submit those 4 sample to `SLURM`. We could also consider deleting the incomplete outputs, just to be safe. 
+
+You can do this manually if you like (it would take about three minutes) but for funs' sake we're going to script it here (an hour to code, +1 second to run). 
+
+
+```{bash get_bad_trimm__UNFINISHED}
+# -L option just returns the logfile - we grab the id from that.
+grep -l "rror" ./omm__2*
+# 
+
+# add that grep into a for-loop and search for samople IDs:
+for slrm in $( grep -l "rror" ./omm__2* ) ;
+do
+  grep -E ".*__join\/.*_R1.*" $slrm ;
+done
+
+
+##  no fgood solve yet :(
+# # challenge: output is long, with multiple instances of that ID. how to parse properly?
+# for slrm in $( grep -l "rror" ./omm__2* ) ;
+# do
+# grep -E ".*__join\/.*_R1.*" $slrm | sed -E 's/.*__join\/(.*)_R1.*/########\1#######/g' ;
+# done
+
+```
+
+
+Copy and paste and write it down. No shame.
+
+```
+vaginal-69-Visit-1_S36
+vaginal-95-Visit-1_S45
+vaginal-98-Visit-3_S96
+vaginal-9-Visit-3_S56
+
+```
+
+First, inspect and then delete the broken versions:
+
+```{bash check_files }
+# always inspect before deleting something - just to be sure.
+lk $filt/{vaginal-69-Visit-1_S36,vaginal-95-Visit-1_S45,vaginal-98-Visit-3_S96,vaginal-9-Visit-3_S56}*
+
+# Note: the $filt/{a,b,c,d}* format used finds any file matching that format. (a bash trick called globbing)
+
+# if youre sure, delete them!
+rm $filt/{vaginal-69-Visit-1_S36,vaginal-95-Visit-1_S45,vaginal-98-Visit-3_S96,vaginal-9-Visit-3_S56}*
+```
+
+then increase the max time limit on the `trimmo4.sh` script
+```{bash nano_trimm}
+nano $mat/ucc__fbio__slurm__trimmo4.sh    # from 20 to 30?
+```
+
+
+then refire with `SLURM`:
+
+```{bash trimm_refire}
+for id in vaginal-69-Visit-1_S36 vaginal-95-Visit-1_S45 vaginal-98-Visit-3_S96 vaginal-9-Visit-3_S56 ; 
+do 
+  sbatch $mat/${proj}__slurm__trimmo4.sh $id $join $filt ; 
+done
+
+```
+
+Seems to work fine... 
+
+<!-- ```{bash} -->
+
+<!-- ``` -->
+
+## `Kraken2` issues - erorr code 137
+
+Computers give different "exit codes" based on the outcomes of a programme. If it succeeds and all is well, the standard exit code is `0`. Anything other than `0` means that something went wrong - but what?! 
+
+<br> 
+
+Solution one is learn an infinite number of non standard exit codes. Solution two is look up your exit code and apply its meanging to your workflow - what is it trying to say? `Kraken2` run at scale across the HPC can give the following exception:
+
+```
+# + + +   Kraken2 on vaginal-95-Visit-1_S45 -  conf 0.1, min-hits 5, min-qual 20; Bracken read:100, count:50
+# Loading database information.../cm/local/apps/slurm/var/spool/job1230409/slurm_script: line 37: 444176 Killed                  kraken2 --db $kr_db $inpath/${samp}_R1_deco.fastq.gz $inpath/${samp}_R2_deco.fastq.gz --paired --threads $kr_threads --confidence 0.1 --gzip-compressed --report-zero-counts --minimum-hit-groups 5 --minimum-base-quality 20 --report $outpat/${samp}_kraken2_report --unclassified-out $outpat/${samp}_kraken_unclass# --output $outpat/${samp}_kraken_output
+# < ! >    sample vaginal-95-Visit-1_S45 failed Kraken2 :: 137
+```
+
+A quick web search links `137` to `out of memory (OOM)` errors - `SLURM` is probably trying to load too many instances of the database into memory, and so is quickly running out of resources to do anythingand kills our job to avoid disaster. `SLURM` is literally designed for this situation, so it's nice that we didn't crash the aircraft - but how do we fix it?
+
+ - consider [memory mapping](https://w3.cs.jmu.edu/kirkpams/OpenCSF/Books/csf/html/MMap.html). too tired ot read through as its actually about C# but idea holds
+ 
+ - consider cp /tmp/shm
+
+Hints from the underhive of `kraken2` issues:
+
+  - https://github.com/DerrickWood/kraken2/issues/719 - deeper dive on `--mm` options, with subsequent [blogpost](https://avilpage.com/2024/07/mastering-kraken2-performance-optimisation.html). this points us towards `vmtouch`, which a little `grep -r` shows is waht we used with OMM: `cp -r $lang/*k2d /dev/shm/ ; vmtouch -t /dev/shm/*.k2d`
+  - 
+  
+
+
+
+## connection issues
+
+> under construction and solutions can go here in the future.
+
+
+## corrupted `FASTQ`
+
+> under construction and solutions can go here in the future.
+
+
+

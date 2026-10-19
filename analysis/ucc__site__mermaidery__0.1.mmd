@@ -1,0 +1,62 @@
+
+
+
+
+##   metagenomics  ===========
+
+flowchart LR
+  fastq1[(sequencing run\ndata)] ==> |download data,\npresumably from illumina| qc1(((fa:fa-arrow-up-right-from-square clean\nsequences)));
+  qc1 ==> tax1(((fa:fa-arrow-up-right-from-square taxonomy\nassignment)));
+  qc1 ==> func1(((fa:fa-link-slash function)));
+  qc1 -.-> mag1(((fa:fa-link-slash Metagenomic\nassembly)));
+  mag1 -.- |figuring this out!| mag1;
+  tax1 ==> comm1 ;
+  func1 ==> comm1 ;
+  comm1 -.- |fa:fa-ban avoid endless\nrecursion\nif at all\npossible...| comm1;
+  comm1(((fa:fa-arrow-up-right-from-square microbial\necology)));
+  comm1 --> R2(diversity);
+  comm1 --> R3(abundance);
+  comm1 --> R4(association);
+  R2 --> R5(visualise);
+  R3 --> R5;
+  R4 --> R5;
+  
+  click qc1 "https://handibles.github.io/climber/documents/shotgun_assembly.html#2_-_quality_control_(_check)";
+  click tax1 "https://handibles.github.io/climber/documents/shotgun_assembly.html#4_-_Microbiome_Community_Profiling";
+  click comm1 "https://handibles.github.io/climber/documents/data_to_R.html";
+  click func1 "https://teagasc.ie/unknowable_truths";
+  click mag1 "https://teagasc.ie/unknowable_truths";
+
+
+##   logging in ===========
+
+flowchart TD
+  A[your computer]  -->|via e.g.\n terminal| K@{ shape: paper-tape, label: "auth_app"}
+  J[your laptop]  -->|via e.g.\n MobaXTerm| K
+  M[even your phone!]  -->|via e.g.\n an ssh app| K
+  K --> |passsword ABC +\nauth_key from app| B(jamie.fitz @ \n garrison.ucc.ie)
+  B -->|user: jamief\npassword ABC| D[cryan_server]
+  B -->|user: jfitz\npassword ABC| E@{ shape: procs, label: "HPC (head node)"}
+  B -->|user: jamief\npasword XYZ| F[SOM_server]
+  B -->|user: ...\npassword ...| L[....]
+
+
+
+
+
+##   HPC start ===========
+
+flowchart TD
+
+    A@{ shape: stadium, label: "the outsde world.." } -....->|successfully connected to\ngarrison.ucc.ie!| B
+    B(jamie.fitz @ \n garrison.ucc.ie) --> E[/the HPC head node :\nalways move from head to a node!\]
+    
+subgraph UCC HPC cluster
+    E ==> N[note - no passwords once inside the HPC...]
+    N ==>|mostly working here!| O[cpuqlong:\nadacompute01-06]
+    O ==>|start / rejoin a screen session: screen -RD ...| S((... ))
+    N -...-> P[cpuqshort ..]
+    N -...-> Q[gpuqlong ...]
+    N -...-> R[...]
+end
+

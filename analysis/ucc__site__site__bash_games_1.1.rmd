@@ -1,0 +1,92 @@
+---
+title: "`bash` games number 1"
+subtitle: "putting commands together, `r format(Sys.time(), '%b %Y')` - [`jfg`](mailto:jamie.fitzgerald@ucc.ie)"
+output:
+  html_document:
+    theme: yeti
+    highlight: arrow
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: false
+  word_document:
+    toc: true
+    toc_depth: '2'
+
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding=encoding, output_file='../documents/bash_games_1.html') })
+---
+  
+  
+```{r set_opts, include=FALSE}
+knitr::opts_chunk$set(
+  eval = FALSE,
+  root.dir = '~'
+)
+```
+
+
+```
+
+cat $mat/ucc__fbio_stats.tsv 
+
+grep "S120" $mat/ucc__fbio_stats.tsv
+
+echo "person 120"   >   person.txt
+
+cut  -f 4  $mat/ucc__fbio_stats.tsv 
+
+cat $mat/ucc__fbio_stats.tsv   |  \
+	grep "S120"    | \
+	cut -f 4    >     person.txt
+
+cut
+
+```
+
+
+## chaining `bash` commands
+
+### ls
+
+Most programs in bash will give you some sort of **output**. For example, the `ls` command will **list** the contents of your current folder:
+
+```{bash ls1, eval = TRUE}
+
+ls
+
+```
+
+But wait - there's more. You can ask for even more detail, by specifying `l` (make it a **l**ong list),  and `h` (make it easy for **h**umans to read). 
+
+```{bash ls2, eval = TRUE}
+
+ls -lh
+
+```
+
+You can easily **save the output** from a programme, into a text file with the '>' command:
+
+```{bash ls3, eval = TRUE}
+
+ls -lh > ls_output.txt
+
+```
+
+<br> 
+
+### `echo and cat` 
+
+Send the saved output from `ls` to the screen using **`cat`**. This programme is used to con**cat**enate files as a new output. 
+
+```{bash cat1, eval = TRUE}
+
+cat ls_output.txt
+
+```
+
+
+A more controlled way to create output / write text files is with `echo`, but because it is an *echo*, we need to tell it what to say. 
