@@ -1759,17 +1759,17 @@ click here if you simply want <code>code only</code> .
 <span id="cb1-137"><a href="#cb1-137" tabindex="-1"></a></span>
 <span id="cb1-138"><a href="#cb1-138" tabindex="-1"></a><span class="co"># make a &quot;large index&quot; database with bowtie2</span></span>
 <span id="cb1-139"><a href="#cb1-139" tabindex="-1"></a><span class="va">bt_threads</span><span class="op">=</span>10</span>
-<span id="cb1-140"><a href="#cb1-140" tabindex="-1"></a><span class="va">bt_db</span><span class="op">=</span><span class="va">$db</span>/bt2_db <span class="kw">;</span> <span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$bt_db</span></span>
+<span id="cb1-140"><a href="#cb1-140" tabindex="-1"></a><span class="va">bt2_db</span><span class="op">=</span><span class="va">$db</span>/bt2_db <span class="kw">;</span> <span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$bt2_db</span></span>
 <span id="cb1-141"><a href="#cb1-141" tabindex="-1"></a></span>
 <span id="cb1-142"><a href="#cb1-142" tabindex="-1"></a><span class="co"># build BT2 database,  no slurm (2hr?) ; dont forget conda activate geno</span></span>
 <span id="cb1-143"><a href="#cb1-143" tabindex="-1"></a><span class="bu">time</span> bowtie2-build <span class="at">--large-index</span> <span class="at">--threads</span> <span class="va">$bt_threads</span> <span class="dt">\</span></span>
 <span id="cb1-144"><a href="#cb1-144" tabindex="-1"></a>  <span class="va">$db</span>/ref/decoy_GCA_000786075.2_hs38d1_genomic.fna.gz,<span class="dt">\</span></span>
 <span id="cb1-145"><a href="#cb1-145" tabindex="-1"></a>  <span class="va">$db</span>/ref/GCF_000001405.40_GRCh38.p14_genomic.fna.gz,<span class="dt">\</span></span>
 <span id="cb1-146"><a href="#cb1-146" tabindex="-1"></a>  <span class="va">$db</span>/ref/GCF_009914755.1_T2T-CHM13v2.0_genomic.fna.gz <span class="dt">\</span></span>
-<span id="cb1-147"><a href="#cb1-147" tabindex="-1"></a>  <span class="va">$bt_db</span>/Hsap_ref</span>
+<span id="cb1-147"><a href="#cb1-147" tabindex="-1"></a>  <span class="va">$bt2_db</span>/Hsap_ref</span>
 <span id="cb1-148"><a href="#cb1-148" tabindex="-1"></a></span>
 <span id="cb1-149"><a href="#cb1-149" tabindex="-1"></a><span class="co"># note each bt2 database consists of 4 .bt2l files, and 2 reverse .bt2l files</span></span>
-<span id="cb1-150"><a href="#cb1-150" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lsh</span> <span class="va">$bt_db</span></span>
+<span id="cb1-150"><a href="#cb1-150" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lsh</span> <span class="va">$bt2_db</span></span>
 <span id="cb1-151"><a href="#cb1-151" tabindex="-1"></a><span class="co">## assignment - kraken2 / Bracken</span></span>
 <span id="cb1-152"><a href="#cb1-152" tabindex="-1"></a><span class="bu">cd</span> <span class="va">$db</span></span>
 <span id="cb1-153"><a href="#cb1-153" tabindex="-1"></a><span class="fu">wget</span> https://genome-idx.s3.amazonaws.com/kraken/k2_pluspf_20260226.tar.gz</span>
@@ -1980,221 +1980,232 @@ click here if you simply want <code>code only</code> .
 <span id="cb1-358"><a href="#cb1-358" tabindex="-1"></a><span class="co">## tester set:</span></span>
 <span id="cb1-359"><a href="#cb1-359" tabindex="-1"></a><span class="co"># time cat $mat/${proj}__tester.txt | parallel -j 8 &quot;deacon filter -d \</span></span>
 <span id="cb1-360"><a href="#cb1-360" tabindex="-1"></a></span>
-<span id="cb1-361"><a href="#cb1-361" tabindex="-1"></a><span class="co"># ~15mins</span></span>
-<span id="cb1-362"><a href="#cb1-362" tabindex="-1"></a><span class="bu">time</span> cat <span class="va">$mat</span>/<span class="va">${proj}</span>__samples.txt <span class="kw">|</span> <span class="ex">parallel</span> <span class="at">-j</span> 8 <span class="st">&quot;deacon filter -d </span><span class="dt">\</span></span>
-<span id="cb1-363"><a href="#cb1-363" tabindex="-1"></a><span class="st">  </span><span class="va">$db</span><span class="st">/deacon_db/panhuman-1.k31w15.idx </span><span class="dt">\</span></span>
-<span id="cb1-364"><a href="#cb1-364" tabindex="-1"></a><span class="st">  </span><span class="va">$filt</span><span class="st">/{}_R1_trimm.fastq.gz </span><span class="dt">\</span></span>
-<span id="cb1-365"><a href="#cb1-365" tabindex="-1"></a><span class="st">  </span><span class="va">$filt</span><span class="st">/{}_R2_trimm.fastq.gz </span><span class="dt">\</span></span>
-<span id="cb1-366"><a href="#cb1-366" tabindex="-1"></a><span class="st">  -o </span><span class="va">$host</span><span class="st">/{}_R1_deco.fastq.gz </span><span class="dt">\</span></span>
-<span id="cb1-367"><a href="#cb1-367" tabindex="-1"></a><span class="st">  -O </span><span class="va">$host</span><span class="st">/{}_R2_deco.fastq.gz </span><span class="dt">\</span></span>
-<span id="cb1-368"><a href="#cb1-368" tabindex="-1"></a><span class="st">  --threads 4 &gt; </span><span class="va">$host</span><span class="st">/{}_hostless.log 2&gt;&amp;1&quot;</span></span>
-<span id="cb1-369"><a href="#cb1-369" tabindex="-1"></a></span>
-<span id="cb1-370"><a href="#cb1-370" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
-<span id="cb1-371"><a href="#cb1-371" tabindex="-1"></a></span>
-<span id="cb1-372"><a href="#cb1-372" tabindex="-1"></a><span class="co">#SBATCH --job-name=deacon6</span></span>
-<span id="cb1-373"><a href="#cb1-373" tabindex="-1"></a><span class="co">#SBATCH --partition=cpuq-long</span></span>
-<span id="cb1-374"><a href="#cb1-374" tabindex="-1"></a><span class="co">#SBATCH --output=omm__3__deacon6.%j.slrm</span></span>
-<span id="cb1-375"><a href="#cb1-375" tabindex="-1"></a><span class="co">#SBATCH --ntasks=6</span></span>
+<span id="cb1-361"><a href="#cb1-361" tabindex="-1"></a><span class="co"># we set this var earlier, when we downloaded databases:</span></span>
+<span id="cb1-362"><a href="#cb1-362" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lsh</span> <span class="va">$bt2_db</span></span>
+<span id="cb1-363"><a href="#cb1-363" tabindex="-1"></a></span>
+<span id="cb1-364"><a href="#cb1-364" tabindex="-1"></a><span class="co"># number of threads</span></span>
+<span id="cb1-365"><a href="#cb1-365" tabindex="-1"></a><span class="va">bt2_threads</span><span class="op">=</span>6</span>
+<span id="cb1-366"><a href="#cb1-366" tabindex="-1"></a></span>
+<span id="cb1-367"><a href="#cb1-367" tabindex="-1"></a><span class="ex">bowtie2</span> <span class="at">-p</span> <span class="va">$bt2_threads</span> <span class="at">-x</span> <span class="va">$bt2_db</span> <span class="at">--mm</span> <span class="at">--seed</span> 2205  <span class="at">--very-sensitive-local</span> <span class="dt">\</span></span>
+<span id="cb1-368"><a href="#cb1-368" tabindex="-1"></a>  <span class="at">-1</span> <span class="va">${filt}</span>/<span class="va">${samp}</span>_trimm_R1.fastq.gz <span class="at">-2</span> <span class="va">${filt}</span>/<span class="va">${samp}</span>_trimm_R2.fastq.gz <span class="dt">\</span></span>
+<span id="cb1-369"><a href="#cb1-369" tabindex="-1"></a>  <span class="at">--al-gz</span> <span class="va">${host}</span>/<span class="va">${samp}</span>_bt2-host-al-pe <span class="at">--al-conc-gz</span> <span class="va">${host}</span>/<span class="va">${samp}</span>_bt2-host-al-pe-conc <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb1-370"><a href="#cb1-370" tabindex="-1"></a></span>
+<span id="cb1-371"><a href="#cb1-371" tabindex="-1"></a>  <span class="ex">samtools</span> view <span class="at">-f</span> 12 <span class="at">-F</span> 256  <span class="at">-</span> <span class="at">-o</span> <span class="at">-</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb1-372"><a href="#cb1-372" tabindex="-1"></a>  <span class="ex">samtools</span> sort <span class="at">-n</span> <span class="at">-m</span> 5G <span class="at">-@</span> <span class="va">$bt2_threads</span> <span class="at">-</span> <span class="at">-o</span> <span class="at">-</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb1-373"><a href="#cb1-373" tabindex="-1"></a>  <span class="ex">samtools</span> fastq <span class="at">-@</span> <span class="va">$bt2_threads</span> <span class="at">-</span> <span class="at">-1</span> <span class="va">$host</span>/<span class="va">${samp}</span>_R1_deco.fastq.gz <span class="at">-2</span> <span class="va">$host</span>/<span class="va">${samp}</span>_R2_deco.fastq.gz <span class="at">-0</span> /dev/null <span class="at">-s</span> /dev/null <span class="at">-n</span> </span>
+<span id="cb1-374"><a href="#cb1-374" tabindex="-1"></a></span>
+<span id="cb1-375"><a href="#cb1-375" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
 <span id="cb1-376"><a href="#cb1-376" tabindex="-1"></a></span>
-<span id="cb1-377"><a href="#cb1-377" tabindex="-1"></a><span class="va">sl_samp</span><span class="op">=</span><span class="va">$1</span></span>
-<span id="cb1-378"><a href="#cb1-378" tabindex="-1"></a><span class="va">sl_indir</span><span class="op">=</span><span class="va">$2</span></span>
-<span id="cb1-379"><a href="#cb1-379" tabindex="-1"></a><span class="va">sl_outdir</span><span class="op">=</span><span class="va">$3</span></span>
-<span id="cb1-380"><a href="#cb1-380" tabindex="-1"></a></span>
-<span id="cb1-381"><a href="#cb1-381" tabindex="-1"></a><span class="bu">source</span> /home/EXT05188/bin/miniforge3/etc/profile.d/conda.sh</span>
-<span id="cb1-382"><a href="#cb1-382" tabindex="-1"></a><span class="ex">conda</span> activate geno</span>
-<span id="cb1-383"><a href="#cb1-383" tabindex="-1"></a></span>
-<span id="cb1-384"><a href="#cb1-384" tabindex="-1"></a><span class="ex">deacon</span> filter <span class="at">-d</span> <span class="dt">\</span></span>
-<span id="cb1-385"><a href="#cb1-385" tabindex="-1"></a>  <span class="va">$db</span>/deacon_db/panhuman-1.k31w15.idx <span class="dt">\</span></span>
-<span id="cb1-386"><a href="#cb1-386" tabindex="-1"></a>  <span class="va">$sl_indir</span>/<span class="va">${sl_samp}</span>_R1_trimm.fastq.gz <span class="dt">\</span></span>
-<span id="cb1-387"><a href="#cb1-387" tabindex="-1"></a>  <span class="va">$sl_indir</span>/<span class="va">${sl_samp}</span>_R2_trimm.fastq.gz <span class="dt">\</span></span>
-<span id="cb1-388"><a href="#cb1-388" tabindex="-1"></a>  <span class="at">-o</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_samp}</span>_R1_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb1-389"><a href="#cb1-389" tabindex="-1"></a>  <span class="at">-O</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_samp}</span>_R2_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb1-390"><a href="#cb1-390" tabindex="-1"></a>  <span class="at">--threads</span> 6 <span class="op">&gt;</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_samp}</span>_hostless.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
+<span id="cb1-377"><a href="#cb1-377" tabindex="-1"></a><span class="co">#SBATCH --job-name=bt2sort6</span></span>
+<span id="cb1-378"><a href="#cb1-378" tabindex="-1"></a><span class="co">#SBATCH --output=omm__3__bt2sort6.%j.slrm</span></span>
+<span id="cb1-379"><a href="#cb1-379" tabindex="-1"></a><span class="co">#SBATCH --time=0-00:20:00</span></span>
+<span id="cb1-380"><a href="#cb1-380" tabindex="-1"></a><span class="co">#SBATCH --ntasks=6</span></span>
+<span id="cb1-381"><a href="#cb1-381" tabindex="-1"></a></span>
+<span id="cb1-382"><a href="#cb1-382" tabindex="-1"></a><span class="va">sl_file</span><span class="op">=</span><span class="va">$1</span></span>
+<span id="cb1-383"><a href="#cb1-383" tabindex="-1"></a><span class="va">sl_indir</span><span class="op">=</span><span class="va">$2</span></span>
+<span id="cb1-384"><a href="#cb1-384" tabindex="-1"></a><span class="va">sl_outdir</span><span class="op">=</span><span class="va">$3</span></span>
+<span id="cb1-385"><a href="#cb1-385" tabindex="-1"></a><span class="va">sl_db</span><span class="op">=</span><span class="va">$4</span></span>
+<span id="cb1-386"><a href="#cb1-386" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb1-387"><a href="#cb1-387" tabindex="-1"></a><span class="va">sl_threads</span><span class="op">=</span>6</span>
+<span id="cb1-388"><a href="#cb1-388" tabindex="-1"></a></span>
+<span id="cb1-389"><a href="#cb1-389" tabindex="-1"></a><span class="bu">source</span> /home/<span class="st">&#39;${self}&#39;</span>/bin/miniforge3/etc/profile.d/conda.sh</span>
+<span id="cb1-390"><a href="#cb1-390" tabindex="-1"></a><span class="ex">conda</span> activate geno</span>
 <span id="cb1-391"><a href="#cb1-391" tabindex="-1"></a></span>
-<span id="cb1-392"><a href="#cb1-392" tabindex="-1"></a></span>
-<span id="cb1-393"><a href="#cb1-393" tabindex="-1"></a><span class="co"># for f in $( cat $mat/${proj}__samples.txt ) ;</span></span>
-<span id="cb1-394"><a href="#cb1-394" tabindex="-1"></a><span class="cf">for</span> f <span class="kw">in</span> <span class="va">$(</span> <span class="fu">cat</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__tester.txt <span class="kw">|</span> <span class="fu">head</span> <span class="at">-4</span> <span class="va">)</span> <span class="kw">;</span></span>
-<span id="cb1-395"><a href="#cb1-395" tabindex="-1"></a><span class="cf">do</span></span>
-<span id="cb1-396"><a href="#cb1-396" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__deacon6.sh <span class="va">$f</span> <span class="va">$filt</span> <span class="va">$host</span> <span class="kw">;</span></span>
-<span id="cb1-397"><a href="#cb1-397" tabindex="-1"></a><span class="cf">done</span></span>
-<span id="cb1-398"><a href="#cb1-398" tabindex="-1"></a></span>
+<span id="cb1-392"><a href="#cb1-392" tabindex="-1"></a><span class="bu">time</span> bowtie2 <span class="at">-p</span> <span class="va">$sl_threads</span> <span class="at">-x</span> <span class="va">$sl_db</span> <span class="at">--mm</span> <span class="at">--seed</span> 2205  <span class="at">--very-sensitive-local</span> <span class="dt">\</span></span>
+<span id="cb1-393"><a href="#cb1-393" tabindex="-1"></a>  <span class="at">-1</span> <span class="va">${sl_indir}</span>/<span class="va">${sl_file}</span>_trimm_R1.fastq.gz <span class="at">-2</span> <span class="va">${sl_indir}</span>/<span class="va">${sl_file}</span>_trimm_R2.fastq.gz <span class="dt">\</span></span>
+<span id="cb1-394"><a href="#cb1-394" tabindex="-1"></a>  <span class="at">--al-gz</span> <span class="va">${sl_outdir}</span>/<span class="va">${sl_file}</span>_bt2-host-al-pe <span class="at">--al-conc-gz</span> <span class="va">${sl_outdir}</span>/<span class="va">${sl_file}</span>_bt2-host-al-pe-conc <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb1-395"><a href="#cb1-395" tabindex="-1"></a></span>
+<span id="cb1-396"><a href="#cb1-396" tabindex="-1"></a>  <span class="ex">samtools</span> view <span class="at">-f</span> 12 <span class="at">-F</span> 256  <span class="at">-</span> <span class="at">-o</span> <span class="at">-</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb1-397"><a href="#cb1-397" tabindex="-1"></a>  <span class="ex">samtools</span> sort <span class="at">-n</span> <span class="at">-m</span> 5G <span class="at">-@</span> <span class="va">$sl_threads</span> <span class="at">-</span> <span class="at">-o</span> <span class="at">-</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb1-398"><a href="#cb1-398" tabindex="-1"></a>  <span class="ex">samtools</span> fastq <span class="at">-@</span> <span class="va">$sl_threads</span> <span class="at">-</span> <span class="at">-1</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_file}</span>_R1_deco.fastq.gz <span class="at">-2</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_file}</span>_R2_deco.fastq.gz <span class="at">-0</span> /dev/null <span class="at">-s</span> /dev/null <span class="at">-n</span> <span class="kw">;</span></span>
 <span id="cb1-399"><a href="#cb1-399" tabindex="-1"></a></span>
-<span id="cb1-400"><a href="#cb1-400" tabindex="-1"></a><span class="co"># very quick check of outputs</span></span>
-<span id="cb1-401"><a href="#cb1-401" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-h</span> <span class="st">&quot;Retained&quot;</span> <span class="va">$host</span>/<span class="pp">*</span>log</span>
-<span id="cb1-402"><a href="#cb1-402" tabindex="-1"></a></span>
-<span id="cb1-403"><a href="#cb1-403" tabindex="-1"></a><span class="co">## oof! keep ~95% gut, keep 3-5% vaginal</span></span>
-<span id="cb1-404"><a href="#cb1-404" tabindex="-1"></a></span>
-<span id="cb1-405"><a href="#cb1-405" tabindex="-1"></a><span class="co"># need to see how that looks for the sequences  - FQC/ MQC</span></span>
-<span id="cb1-406"><a href="#cb1-406" tabindex="-1"></a><span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__fqc20.sh <span class="va">$host</span> <span class="va">$qc</span>/host 20</span>
+<span id="cb1-400"><a href="#cb1-400" tabindex="-1"></a></span>
+<span id="cb1-401"><a href="#cb1-401" tabindex="-1"></a><span class="co"># for f in $( cat $mat/${proj}__samples.txt ) ;</span></span>
+<span id="cb1-402"><a href="#cb1-402" tabindex="-1"></a><span class="cf">for</span> f <span class="kw">in</span> <span class="va">$(</span> <span class="fu">cat</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__tester.txt <span class="kw">|</span> <span class="fu">head</span> <span class="at">-4</span> <span class="va">)</span> <span class="kw">;</span></span>
+<span id="cb1-403"><a href="#cb1-403" tabindex="-1"></a><span class="cf">do</span></span>
+<span id="cb1-404"><a href="#cb1-404" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__bowtie2-6.sh <span class="va">$f</span> <span class="va">$filt</span> <span class="va">$host</span> <span class="va">$bt2_db</span> <span class="kw">;</span></span>
+<span id="cb1-405"><a href="#cb1-405" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb1-406"><a href="#cb1-406" tabindex="-1"></a></span>
 <span id="cb1-407"><a href="#cb1-407" tabindex="-1"></a></span>
-<span id="cb1-408"><a href="#cb1-408" tabindex="-1"></a><span class="ex">fastqc</span> <span class="at">-q</span> <span class="at">-t</span> 16 <span class="va">$host</span>/<span class="pp">*</span>_deco.fastq.gz <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="kw">;</span> <span class="ex">multiqc</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host_multi</span>
-<span id="cb1-409"><a href="#cb1-409" tabindex="-1"></a><span class="co"># enter this on your session with the terminal, so that the variables fill it out for you</span></span>
-<span id="cb1-410"><a href="#cb1-410" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -o ProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">$qc</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_host_multi/multiqc_report.html ./Desktop/&quot;</span></span>
-<span id="cb1-411"><a href="#cb1-411" tabindex="-1"></a><span class="ex">knitr::include_graphics</span><span class="er">(</span><span class="st">&quot;../vis/fqc_mqc_screenshots/postHost_adapterContent.png&quot;</span><span class="kw">)</span></span>
-<span id="cb1-412"><a href="#cb1-412" tabindex="-1"></a><span class="co"># activate the conda env with kraken2 and bracken installed</span></span>
-<span id="cb1-413"><a href="#cb1-413" tabindex="-1"></a><span class="ex">mamba</span> activate k2</span>
-<span id="cb1-414"><a href="#cb1-414" tabindex="-1"></a></span>
-<span id="cb1-415"><a href="#cb1-415" tabindex="-1"></a><span class="co">## check variables:</span></span>
-<span id="cb1-416"><a href="#cb1-416" tabindex="-1"></a><span class="va">kr_db</span><span class="op">=</span><span class="va">$db</span>/kraken2_plusPF_langmead</span>
-<span id="cb1-417"><a href="#cb1-417" tabindex="-1"></a><span class="va">kr_threads</span><span class="op">=</span>5</span>
-<span id="cb1-418"><a href="#cb1-418" tabindex="-1"></a><span class="va">br_r</span><span class="op">=</span>100      <span class="co"># $br_leng = match the post-host length</span></span>
-<span id="cb1-419"><a href="#cb1-419" tabindex="-1"></a><span class="va">br_l</span><span class="op">=</span>S</span>
-<span id="cb1-420"><a href="#cb1-420" tabindex="-1"></a><span class="va">br_t</span><span class="op">=</span>50   <span class="co"># counts of microbes! not threads</span></span>
-<span id="cb1-421"><a href="#cb1-421" tabindex="-1"></a></span>
-<span id="cb1-422"><a href="#cb1-422" tabindex="-1"></a></span>
-<span id="cb1-423"><a href="#cb1-423" tabindex="-1"></a><span class="co">## apply for use with --memory-mapping, to avoid OOM</span></span>
-<span id="cb1-424"><a href="#cb1-424" tabindex="-1"></a><span class="ex">vmtouch</span> <span class="at">-t</span>  <span class="va">$kr_db</span>/<span class="pp">*</span>.k2d</span>
+<span id="cb1-408"><a href="#cb1-408" tabindex="-1"></a><span class="co"># very quick check of outputs</span></span>
+<span id="cb1-409"><a href="#cb1-409" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-h</span> <span class="st">&quot;Retained&quot;</span> <span class="va">$host</span>/<span class="pp">*</span>log</span>
+<span id="cb1-410"><a href="#cb1-410" tabindex="-1"></a></span>
+<span id="cb1-411"><a href="#cb1-411" tabindex="-1"></a><span class="co">## oof! keep ~95% gut, keep 3-5% vaginal</span></span>
+<span id="cb1-412"><a href="#cb1-412" tabindex="-1"></a></span>
+<span id="cb1-413"><a href="#cb1-413" tabindex="-1"></a><span class="co"># need to see how that looks for the sequences  - FQC/ MQC</span></span>
+<span id="cb1-414"><a href="#cb1-414" tabindex="-1"></a><span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__fqc20.sh <span class="va">$host</span> <span class="va">$qc</span>/host 20</span>
+<span id="cb1-415"><a href="#cb1-415" tabindex="-1"></a></span>
+<span id="cb1-416"><a href="#cb1-416" tabindex="-1"></a><span class="ex">fastqc</span> <span class="at">-q</span> <span class="at">-t</span> 16 <span class="va">$host</span>/<span class="pp">*</span>_R1_deco.fastq.gz <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="kw">;</span> <span class="ex">multiqc</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host_multi_R1</span>
+<span id="cb1-417"><a href="#cb1-417" tabindex="-1"></a></span>
+<span id="cb1-418"><a href="#cb1-418" tabindex="-1"></a><span class="ex">fastqc</span> <span class="at">-q</span> <span class="at">-t</span> 16 <span class="va">$host</span>/<span class="pp">*</span>_R2_deco.fastq.gz <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="kw">;</span> <span class="ex">multiqc</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host_multi_R2</span>
+<span id="cb1-419"><a href="#cb1-419" tabindex="-1"></a><span class="co"># enter this on your session with the terminal, so that the variables fill it out for you</span></span>
+<span id="cb1-420"><a href="#cb1-420" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -o ProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">$qc</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_host_multi_R1/multiqc_report.html ./Desktop/multiqc_report_filtR1.html&quot;</span></span>
+<span id="cb1-421"><a href="#cb1-421" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -o ProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">$qc</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_host_multi_R2/multiqc_report.html ./Desktop/multiqc_report_filtR2.html&quot;</span></span>
+<span id="cb1-422"><a href="#cb1-422" tabindex="-1"></a><span class="ex">knitr::include_graphics</span><span class="er">(</span><span class="st">&quot;../vis/fqc_mqc_screenshots/postHost_adapterContent.png&quot;</span><span class="kw">)</span></span>
+<span id="cb1-423"><a href="#cb1-423" tabindex="-1"></a><span class="co"># activate the conda env with kraken2 and bracken installed</span></span>
+<span id="cb1-424"><a href="#cb1-424" tabindex="-1"></a><span class="ex">mamba</span> activate k2</span>
 <span id="cb1-425"><a href="#cb1-425" tabindex="-1"></a></span>
-<span id="cb1-426"><a href="#cb1-426" tabindex="-1"></a></span>
-<span id="cb1-427"><a href="#cb1-427" tabindex="-1"></a><span class="co">##  Kraken2  -------------------------------------------------------------</span></span>
-<span id="cb1-428"><a href="#cb1-428" tabindex="-1"></a></span>
-<span id="cb1-429"><a href="#cb1-429" tabindex="-1"></a><span class="co">## could prb mem-map all samples in on ego, then parallel bracken </span></span>
-<span id="cb1-430"><a href="#cb1-430" tabindex="-1"></a><span class="co">## ~~skip the loop altogether~~ can define outputs via glob, mixes samples. </span></span>
-<span id="cb1-431"><a href="#cb1-431" tabindex="-1"></a><span class="co">## avoiding these outputs, as we rarely look at them.</span></span>
-<span id="cb1-432"><a href="#cb1-432" tabindex="-1"></a><span class="co">#  --unclassified-out $krak/${test}_kraken_unclass# \</span></span>
-<span id="cb1-433"><a href="#cb1-433" tabindex="-1"></a><span class="co">#  --output $krak/${test}_kraken_output  </span></span>
-<span id="cb1-434"><a href="#cb1-434" tabindex="-1"></a></span>
-<span id="cb1-435"><a href="#cb1-435" tabindex="-1"></a><span class="bu">time</span> for test in <span class="va">$(</span><span class="fu">cat</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__samples.txt <span class="va">)</span><span class="kw">;</span></span>
-<span id="cb1-436"><a href="#cb1-436" tabindex="-1"></a><span class="cf">do</span></span>
+<span id="cb1-426"><a href="#cb1-426" tabindex="-1"></a><span class="co">## check variables:</span></span>
+<span id="cb1-427"><a href="#cb1-427" tabindex="-1"></a><span class="va">kr_db</span><span class="op">=</span><span class="va">$db</span>/kraken2_plusPF_langmead</span>
+<span id="cb1-428"><a href="#cb1-428" tabindex="-1"></a><span class="va">kr_threads</span><span class="op">=</span>5</span>
+<span id="cb1-429"><a href="#cb1-429" tabindex="-1"></a><span class="va">br_r</span><span class="op">=</span>100      <span class="co"># $br_leng = match the post-host length</span></span>
+<span id="cb1-430"><a href="#cb1-430" tabindex="-1"></a><span class="va">br_l</span><span class="op">=</span>S</span>
+<span id="cb1-431"><a href="#cb1-431" tabindex="-1"></a><span class="va">br_t</span><span class="op">=</span>50   <span class="co"># counts of microbes! not threads</span></span>
+<span id="cb1-432"><a href="#cb1-432" tabindex="-1"></a></span>
+<span id="cb1-433"><a href="#cb1-433" tabindex="-1"></a></span>
+<span id="cb1-434"><a href="#cb1-434" tabindex="-1"></a><span class="co">## apply for use with --memory-mapping, to avoid OOM</span></span>
+<span id="cb1-435"><a href="#cb1-435" tabindex="-1"></a><span class="ex">vmtouch</span> <span class="at">-t</span>  <span class="va">$kr_db</span>/<span class="pp">*</span>.k2d</span>
+<span id="cb1-436"><a href="#cb1-436" tabindex="-1"></a></span>
 <span id="cb1-437"><a href="#cb1-437" tabindex="-1"></a></span>
-<span id="cb1-438"><a href="#cb1-438" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot; + + +   Kraken2 on </span><span class="va">${test}</span><span class="st"> -  conf 0.1, min-hits 5, min-qual 20 (mem-mapp)&quot;</span></span>
-<span id="cb1-439"><a href="#cb1-439" tabindex="-1"></a><span class="ex">kraken2</span> <span class="at">--db</span> <span class="va">$kr_db</span> <span class="dt">\</span></span>
-<span id="cb1-440"><a href="#cb1-440" tabindex="-1"></a>  <span class="va">$host</span>/<span class="va">${test}</span>_R1_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb1-441"><a href="#cb1-441" tabindex="-1"></a>  <span class="va">$host</span>/<span class="va">${test}</span>_R2_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb1-442"><a href="#cb1-442" tabindex="-1"></a>  <span class="at">--paired</span> <span class="dt">\</span></span>
-<span id="cb1-443"><a href="#cb1-443" tabindex="-1"></a>  <span class="at">--threads</span> <span class="va">$kr_threads</span> <span class="dt">\</span></span>
-<span id="cb1-444"><a href="#cb1-444" tabindex="-1"></a>  <span class="at">--confidence</span> 0.1 <span class="dt">\</span></span>
-<span id="cb1-445"><a href="#cb1-445" tabindex="-1"></a>  <span class="at">--memory-mapping</span> <span class="dt">\</span></span>
-<span id="cb1-446"><a href="#cb1-446" tabindex="-1"></a>  <span class="at">--gzip-compressed</span> <span class="dt">\</span></span>
-<span id="cb1-447"><a href="#cb1-447" tabindex="-1"></a>  <span class="at">--report-zero-counts</span> <span class="dt">\</span></span>
-<span id="cb1-448"><a href="#cb1-448" tabindex="-1"></a>  <span class="at">--minimum-hit-groups</span> 5 <span class="dt">\</span></span>
-<span id="cb1-449"><a href="#cb1-449" tabindex="-1"></a>  <span class="at">--minimum-base-quality</span> 20 <span class="dt">\</span></span>
-<span id="cb1-450"><a href="#cb1-450" tabindex="-1"></a>  <span class="at">--report</span> <span class="va">$krak</span>/<span class="va">${test}</span>_kraken2_report <span class="dt">\</span></span>
-<span id="cb1-451"><a href="#cb1-451" tabindex="-1"></a></span>
-<span id="cb1-452"><a href="#cb1-452" tabindex="-1"></a><span class="cf">done</span> <span class="op">&gt;</span> <span class="va">$krak</span>/k2__all_memmap.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
-<span id="cb1-453"><a href="#cb1-453" tabindex="-1"></a></span>
-<span id="cb1-454"><a href="#cb1-454" tabindex="-1"></a>  </span>
-<span id="cb1-455"><a href="#cb1-455" tabindex="-1"></a><span class="co">##  Bracken  -------------------------------------------------------------</span></span>
-<span id="cb1-456"><a href="#cb1-456" tabindex="-1"></a><span class="co"># bracken -d $kr_db/ -i $krak/${test}_kraken2_report -o $krak/${test}.bracken -r $br_r -l $br_l -t $br_t &amp;&amp;</span></span>
-<span id="cb1-457"><a href="#cb1-457" tabindex="-1"></a><span class="ex">parallel</span> <span class="at">-j</span> <span class="va">$kr_threads</span> bracken <span class="at">-d</span> <span class="va">$kr_db</span>/ <span class="at">-i</span> {} <span class="at">-o</span> {}.bracken <span class="at">-r</span> <span class="va">$br_r</span> <span class="at">-l</span> <span class="va">$br_l</span> <span class="at">-t</span> <span class="va">$br_t</span>  ::: <span class="va">$krak</span>/<span class="pp">*</span>kraken2_report <span class="op">&gt;</span> <span class="va">$krak</span>/k2_br.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> </span>
-<span id="cb1-458"><a href="#cb1-458" tabindex="-1"></a></span>
-<span id="cb1-459"><a href="#cb1-459" tabindex="-1"></a></span>
-<span id="cb1-460"><a href="#cb1-460" tabindex="-1"></a><span class="co">## tidy - scraunch if necessary</span></span>
-<span id="cb1-461"><a href="#cb1-461" tabindex="-1"></a><span class="ex">parallel</span> <span class="at">-j</span> <span class="va">$kr_threads</span> gzip {} ::: <span class="va">$krak</span>/<span class="va">${test}</span><span class="pp">*</span> </span>
+<span id="cb1-438"><a href="#cb1-438" tabindex="-1"></a><span class="co">##  Kraken2  -------------------------------------------------------------</span></span>
+<span id="cb1-439"><a href="#cb1-439" tabindex="-1"></a></span>
+<span id="cb1-440"><a href="#cb1-440" tabindex="-1"></a><span class="co">## could prb mem-map all samples in on ego, then parallel bracken </span></span>
+<span id="cb1-441"><a href="#cb1-441" tabindex="-1"></a><span class="co">## ~~skip the loop altogether~~ can define outputs via glob, mixes samples. </span></span>
+<span id="cb1-442"><a href="#cb1-442" tabindex="-1"></a><span class="co">## avoiding these outputs, as we rarely look at them.</span></span>
+<span id="cb1-443"><a href="#cb1-443" tabindex="-1"></a><span class="co">#  --unclassified-out $krak/${test}_kraken_unclass# \</span></span>
+<span id="cb1-444"><a href="#cb1-444" tabindex="-1"></a><span class="co">#  --output $krak/${test}_kraken_output  </span></span>
+<span id="cb1-445"><a href="#cb1-445" tabindex="-1"></a></span>
+<span id="cb1-446"><a href="#cb1-446" tabindex="-1"></a><span class="bu">time</span> for test in <span class="va">$(</span><span class="fu">cat</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__samples.txt <span class="va">)</span><span class="kw">;</span></span>
+<span id="cb1-447"><a href="#cb1-447" tabindex="-1"></a><span class="cf">do</span></span>
+<span id="cb1-448"><a href="#cb1-448" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot; + + +   Kraken2 on </span><span class="va">${test}</span><span class="st"> -  conf 0.1, min-hits 5, min-qual 20 (mem-mapp)&quot;</span></span>
+<span id="cb1-449"><a href="#cb1-449" tabindex="-1"></a>  <span class="ex">kraken2</span> <span class="at">--db</span> <span class="va">$kr_db</span> <span class="dt">\</span></span>
+<span id="cb1-450"><a href="#cb1-450" tabindex="-1"></a>    <span class="va">$host</span>/<span class="va">${test}</span>_R1_deco.fastq.gz <span class="dt">\</span></span>
+<span id="cb1-451"><a href="#cb1-451" tabindex="-1"></a>    <span class="va">$host</span>/<span class="va">${test}</span>_R2_deco.fastq.gz <span class="dt">\</span></span>
+<span id="cb1-452"><a href="#cb1-452" tabindex="-1"></a>    <span class="at">--paired</span> <span class="dt">\</span></span>
+<span id="cb1-453"><a href="#cb1-453" tabindex="-1"></a>    <span class="at">--threads</span> <span class="va">$kr_threads</span> <span class="dt">\</span></span>
+<span id="cb1-454"><a href="#cb1-454" tabindex="-1"></a>    <span class="at">--confidence</span> 0.1 <span class="dt">\</span></span>
+<span id="cb1-455"><a href="#cb1-455" tabindex="-1"></a>    <span class="at">--memory-mapping</span> <span class="dt">\</span></span>
+<span id="cb1-456"><a href="#cb1-456" tabindex="-1"></a>    <span class="at">--gzip-compressed</span> <span class="dt">\</span></span>
+<span id="cb1-457"><a href="#cb1-457" tabindex="-1"></a>    <span class="at">--report-zero-counts</span> <span class="dt">\</span></span>
+<span id="cb1-458"><a href="#cb1-458" tabindex="-1"></a>    <span class="at">--minimum-hit-groups</span> 5 <span class="dt">\</span></span>
+<span id="cb1-459"><a href="#cb1-459" tabindex="-1"></a>    <span class="at">--minimum-base-quality</span> 20 <span class="dt">\</span></span>
+<span id="cb1-460"><a href="#cb1-460" tabindex="-1"></a>    <span class="at">--report</span> <span class="va">$krak</span>/<span class="va">${test}</span>_kraken2_report <span class="dt">\</span></span>
+<span id="cb1-461"><a href="#cb1-461" tabindex="-1"></a></span>
 <span id="cb1-462"><a href="#cb1-462" tabindex="-1"></a></span>
-<span id="cb1-463"><a href="#cb1-463" tabindex="-1"></a></span>
-<span id="cb1-464"><a href="#cb1-464" tabindex="-1"></a><span class="fu">nano</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__kraken2.sh</span>
-<span id="cb1-465"><a href="#cb1-465" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
-<span id="cb1-466"><a href="#cb1-466" tabindex="-1"></a></span>
-<span id="cb1-467"><a href="#cb1-467" tabindex="-1"></a><span class="co">#SBATCH --job-name=kraken5</span></span>
-<span id="cb1-468"><a href="#cb1-468" tabindex="-1"></a><span class="co">#SBATCH --output=omm__4__krak2-5.%j.slrm</span></span>
-<span id="cb1-469"><a href="#cb1-469" tabindex="-1"></a><span class="co">#SBATCH --ntasks=5</span></span>
-<span id="cb1-470"><a href="#cb1-470" tabindex="-1"></a><span class="co">#SBATCH --time=0-0:10:00</span></span>
-<span id="cb1-471"><a href="#cb1-471" tabindex="-1"></a></span>
-<span id="cb1-472"><a href="#cb1-472" tabindex="-1"></a><span class="co">## #SBATCH --partition=cpuq-short</span></span>
+<span id="cb1-463"><a href="#cb1-463" tabindex="-1"></a><span class="cf">done</span> <span class="op">&gt;</span> <span class="va">$krak</span>/k2__all_memmap.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
+<span id="cb1-464"><a href="#cb1-464" tabindex="-1"></a></span>
+<span id="cb1-465"><a href="#cb1-465" tabindex="-1"></a>  </span>
+<span id="cb1-466"><a href="#cb1-466" tabindex="-1"></a><span class="co">##  Bracken  -------------------------------------------------------------</span></span>
+<span id="cb1-467"><a href="#cb1-467" tabindex="-1"></a><span class="co"># bracken -d $kr_db/ -i $krak/${test}_kraken2_report -o $krak/${test}.bracken -r $br_r -l $br_l -t $br_t &amp;&amp;</span></span>
+<span id="cb1-468"><a href="#cb1-468" tabindex="-1"></a><span class="ex">parallel</span> <span class="at">-j</span> <span class="va">$kr_threads</span> bracken <span class="at">-d</span> <span class="va">$kr_db</span>/ <span class="at">-i</span> {} <span class="at">-o</span> {}.bracken <span class="at">-r</span> <span class="va">$br_r</span> <span class="at">-l</span> <span class="va">$br_l</span> <span class="at">-t</span> <span class="va">$br_t</span>  ::: <span class="va">$krak</span>/<span class="pp">*</span>kraken2_report <span class="op">&gt;</span> <span class="va">$krak</span>/k2_br.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> </span>
+<span id="cb1-469"><a href="#cb1-469" tabindex="-1"></a></span>
+<span id="cb1-470"><a href="#cb1-470" tabindex="-1"></a></span>
+<span id="cb1-471"><a href="#cb1-471" tabindex="-1"></a><span class="co">## tidy - scraunch if necessary</span></span>
+<span id="cb1-472"><a href="#cb1-472" tabindex="-1"></a><span class="ex">parallel</span> <span class="at">-j</span> <span class="va">$kr_threads</span> gzip {} ::: <span class="va">$krak</span>/<span class="va">${test}</span><span class="pp">*</span> </span>
 <span id="cb1-473"><a href="#cb1-473" tabindex="-1"></a></span>
-<span id="cb1-474"><a href="#cb1-474" tabindex="-1"></a><span class="va">samp</span><span class="op">=</span><span class="va">$1</span> </span>
-<span id="cb1-475"><a href="#cb1-475" tabindex="-1"></a><span class="va">inpath</span><span class="op">=</span><span class="va">$2</span></span>
-<span id="cb1-476"><a href="#cb1-476" tabindex="-1"></a><span class="va">outpat</span><span class="op">=</span><span class="va">$3</span></span>
-<span id="cb1-477"><a href="#cb1-477" tabindex="-1"></a><span class="va">kr_db</span><span class="op">=</span><span class="va">$4</span></span>
-<span id="cb1-478"><a href="#cb1-478" tabindex="-1"></a></span>
-<span id="cb1-479"><a href="#cb1-479" tabindex="-1"></a><span class="co"># define here in case we tweak later</span></span>
-<span id="cb1-480"><a href="#cb1-480" tabindex="-1"></a><span class="va">kr_threads</span><span class="op">=</span>5</span>
-<span id="cb1-481"><a href="#cb1-481" tabindex="-1"></a></span>
-<span id="cb1-482"><a href="#cb1-482" tabindex="-1"></a><span class="va">br_r</span><span class="op">=</span>100      <span class="co"># $br_leng = match the post-host length</span></span>
-<span id="cb1-483"><a href="#cb1-483" tabindex="-1"></a><span class="va">br_l</span><span class="op">=</span>S</span>
-<span id="cb1-484"><a href="#cb1-484" tabindex="-1"></a><span class="va">br_t</span><span class="op">=</span>50   <span class="co"># counts of microbes! not threads</span></span>
-<span id="cb1-485"><a href="#cb1-485" tabindex="-1"></a></span>
-<span id="cb1-486"><a href="#cb1-486" tabindex="-1"></a></span>
-<span id="cb1-487"><a href="#cb1-487" tabindex="-1"></a><span class="bu">source</span> /home/EXT05188/bin/miniforge3/etc/profile.d/conda.sh</span>
-<span id="cb1-488"><a href="#cb1-488" tabindex="-1"></a><span class="ex">conda</span> activate k2</span>
+<span id="cb1-474"><a href="#cb1-474" tabindex="-1"></a></span>
+<span id="cb1-475"><a href="#cb1-475" tabindex="-1"></a><span class="fu">nano</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__kraken2.sh</span>
+<span id="cb1-476"><a href="#cb1-476" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb1-477"><a href="#cb1-477" tabindex="-1"></a></span>
+<span id="cb1-478"><a href="#cb1-478" tabindex="-1"></a><span class="co">#SBATCH --job-name=kraken5</span></span>
+<span id="cb1-479"><a href="#cb1-479" tabindex="-1"></a><span class="co">#SBATCH --output=omm__4__krak2-5.%j.slrm</span></span>
+<span id="cb1-480"><a href="#cb1-480" tabindex="-1"></a><span class="co">#SBATCH --ntasks=5</span></span>
+<span id="cb1-481"><a href="#cb1-481" tabindex="-1"></a><span class="co">#SBATCH --time=0-0:10:00</span></span>
+<span id="cb1-482"><a href="#cb1-482" tabindex="-1"></a></span>
+<span id="cb1-483"><a href="#cb1-483" tabindex="-1"></a><span class="co">## #SBATCH --partition=cpuq-short</span></span>
+<span id="cb1-484"><a href="#cb1-484" tabindex="-1"></a></span>
+<span id="cb1-485"><a href="#cb1-485" tabindex="-1"></a><span class="va">samp</span><span class="op">=</span><span class="va">$1</span> </span>
+<span id="cb1-486"><a href="#cb1-486" tabindex="-1"></a><span class="va">inpath</span><span class="op">=</span><span class="va">$2</span></span>
+<span id="cb1-487"><a href="#cb1-487" tabindex="-1"></a><span class="va">outpat</span><span class="op">=</span><span class="va">$3</span></span>
+<span id="cb1-488"><a href="#cb1-488" tabindex="-1"></a><span class="va">kr_db</span><span class="op">=</span><span class="va">$4</span></span>
 <span id="cb1-489"><a href="#cb1-489" tabindex="-1"></a></span>
-<span id="cb1-490"><a href="#cb1-490" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot; + + +   Kraken2 on </span><span class="va">${samp}</span><span class="st"> -  conf 0.1, min-hits 5, min-qual 20; Bracken read:</span><span class="va">${br_r}</span><span class="st">, count:</span><span class="va">${br_t}</span><span class="st">&quot;</span></span>
-<span id="cb1-491"><a href="#cb1-491" tabindex="-1"></a><span class="ex">kraken2</span> <span class="at">--db</span> <span class="va">$kr_db</span> <span class="dt">\</span></span>
-<span id="cb1-492"><a href="#cb1-492" tabindex="-1"></a>    <span class="va">$inpath</span>/<span class="va">${samp}</span>_R1_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb1-493"><a href="#cb1-493" tabindex="-1"></a>    <span class="va">$inpath</span>/<span class="va">${samp}</span>_R2_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb1-494"><a href="#cb1-494" tabindex="-1"></a>    <span class="at">--paired</span> <span class="dt">\</span></span>
-<span id="cb1-495"><a href="#cb1-495" tabindex="-1"></a>    <span class="at">--threads</span> <span class="va">$kr_threads</span> <span class="dt">\</span></span>
-<span id="cb1-496"><a href="#cb1-496" tabindex="-1"></a>    <span class="at">--confidence</span> 0.1 <span class="dt">\</span></span>
-<span id="cb1-497"><a href="#cb1-497" tabindex="-1"></a>    <span class="at">--gzip-compressed</span> <span class="dt">\</span></span>
-<span id="cb1-498"><a href="#cb1-498" tabindex="-1"></a>    <span class="at">--report-zero-counts</span> <span class="dt">\</span></span>
-<span id="cb1-499"><a href="#cb1-499" tabindex="-1"></a>    <span class="at">--minimum-hit-groups</span> 5 <span class="dt">\</span></span>
-<span id="cb1-500"><a href="#cb1-500" tabindex="-1"></a>    <span class="at">--minimum-base-quality</span> 20 <span class="dt">\</span></span>
-<span id="cb1-501"><a href="#cb1-501" tabindex="-1"></a>    <span class="at">--report</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>_kraken2_report <span class="dt">\</span></span>
-<span id="cb1-502"><a href="#cb1-502" tabindex="-1"></a>    <span class="at">--unclassified-out</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>_kraken_unclass# <span class="dt">\</span></span>
-<span id="cb1-503"><a href="#cb1-503" tabindex="-1"></a>    <span class="at">--output</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>_kraken_output</span>
-<span id="cb1-504"><a href="#cb1-504" tabindex="-1"></a>    </span>
-<span id="cb1-505"><a href="#cb1-505" tabindex="-1"></a><span class="va">kr_stat</span><span class="op">=</span><span class="va">$?</span></span>
-<span id="cb1-506"><a href="#cb1-506" tabindex="-1"></a><span class="cf">if</span> <span class="bu">[</span> <span class="ot">!</span> <span class="va">$kr_stat</span> <span class="ot">-eq</span> 0 <span class="bu">]</span><span class="kw">;</span></span>
-<span id="cb1-507"><a href="#cb1-507" tabindex="-1"></a><span class="cf">then</span> </span>
-<span id="cb1-508"><a href="#cb1-508" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot; &lt; ! &gt;    sample </span><span class="va">${samp}</span><span class="st"> failed Kraken2 :: </span><span class="va">$kr_stat</span><span class="st">&quot;</span></span>
-<span id="cb1-509"><a href="#cb1-509" tabindex="-1"></a><span class="cf">else</span> </span>
-<span id="cb1-510"><a href="#cb1-510" tabindex="-1"></a>  <span class="ex">bracken</span> <span class="at">-d</span> <span class="va">$kr_db</span>/ <span class="at">-i</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>_kraken2_report <span class="at">-o</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>.bracken <span class="at">-r</span> <span class="va">$br_r</span> <span class="at">-l</span> <span class="va">$br_l</span> <span class="at">-t</span> <span class="va">$br_t</span> <span class="kw">&amp;&amp;</span></span>
-<span id="cb1-511"><a href="#cb1-511" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot; + + +   sample </span><span class="va">${samp}</span><span class="st"> completed Kraken2/Bracken&quot;</span></span>
-<span id="cb1-512"><a href="#cb1-512" tabindex="-1"></a><span class="cf">fi</span></span>
-<span id="cb1-513"><a href="#cb1-513" tabindex="-1"></a></span>
-<span id="cb1-514"><a href="#cb1-514" tabindex="-1"></a><span class="co"># need paralell in k2 env</span></span>
-<span id="cb1-515"><a href="#cb1-515" tabindex="-1"></a><span class="ex">parallel</span> <span class="at">-j</span> <span class="va">$kr_threads</span> gzip {} ::: <span class="va">$outpat</span>/<span class="va">${samp}</span><span class="pp">*</span></span>
-<span id="cb1-516"><a href="#cb1-516" tabindex="-1"></a></span>
-<span id="cb1-517"><a href="#cb1-517" tabindex="-1"></a></span>
-<span id="cb1-518"><a href="#cb1-518" tabindex="-1"></a><span class="co">## apply memory mapping (flag already in slurm script) to avoid OOM</span></span>
-<span id="cb1-519"><a href="#cb1-519" tabindex="-1"></a><span class="ex">vmtouch</span> <span class="at">-t</span>  <span class="va">$kr_db</span>/<span class="pp">*</span>.k2d</span>
-<span id="cb1-520"><a href="#cb1-520" tabindex="-1"></a></span>
-<span id="cb1-521"><a href="#cb1-521" tabindex="-1"></a><span class="co"># for fq in $( cat $mat/${proj}__samples.txt );</span></span>
-<span id="cb1-522"><a href="#cb1-522" tabindex="-1"></a><span class="co"># for fq in $( catcher $krak );</span></span>
-<span id="cb1-523"><a href="#cb1-523" tabindex="-1"></a><span class="cf">for</span> fq <span class="kw">in</span> <span class="va">$(</span> <span class="fu">cat</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__tester.txt <span class="va">)</span><span class="kw">;</span></span>
-<span id="cb1-524"><a href="#cb1-524" tabindex="-1"></a><span class="cf">do</span> </span>
-<span id="cb1-525"><a href="#cb1-525" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__kraken2.sh <span class="va">$fq</span> <span class="va">$host</span> <span class="va">$krak</span> <span class="va">$kr_db</span></span>
-<span id="cb1-526"><a href="#cb1-526" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb1-490"><a href="#cb1-490" tabindex="-1"></a><span class="co"># define here in case we tweak later</span></span>
+<span id="cb1-491"><a href="#cb1-491" tabindex="-1"></a><span class="va">kr_threads</span><span class="op">=</span>5</span>
+<span id="cb1-492"><a href="#cb1-492" tabindex="-1"></a></span>
+<span id="cb1-493"><a href="#cb1-493" tabindex="-1"></a><span class="va">br_r</span><span class="op">=</span>100      <span class="co"># $br_leng = match the post-host length</span></span>
+<span id="cb1-494"><a href="#cb1-494" tabindex="-1"></a><span class="va">br_l</span><span class="op">=</span>S</span>
+<span id="cb1-495"><a href="#cb1-495" tabindex="-1"></a><span class="va">br_t</span><span class="op">=</span>50   <span class="co"># counts of microbes! not threads</span></span>
+<span id="cb1-496"><a href="#cb1-496" tabindex="-1"></a></span>
+<span id="cb1-497"><a href="#cb1-497" tabindex="-1"></a></span>
+<span id="cb1-498"><a href="#cb1-498" tabindex="-1"></a><span class="bu">source</span> /home/EXT05188/bin/miniforge3/etc/profile.d/conda.sh</span>
+<span id="cb1-499"><a href="#cb1-499" tabindex="-1"></a><span class="ex">conda</span> activate k2</span>
+<span id="cb1-500"><a href="#cb1-500" tabindex="-1"></a></span>
+<span id="cb1-501"><a href="#cb1-501" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot; + + +   Kraken2 on </span><span class="va">${samp}</span><span class="st"> -  conf 0.1, min-hits 5, min-qual 20; Bracken read:</span><span class="va">${br_r}</span><span class="st">, count:</span><span class="va">${br_t}</span><span class="st">&quot;</span></span>
+<span id="cb1-502"><a href="#cb1-502" tabindex="-1"></a><span class="ex">kraken2</span> <span class="at">--db</span> <span class="va">$kr_db</span> <span class="dt">\</span></span>
+<span id="cb1-503"><a href="#cb1-503" tabindex="-1"></a>    <span class="va">$inpath</span>/<span class="va">${samp}</span>_R1_deco.fastq.gz <span class="dt">\</span></span>
+<span id="cb1-504"><a href="#cb1-504" tabindex="-1"></a>    <span class="va">$inpath</span>/<span class="va">${samp}</span>_R2_deco.fastq.gz <span class="dt">\</span></span>
+<span id="cb1-505"><a href="#cb1-505" tabindex="-1"></a>    <span class="at">--paired</span> <span class="dt">\</span></span>
+<span id="cb1-506"><a href="#cb1-506" tabindex="-1"></a>    <span class="at">--threads</span> <span class="va">$kr_threads</span> <span class="dt">\</span></span>
+<span id="cb1-507"><a href="#cb1-507" tabindex="-1"></a>    <span class="at">--confidence</span> 0.1 <span class="dt">\</span></span>
+<span id="cb1-508"><a href="#cb1-508" tabindex="-1"></a>    <span class="at">--gzip-compressed</span> <span class="dt">\</span></span>
+<span id="cb1-509"><a href="#cb1-509" tabindex="-1"></a>    <span class="at">--report-zero-counts</span> <span class="dt">\</span></span>
+<span id="cb1-510"><a href="#cb1-510" tabindex="-1"></a>    <span class="at">--minimum-hit-groups</span> 5 <span class="dt">\</span></span>
+<span id="cb1-511"><a href="#cb1-511" tabindex="-1"></a>    <span class="at">--minimum-base-quality</span> 20 <span class="dt">\</span></span>
+<span id="cb1-512"><a href="#cb1-512" tabindex="-1"></a>    <span class="at">--report</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>_kraken2_report <span class="dt">\</span></span>
+<span id="cb1-513"><a href="#cb1-513" tabindex="-1"></a>    <span class="at">--unclassified-out</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>_kraken_unclass# <span class="dt">\</span></span>
+<span id="cb1-514"><a href="#cb1-514" tabindex="-1"></a>    <span class="at">--output</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>_kraken_output</span>
+<span id="cb1-515"><a href="#cb1-515" tabindex="-1"></a>    </span>
+<span id="cb1-516"><a href="#cb1-516" tabindex="-1"></a><span class="va">kr_stat</span><span class="op">=</span><span class="va">$?</span></span>
+<span id="cb1-517"><a href="#cb1-517" tabindex="-1"></a><span class="cf">if</span> <span class="bu">[</span> <span class="ot">!</span> <span class="va">$kr_stat</span> <span class="ot">-eq</span> 0 <span class="bu">]</span><span class="kw">;</span></span>
+<span id="cb1-518"><a href="#cb1-518" tabindex="-1"></a><span class="cf">then</span> </span>
+<span id="cb1-519"><a href="#cb1-519" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot; &lt; ! &gt;    sample </span><span class="va">${samp}</span><span class="st"> failed Kraken2 :: </span><span class="va">$kr_stat</span><span class="st">&quot;</span></span>
+<span id="cb1-520"><a href="#cb1-520" tabindex="-1"></a><span class="cf">else</span> </span>
+<span id="cb1-521"><a href="#cb1-521" tabindex="-1"></a>  <span class="ex">bracken</span> <span class="at">-d</span> <span class="va">$kr_db</span>/ <span class="at">-i</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>_kraken2_report <span class="at">-o</span> <span class="va">$outpat</span>/<span class="va">${samp}</span>.bracken <span class="at">-r</span> <span class="va">$br_r</span> <span class="at">-l</span> <span class="va">$br_l</span> <span class="at">-t</span> <span class="va">$br_t</span> <span class="kw">&amp;&amp;</span></span>
+<span id="cb1-522"><a href="#cb1-522" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot; + + +   sample </span><span class="va">${samp}</span><span class="st"> completed Kraken2/Bracken&quot;</span></span>
+<span id="cb1-523"><a href="#cb1-523" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb1-524"><a href="#cb1-524" tabindex="-1"></a></span>
+<span id="cb1-525"><a href="#cb1-525" tabindex="-1"></a><span class="co"># need paralell in k2 env</span></span>
+<span id="cb1-526"><a href="#cb1-526" tabindex="-1"></a><span class="ex">parallel</span> <span class="at">-j</span> <span class="va">$kr_threads</span> gzip {} ::: <span class="va">$outpat</span>/<span class="va">${samp}</span><span class="pp">*</span></span>
 <span id="cb1-527"><a href="#cb1-527" tabindex="-1"></a></span>
-<span id="cb1-528"><a href="#cb1-528" tabindex="-1"></a><span class="co">## in case you&#39;ve forgotten, your bin and KrakenTools folder are here:</span></span>
-<span id="cb1-529"><a href="#cb1-529" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span></span>
-<span id="cb1-530"><a href="#cb1-530" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span>/KrakenTools</span>
+<span id="cb1-528"><a href="#cb1-528" tabindex="-1"></a></span>
+<span id="cb1-529"><a href="#cb1-529" tabindex="-1"></a><span class="co">## apply memory mapping (flag already in slurm script) to avoid OOM</span></span>
+<span id="cb1-530"><a href="#cb1-530" tabindex="-1"></a><span class="ex">vmtouch</span> <span class="at">-t</span>  <span class="va">$kr_db</span>/<span class="pp">*</span>.k2d</span>
 <span id="cb1-531"><a href="#cb1-531" tabindex="-1"></a></span>
-<span id="cb1-532"><a href="#cb1-532" tabindex="-1"></a><span class="co">## combine</span></span>
-<span id="cb1-533"><a href="#cb1-533" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools/combine_kreports.py</span> <span class="at">-r</span> <span class="va">$krak</span>/<span class="pp">*</span>_bracken_species <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv</span>
-<span id="cb1-534"><a href="#cb1-534" tabindex="-1"></a></span>
-<span id="cb1-535"><a href="#cb1-535" tabindex="-1"></a><span class="co">## for the taxonomy file, we first convert to MPA format (its just useful)</span></span>
-<span id="cb1-536"><a href="#cb1-536" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools/kreport2mpa.py</span> <span class="at">-r</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken2_mpa</span>
-<span id="cb1-537"><a href="#cb1-537" tabindex="-1"></a></span>
-<span id="cb1-538"><a href="#cb1-538" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-h</span> <span class="st">&#39;|s_&#39;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken2_mpa <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f</span> 1 <span class="kw">|</span>   <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="kw">|</span> <span class="fu">sed</span> <span class="st">&#39;s/|/\t/g&#39;</span> <span class="op">&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span>
-<span id="cb1-539"><a href="#cb1-539" tabindex="-1"></a></span>
-<span id="cb1-540"><a href="#cb1-540" tabindex="-1"></a><span class="co">## have a lük</span></span>
-<span id="cb1-541"><a href="#cb1-541" tabindex="-1"></a><span class="fu">less</span> <span class="at">-S</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span>
+<span id="cb1-532"><a href="#cb1-532" tabindex="-1"></a><span class="co"># for fq in $( cat $mat/${proj}__samples.txt );</span></span>
+<span id="cb1-533"><a href="#cb1-533" tabindex="-1"></a><span class="co"># for fq in $( catcher $krak );</span></span>
+<span id="cb1-534"><a href="#cb1-534" tabindex="-1"></a><span class="cf">for</span> fq <span class="kw">in</span> <span class="va">$(</span> <span class="fu">cat</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__tester.txt <span class="va">)</span><span class="kw">;</span></span>
+<span id="cb1-535"><a href="#cb1-535" tabindex="-1"></a><span class="cf">do</span> </span>
+<span id="cb1-536"><a href="#cb1-536" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__kraken2.sh <span class="va">$fq</span> <span class="va">$host</span> <span class="va">$krak</span> <span class="va">$kr_db</span></span>
+<span id="cb1-537"><a href="#cb1-537" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb1-538"><a href="#cb1-538" tabindex="-1"></a></span>
+<span id="cb1-539"><a href="#cb1-539" tabindex="-1"></a><span class="co">## in case you&#39;ve forgotten, your bin and KrakenTools folder are here:</span></span>
+<span id="cb1-540"><a href="#cb1-540" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span></span>
+<span id="cb1-541"><a href="#cb1-541" tabindex="-1"></a><span class="ex">lk</span> <span class="va">$b_path</span>/KrakenTools</span>
 <span id="cb1-542"><a href="#cb1-542" tabindex="-1"></a></span>
-<span id="cb1-543"><a href="#cb1-543" tabindex="-1"></a></span>
-<span id="cb1-544"><a href="#cb1-544" tabindex="-1"></a><span class="fu">mkdir</span> <span class="va">$mat</span>/<span class="va">${proj}</span>_output</span>
+<span id="cb1-543"><a href="#cb1-543" tabindex="-1"></a><span class="co">## combine</span></span>
+<span id="cb1-544"><a href="#cb1-544" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools/combine_kreports.py</span> <span class="at">-r</span> <span class="va">$krak</span>/<span class="pp">*</span>_bracken_species <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv</span>
 <span id="cb1-545"><a href="#cb1-545" tabindex="-1"></a></span>
-<span id="cb1-546"><a href="#cb1-546" tabindex="-1"></a><span class="co"># qc outputs - for reference</span></span>
-<span id="cb1-547"><a href="#cb1-547" tabindex="-1"></a><span class="fu">cp</span> <span class="at">-r</span> <span class="va">$qc</span>/<span class="pp">*</span>multi <span class="va">$mat</span>/<span class="va">${proj}</span>_output/</span>
+<span id="cb1-546"><a href="#cb1-546" tabindex="-1"></a><span class="co">## for the taxonomy file, we first convert to MPA format (its just useful)</span></span>
+<span id="cb1-547"><a href="#cb1-547" tabindex="-1"></a><span class="va">$b_path</span><span class="ex">/KrakenTools/kreport2mpa.py</span> <span class="at">-r</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="at">-o</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken2_mpa</span>
 <span id="cb1-548"><a href="#cb1-548" tabindex="-1"></a></span>
-<span id="cb1-549"><a href="#cb1-549" tabindex="-1"></a><span class="co"># kraken2 outputs - the actual data</span></span>
-<span id="cb1-550"><a href="#cb1-550" tabindex="-1"></a><span class="fu">cp</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv <span class="va">$mat</span>/<span class="va">${proj}</span>_output/</span>
-<span id="cb1-551"><a href="#cb1-551" tabindex="-1"></a></span>
-<span id="cb1-552"><a href="#cb1-552" tabindex="-1"></a></span>
+<span id="cb1-549"><a href="#cb1-549" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-h</span> <span class="st">&#39;|s_&#39;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__<span class="va">${test}</span>_kraken2_mpa <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f</span> 1 <span class="kw">|</span>   <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="kw">|</span> <span class="fu">sed</span> <span class="st">&#39;s/|/\t/g&#39;</span> <span class="op">&gt;</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span>
+<span id="cb1-550"><a href="#cb1-550" tabindex="-1"></a></span>
+<span id="cb1-551"><a href="#cb1-551" tabindex="-1"></a><span class="co">## have a lük</span></span>
+<span id="cb1-552"><a href="#cb1-552" tabindex="-1"></a><span class="fu">less</span> <span class="at">-S</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv</span>
 <span id="cb1-553"><a href="#cb1-553" tabindex="-1"></a></span>
-<span id="cb1-554"><a href="#cb1-554" tabindex="-1"></a><span class="co"># compress all that to a single gzipped archive file</span></span>
-<span id="cb1-555"><a href="#cb1-555" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-czvf</span> <span class="va">${mat}</span>/<span class="va">${proj}</span>_output.tar.gz <span class="va">${mat}</span>/<span class="va">${proj}</span>_output</span>
+<span id="cb1-554"><a href="#cb1-554" tabindex="-1"></a></span>
+<span id="cb1-555"><a href="#cb1-555" tabindex="-1"></a><span class="fu">mkdir</span> <span class="va">$mat</span>/<span class="va">${proj}</span>_output</span>
 <span id="cb1-556"><a href="#cb1-556" tabindex="-1"></a></span>
-<span id="cb1-557"><a href="#cb1-557" tabindex="-1"></a><span class="co"># dont forget to fix XXX.YYY to the correct address</span></span>
-<span id="cb1-558"><a href="#cb1-558" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -oProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">${mat}</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_output.tar.gz ~/Desktop/&quot;</span></span>
-<span id="cb1-559"><a href="#cb1-559" tabindex="-1"></a><span class="co"># run:</span></span>
-<span id="cb1-560"><a href="#cb1-560" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -i .ssh/id_file -oProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">${mat}</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_output.tar.gz ~/Desktop/&quot;</span></span>
-<span id="cb1-561"><a href="#cb1-561" tabindex="-1"></a></span>
-<span id="cb1-562"><a href="#cb1-562" tabindex="-1"></a><span class="co">## now, copy, paste, and run the command printed out above! </span></span>
-<span id="cb1-563"><a href="#cb1-563" tabindex="-1"></a><span class="co">## follow the instructions it gives you, or record the message if something goes wrong. </span></span>
+<span id="cb1-557"><a href="#cb1-557" tabindex="-1"></a><span class="co"># qc outputs - for reference</span></span>
+<span id="cb1-558"><a href="#cb1-558" tabindex="-1"></a><span class="fu">cp</span> <span class="at">-r</span> <span class="va">$qc</span>/<span class="pp">*</span>multi <span class="va">$mat</span>/<span class="va">${proj}</span>_output/</span>
+<span id="cb1-559"><a href="#cb1-559" tabindex="-1"></a></span>
+<span id="cb1-560"><a href="#cb1-560" tabindex="-1"></a><span class="co"># kraken2 outputs - the actual data</span></span>
+<span id="cb1-561"><a href="#cb1-561" tabindex="-1"></a><span class="fu">cp</span> <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_abundances.tsv <span class="va">$krak</span>/<span class="va">${proj}</span>__kraken2_plusPF_taxonomy.tsv <span class="va">$mat</span>/<span class="va">${proj}</span>_output/</span>
+<span id="cb1-562"><a href="#cb1-562" tabindex="-1"></a></span>
+<span id="cb1-563"><a href="#cb1-563" tabindex="-1"></a></span>
 <span id="cb1-564"><a href="#cb1-564" tabindex="-1"></a></span>
-<span id="cb1-565"><a href="#cb1-565" tabindex="-1"></a><span class="co">## NB: you might need to replace $proj with the fancyname you picked for your project at the beginning</span></span>
-<span id="cb1-566"><a href="#cb1-566" tabindex="-1"></a><span class="co">## as you might not have assigned that local variable on your local machine</span></span>
+<span id="cb1-565"><a href="#cb1-565" tabindex="-1"></a><span class="co"># compress all that to a single gzipped archive file</span></span>
+<span id="cb1-566"><a href="#cb1-566" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-czvf</span> <span class="va">${mat}</span>/<span class="va">${proj}</span>_output.tar.gz <span class="va">${mat}</span>/<span class="va">${proj}</span>_output</span>
 <span id="cb1-567"><a href="#cb1-567" tabindex="-1"></a></span>
-<span id="cb1-568"><a href="#cb1-568" tabindex="-1"></a><span class="co"># should be here (or just check your desktop)</span></span>
-<span id="cb1-569"><a href="#cb1-569" tabindex="-1"></a><span class="ex">~/Desktop/</span><span class="va">${proj}</span><span class="ex">.tar.gz</span></span>
-<span id="cb1-570"><a href="#cb1-570" tabindex="-1"></a></span>
-<span id="cb1-571"><a href="#cb1-571" tabindex="-1"></a><span class="co"># uncompress it again - first go to whereever the file is located :</span></span>
-<span id="cb1-572"><a href="#cb1-572" tabindex="-1"></a><span class="bu">cd</span> ~/Desktop</span>
-<span id="cb1-573"><a href="#cb1-573" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzvf</span> ~/Desktop/<span class="va">${proj}</span>.tar.gz</span>
-<span id="cb1-574"><a href="#cb1-574" tabindex="-1"></a></span>
-<span id="cb1-575"><a href="#cb1-575" tabindex="-1"></a><span class="co"># if its there, you could probably also double click it...</span></span></code></pre></div>
+<span id="cb1-568"><a href="#cb1-568" tabindex="-1"></a><span class="co"># dont forget to fix XXX.YYY to the correct address</span></span>
+<span id="cb1-569"><a href="#cb1-569" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -oProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">${mat}</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_output.tar.gz ~/Desktop/&quot;</span></span>
+<span id="cb1-570"><a href="#cb1-570" tabindex="-1"></a><span class="co"># run:</span></span>
+<span id="cb1-571"><a href="#cb1-571" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -i .ssh/id_file -oProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">${mat}</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_output.tar.gz ~/Desktop/&quot;</span></span>
+<span id="cb1-572"><a href="#cb1-572" tabindex="-1"></a></span>
+<span id="cb1-573"><a href="#cb1-573" tabindex="-1"></a><span class="co">## now, copy, paste, and run the command printed out above! </span></span>
+<span id="cb1-574"><a href="#cb1-574" tabindex="-1"></a><span class="co">## follow the instructions it gives you, or record the message if something goes wrong. </span></span>
+<span id="cb1-575"><a href="#cb1-575" tabindex="-1"></a></span>
+<span id="cb1-576"><a href="#cb1-576" tabindex="-1"></a><span class="co">## NB: you might need to replace $proj with the fancyname you picked for your project at the beginning</span></span>
+<span id="cb1-577"><a href="#cb1-577" tabindex="-1"></a><span class="co">## as you might not have assigned that local variable on your local machine</span></span>
+<span id="cb1-578"><a href="#cb1-578" tabindex="-1"></a></span>
+<span id="cb1-579"><a href="#cb1-579" tabindex="-1"></a><span class="co"># should be here (or just check your desktop)</span></span>
+<span id="cb1-580"><a href="#cb1-580" tabindex="-1"></a><span class="ex">~/Desktop/</span><span class="va">${proj}</span><span class="ex">.tar.gz</span></span>
+<span id="cb1-581"><a href="#cb1-581" tabindex="-1"></a></span>
+<span id="cb1-582"><a href="#cb1-582" tabindex="-1"></a><span class="co"># uncompress it again - first go to whereever the file is located :</span></span>
+<span id="cb1-583"><a href="#cb1-583" tabindex="-1"></a><span class="bu">cd</span> ~/Desktop</span>
+<span id="cb1-584"><a href="#cb1-584" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzvf</span> ~/Desktop/<span class="va">${proj}</span>.tar.gz</span>
+<span id="cb1-585"><a href="#cb1-585" tabindex="-1"></a></span>
+<span id="cb1-586"><a href="#cb1-586" tabindex="-1"></a><span class="co"># if its there, you could probably also double click it...</span></span></code></pre></div>
 </details>
 <p><br></p>
 <ul>
@@ -2398,17 +2409,17 @@ suited for short <code>illumina</code> reads. Note the
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a></span>
 <span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co"># make a &quot;large index&quot; database with bowtie2</span></span>
 <span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="va">bt_threads</span><span class="op">=</span>10</span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="va">bt_db</span><span class="op">=</span><span class="va">$db</span>/bt2_db <span class="kw">;</span> <span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$bt_db</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="va">bt2_db</span><span class="op">=</span><span class="va">$db</span>/bt2_db <span class="kw">;</span> <span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$bt2_db</span></span>
 <span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a></span>
 <span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co"># build BT2 database,  no slurm (2hr?) ; dont forget conda activate geno</span></span>
 <span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="bu">time</span> bowtie2-build <span class="at">--large-index</span> <span class="at">--threads</span> <span class="va">$bt_threads</span> <span class="dt">\</span></span>
 <span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>  <span class="va">$db</span>/ref/decoy_GCA_000786075.2_hs38d1_genomic.fna.gz,<span class="dt">\</span></span>
 <span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>  <span class="va">$db</span>/ref/GCF_000001405.40_GRCh38.p14_genomic.fna.gz,<span class="dt">\</span></span>
 <span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>  <span class="va">$db</span>/ref/GCF_009914755.1_T2T-CHM13v2.0_genomic.fna.gz <span class="dt">\</span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>  <span class="va">$bt_db</span>/Hsap_ref</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>  <span class="va">$bt2_db</span>/Hsap_ref</span>
 <span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a></span>
 <span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co"># note each bt2 database consists of 4 .bt2l files, and 2 reverse .bt2l files</span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lsh</span> <span class="va">$bt_db</span></span></code></pre></div>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lsh</span> <span class="va">$bt2_db</span></span></code></pre></div>
 <p><br></p>
 <p><code>Kraken2</code> uses a database of {k-mer} patterns in different
 microbes, and compares these patterns against those seen in your reads.
@@ -2839,9 +2850,8 @@ trimmed and filtered adapters
 <span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a></span>
 <span id="cb29-14"><a href="#cb29-14" tabindex="-1"></a><span class="ex">multiqc</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_filt <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_filt_multi</span></code></pre></div>
 <p>Check it again! Keep solving until the problem is resolved.</p>
-<details>
-<p><br></p>
 <hr />
+</details>
 <p><br></p>
 </div>
 <div id="remove-host-sequences-check---bowtie2-and-the-t2t-human-genome-reference" class="section level2">
@@ -2862,47 +2872,59 @@ problematic material than Deacon - so lets stick with
 <span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a><span class="co">## tester set:</span></span>
 <span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a><span class="co"># time cat $mat/${proj}__tester.txt | parallel -j 8 &quot;deacon filter -d \</span></span>
 <span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a></span>
-<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a><span class="co"># ~15mins</span></span>
-<span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a><span class="bu">time</span> cat <span class="va">$mat</span>/<span class="va">${proj}</span>__samples.txt <span class="kw">|</span> <span class="ex">parallel</span> <span class="at">-j</span> 8 <span class="st">&quot;deacon filter -d </span><span class="dt">\</span></span>
-<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a><span class="st">  </span><span class="va">$db</span><span class="st">/deacon_db/panhuman-1.k31w15.idx </span><span class="dt">\</span></span>
-<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a><span class="st">  </span><span class="va">$filt</span><span class="st">/{}_R1_trimm.fastq.gz </span><span class="dt">\</span></span>
-<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="st">  </span><span class="va">$filt</span><span class="st">/{}_R2_trimm.fastq.gz </span><span class="dt">\</span></span>
-<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a><span class="st">  -o </span><span class="va">$host</span><span class="st">/{}_R1_deco.fastq.gz </span><span class="dt">\</span></span>
-<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a><span class="st">  -O </span><span class="va">$host</span><span class="st">/{}_R2_deco.fastq.gz </span><span class="dt">\</span></span>
-<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a><span class="st">  --threads 4 &gt; </span><span class="va">$host</span><span class="st">/{}_hostless.log 2&gt;&amp;1&quot;</span></span></code></pre></div>
+<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a><span class="co"># we set this var earlier, when we downloaded databases:</span></span>
+<span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lsh</span> <span class="va">$bt2_db</span></span>
+<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a><span class="co"># number of threads</span></span>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="va">bt2_threads</span><span class="op">=</span>6</span>
+<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a></span>
+<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a><span class="ex">bowtie2</span> <span class="at">-p</span> <span class="va">$bt2_threads</span> <span class="at">-x</span> <span class="va">$bt2_db</span> <span class="at">--mm</span> <span class="at">--seed</span> 2205  <span class="at">--very-sensitive-local</span> <span class="dt">\</span></span>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a>  <span class="at">-1</span> <span class="va">${filt}</span>/<span class="va">${samp}</span>_trimm_R1.fastq.gz <span class="at">-2</span> <span class="va">${filt}</span>/<span class="va">${samp}</span>_trimm_R2.fastq.gz <span class="dt">\</span></span>
+<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a>  <span class="at">--al-gz</span> <span class="va">${host}</span>/<span class="va">${samp}</span>_bt2-host-al-pe <span class="at">--al-conc-gz</span> <span class="va">${host}</span>/<span class="va">${samp}</span>_bt2-host-al-pe-conc <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a></span>
+<span id="cb30-16"><a href="#cb30-16" tabindex="-1"></a>  <span class="ex">samtools</span> view <span class="at">-f</span> 12 <span class="at">-F</span> 256  <span class="at">-</span> <span class="at">-o</span> <span class="at">-</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb30-17"><a href="#cb30-17" tabindex="-1"></a>  <span class="ex">samtools</span> sort <span class="at">-n</span> <span class="at">-m</span> 5G <span class="at">-@</span> <span class="va">$bt2_threads</span> <span class="at">-</span> <span class="at">-o</span> <span class="at">-</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb30-18"><a href="#cb30-18" tabindex="-1"></a>  <span class="ex">samtools</span> fastq <span class="at">-@</span> <span class="va">$bt2_threads</span> <span class="at">-</span> <span class="at">-1</span> <span class="va">$host</span>/<span class="va">${samp}</span>_R1_deco.fastq.gz <span class="at">-2</span> <span class="va">$host</span>/<span class="va">${samp}</span>_R2_deco.fastq.gz <span class="at">-0</span> /dev/null <span class="at">-s</span> /dev/null <span class="at">-n</span> </span></code></pre></div>
+<p>Note above, the use of <code>|</code> to pipe, and <code>-</code> to
+pass standard output along without writing it to a file. This is a
+<code>bash</code> trick, that BowTie2 is built to exploit (i.e., the <a href="https://en.wikipedia.org/wiki/Pipeline_(Unix)">piping</a> we
+discussed before).</p>
 <details>
 <summary>
-<code>SLURM</code> version of <code>deacon</code>
+<code>SLURM</code> version of <code>BowTie2</code>
 </summary>
 <p>Write the <code>SLURM</code> script:
-<code>nano $mat/${proj}__slurm__deacon6.sh</code></p>
+<code>nano $mat/${proj}__slurm__bowtie2-6.sh</code></p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
 <span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a></span>
-<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a><span class="co">#SBATCH --job-name=deacon6</span></span>
-<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a><span class="co">#SBATCH --partition=cpuq-long</span></span>
-<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a><span class="co">#SBATCH --output=omm__3__deacon6.%j.slrm</span></span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a><span class="co">#SBATCH --job-name=bt2sort6</span></span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a><span class="co">#SBATCH --output=omm__3__bt2sort6.%j.slrm</span></span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a><span class="co">#SBATCH --time=0-00:20:00</span></span>
 <span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a><span class="co">#SBATCH --ntasks=6</span></span>
 <span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a></span>
-<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a><span class="va">sl_samp</span><span class="op">=</span><span class="va">$1</span></span>
+<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a><span class="va">sl_file</span><span class="op">=</span><span class="va">$1</span></span>
 <span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a><span class="va">sl_indir</span><span class="op">=</span><span class="va">$2</span></span>
 <span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a><span class="va">sl_outdir</span><span class="op">=</span><span class="va">$3</span></span>
-<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a></span>
-<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a><span class="bu">source</span> /home/EXT05188/bin/miniforge3/etc/profile.d/conda.sh</span>
-<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a><span class="ex">conda</span> activate geno</span>
+<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a><span class="va">sl_db</span><span class="op">=</span><span class="va">$4</span></span>
+<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a><span class="va">sl_threads</span><span class="op">=</span>6</span>
 <span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a></span>
-<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a><span class="ex">deacon</span> filter <span class="at">-d</span> <span class="dt">\</span></span>
-<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a>  <span class="va">$db</span>/deacon_db/panhuman-1.k31w15.idx <span class="dt">\</span></span>
-<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a>  <span class="va">$sl_indir</span>/<span class="va">${sl_samp}</span>_R1_trimm.fastq.gz <span class="dt">\</span></span>
-<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a>  <span class="va">$sl_indir</span>/<span class="va">${sl_samp}</span>_R2_trimm.fastq.gz <span class="dt">\</span></span>
-<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a>  <span class="at">-o</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_samp}</span>_R1_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a>  <span class="at">-O</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_samp}</span>_R2_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb31-21"><a href="#cb31-21" tabindex="-1"></a>  <span class="at">--threads</span> 6 <span class="op">&gt;</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_samp}</span>_hostless.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span></code></pre></div>
+<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a><span class="bu">source</span> /home/<span class="st">&#39;${self}&#39;</span>/bin/miniforge3/etc/profile.d/conda.sh</span>
+<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a><span class="ex">conda</span> activate geno</span>
+<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a></span>
+<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a><span class="bu">time</span> bowtie2 <span class="at">-p</span> <span class="va">$sl_threads</span> <span class="at">-x</span> <span class="va">$sl_db</span> <span class="at">--mm</span> <span class="at">--seed</span> 2205  <span class="at">--very-sensitive-local</span> <span class="dt">\</span></span>
+<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a>  <span class="at">-1</span> <span class="va">${sl_indir}</span>/<span class="va">${sl_file}</span>_trimm_R1.fastq.gz <span class="at">-2</span> <span class="va">${sl_indir}</span>/<span class="va">${sl_file}</span>_trimm_R2.fastq.gz <span class="dt">\</span></span>
+<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a>  <span class="at">--al-gz</span> <span class="va">${sl_outdir}</span>/<span class="va">${sl_file}</span>_bt2-host-al-pe <span class="at">--al-conc-gz</span> <span class="va">${sl_outdir}</span>/<span class="va">${sl_file}</span>_bt2-host-al-pe-conc <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb31-21"><a href="#cb31-21" tabindex="-1"></a></span>
+<span id="cb31-22"><a href="#cb31-22" tabindex="-1"></a>  <span class="ex">samtools</span> view <span class="at">-f</span> 12 <span class="at">-F</span> 256  <span class="at">-</span> <span class="at">-o</span> <span class="at">-</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb31-23"><a href="#cb31-23" tabindex="-1"></a>  <span class="ex">samtools</span> sort <span class="at">-n</span> <span class="at">-m</span> 5G <span class="at">-@</span> <span class="va">$sl_threads</span> <span class="at">-</span> <span class="at">-o</span> <span class="at">-</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb31-24"><a href="#cb31-24" tabindex="-1"></a>  <span class="ex">samtools</span> fastq <span class="at">-@</span> <span class="va">$sl_threads</span> <span class="at">-</span> <span class="at">-1</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_file}</span>_R1_deco.fastq.gz <span class="at">-2</span> <span class="va">$sl_outdir</span>/<span class="va">${sl_file}</span>_R2_deco.fastq.gz <span class="at">-0</span> /dev/null <span class="at">-s</span> /dev/null <span class="at">-n</span> <span class="kw">;</span></span></code></pre></div>
 <p>Run the <code>SLURM</code> script:</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a></span>
 <span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="co"># for f in $( cat $mat/${proj}__samples.txt ) ;</span></span>
 <span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="cf">for</span> f <span class="kw">in</span> <span class="va">$(</span> <span class="fu">cat</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__tester.txt <span class="kw">|</span> <span class="fu">head</span> <span class="at">-4</span> <span class="va">)</span> <span class="kw">;</span></span>
 <span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a><span class="cf">do</span></span>
-<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__deacon6.sh <span class="va">$f</span> <span class="va">$filt</span> <span class="va">$host</span> <span class="kw">;</span></span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>  <span class="ex">sbatch</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__slurm__bowtie2-6.sh <span class="va">$f</span> <span class="va">$filt</span> <span class="va">$host</span> <span class="va">$bt2_db</span> <span class="kw">;</span></span>
 <span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="cf">done</span></span></code></pre></div>
 </details>
 <p><br></p>
@@ -2922,12 +2944,15 @@ in case <code>slurm</code> and <code>FQC-MQC</code> aren’t
 communicating…
 </summary>
 <p>Note we split out the L / R samples for consideration separately:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="ex">fastqc</span> <span class="at">-q</span> <span class="at">-t</span> 16 <span class="va">$host</span>/<span class="pp">*</span>_deco.fastq.gz <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="kw">;</span> <span class="ex">multiqc</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host_multi</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="ex">fastqc</span> <span class="at">-q</span> <span class="at">-t</span> 16 <span class="va">$host</span>/<span class="pp">*</span>_R1_deco.fastq.gz <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="kw">;</span> <span class="ex">multiqc</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host_multi_R1</span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="ex">fastqc</span> <span class="at">-q</span> <span class="at">-t</span> 16 <span class="va">$host</span>/<span class="pp">*</span>_R2_deco.fastq.gz <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="kw">;</span> <span class="ex">multiqc</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host <span class="at">-o</span> <span class="va">$qc</span>/<span class="va">${proj}</span>_host_multi_R2</span></code></pre></div>
 </details>
 <p><br></p>
 <p>And bring it back home for a look:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="co"># enter this on your session with the terminal, so that the variables fill it out for you</span></span>
-<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -o ProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">$qc</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_host_multi/multiqc_report.html ./Desktop/&quot;</span></span></code></pre></div>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -o ProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">$qc</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_host_multi_R1/multiqc_report.html ./Desktop/multiqc_report_filtR1.html&quot;</span></span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;scp -o ProxyJump=</span><span class="va">${self}</span><span class="st">@garrison.ucc.ie </span><span class="va">${self}</span><span class="st">@XXX.YYY.34.1:</span><span class="va">$qc</span><span class="st">/</span><span class="va">${proj}</span><span class="st">_host_multi_R2/multiqc_report.html ./Desktop/multiqc_report_filtR2.html&quot;</span></span></code></pre></div>
 <p><strong>Generally less than 1M reads per vaginal sample</strong>.
 Sometimes, removing huge amounts of host sequence data can reveal big
 problems with the underlying microbial data (the part you might care
@@ -3001,20 +3026,20 @@ details.</p>
 <span id="cb36-23"><a href="#cb36-23" tabindex="-1"></a></span>
 <span id="cb36-24"><a href="#cb36-24" tabindex="-1"></a><span class="bu">time</span> for test in <span class="va">$(</span><span class="fu">cat</span> <span class="va">$mat</span>/<span class="va">${proj}</span>__samples.txt <span class="va">)</span><span class="kw">;</span></span>
 <span id="cb36-25"><a href="#cb36-25" tabindex="-1"></a><span class="cf">do</span></span>
-<span id="cb36-26"><a href="#cb36-26" tabindex="-1"></a></span>
-<span id="cb36-27"><a href="#cb36-27" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot; + + +   Kraken2 on </span><span class="va">${test}</span><span class="st"> -  conf 0.1, min-hits 5, min-qual 20 (mem-mapp)&quot;</span></span>
-<span id="cb36-28"><a href="#cb36-28" tabindex="-1"></a><span class="ex">kraken2</span> <span class="at">--db</span> <span class="va">$kr_db</span> <span class="dt">\</span></span>
-<span id="cb36-29"><a href="#cb36-29" tabindex="-1"></a>  <span class="va">$host</span>/<span class="va">${test}</span>_R1_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb36-30"><a href="#cb36-30" tabindex="-1"></a>  <span class="va">$host</span>/<span class="va">${test}</span>_R2_deco.fastq.gz <span class="dt">\</span></span>
-<span id="cb36-31"><a href="#cb36-31" tabindex="-1"></a>  <span class="at">--paired</span> <span class="dt">\</span></span>
-<span id="cb36-32"><a href="#cb36-32" tabindex="-1"></a>  <span class="at">--threads</span> <span class="va">$kr_threads</span> <span class="dt">\</span></span>
-<span id="cb36-33"><a href="#cb36-33" tabindex="-1"></a>  <span class="at">--confidence</span> 0.1 <span class="dt">\</span></span>
-<span id="cb36-34"><a href="#cb36-34" tabindex="-1"></a>  <span class="at">--memory-mapping</span> <span class="dt">\</span></span>
-<span id="cb36-35"><a href="#cb36-35" tabindex="-1"></a>  <span class="at">--gzip-compressed</span> <span class="dt">\</span></span>
-<span id="cb36-36"><a href="#cb36-36" tabindex="-1"></a>  <span class="at">--report-zero-counts</span> <span class="dt">\</span></span>
-<span id="cb36-37"><a href="#cb36-37" tabindex="-1"></a>  <span class="at">--minimum-hit-groups</span> 5 <span class="dt">\</span></span>
-<span id="cb36-38"><a href="#cb36-38" tabindex="-1"></a>  <span class="at">--minimum-base-quality</span> 20 <span class="dt">\</span></span>
-<span id="cb36-39"><a href="#cb36-39" tabindex="-1"></a>  <span class="at">--report</span> <span class="va">$krak</span>/<span class="va">${test}</span>_kraken2_report <span class="dt">\</span></span>
+<span id="cb36-26"><a href="#cb36-26" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot; + + +   Kraken2 on </span><span class="va">${test}</span><span class="st"> -  conf 0.1, min-hits 5, min-qual 20 (mem-mapp)&quot;</span></span>
+<span id="cb36-27"><a href="#cb36-27" tabindex="-1"></a>  <span class="ex">kraken2</span> <span class="at">--db</span> <span class="va">$kr_db</span> <span class="dt">\</span></span>
+<span id="cb36-28"><a href="#cb36-28" tabindex="-1"></a>    <span class="va">$host</span>/<span class="va">${test}</span>_R1_deco.fastq.gz <span class="dt">\</span></span>
+<span id="cb36-29"><a href="#cb36-29" tabindex="-1"></a>    <span class="va">$host</span>/<span class="va">${test}</span>_R2_deco.fastq.gz <span class="dt">\</span></span>
+<span id="cb36-30"><a href="#cb36-30" tabindex="-1"></a>    <span class="at">--paired</span> <span class="dt">\</span></span>
+<span id="cb36-31"><a href="#cb36-31" tabindex="-1"></a>    <span class="at">--threads</span> <span class="va">$kr_threads</span> <span class="dt">\</span></span>
+<span id="cb36-32"><a href="#cb36-32" tabindex="-1"></a>    <span class="at">--confidence</span> 0.1 <span class="dt">\</span></span>
+<span id="cb36-33"><a href="#cb36-33" tabindex="-1"></a>    <span class="at">--memory-mapping</span> <span class="dt">\</span></span>
+<span id="cb36-34"><a href="#cb36-34" tabindex="-1"></a>    <span class="at">--gzip-compressed</span> <span class="dt">\</span></span>
+<span id="cb36-35"><a href="#cb36-35" tabindex="-1"></a>    <span class="at">--report-zero-counts</span> <span class="dt">\</span></span>
+<span id="cb36-36"><a href="#cb36-36" tabindex="-1"></a>    <span class="at">--minimum-hit-groups</span> 5 <span class="dt">\</span></span>
+<span id="cb36-37"><a href="#cb36-37" tabindex="-1"></a>    <span class="at">--minimum-base-quality</span> 20 <span class="dt">\</span></span>
+<span id="cb36-38"><a href="#cb36-38" tabindex="-1"></a>    <span class="at">--report</span> <span class="va">$krak</span>/<span class="va">${test}</span>_kraken2_report <span class="dt">\</span></span>
+<span id="cb36-39"><a href="#cb36-39" tabindex="-1"></a></span>
 <span id="cb36-40"><a href="#cb36-40" tabindex="-1"></a></span>
 <span id="cb36-41"><a href="#cb36-41" tabindex="-1"></a><span class="cf">done</span> <span class="op">&gt;</span> <span class="va">$krak</span>/k2__all_memmap.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
 <span id="cb36-42"><a href="#cb36-42" tabindex="-1"></a></span>

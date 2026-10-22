@@ -255,7 +255,7 @@ AAAAAAAAAAAAAAAAAAAAAAAA'> $mat/fqc_trimmo_ill_ref.fa
 
 Trimmomatic & FastQC/MultiQC rely on a short set of `FASTA` sequences to identify contaminants. More commonly, programmes need specialised databases, specially structured to suit that programme and allow recognition of larger or more complex signals. We already created a folder to hold databases, and now download reference sequences before formatting them into a database for use with the short-read alignment programme `Bowtie2`, which is ideally suited for short `illumina` reads. Note the `BowTie2` databases (and others) can also be downloaded from [here](https://benlangmead.github.io/aws-indexes/bowtie).
 
-```{bash, bt_db}
+```{bash, bt2_db}
 # have a look in the database folder
 ls -ls $db
 
@@ -273,17 +273,17 @@ parallel gzip {} ::: $db/ref/*/*/*/GCF*fna ; mv $db/ref/*/*/*/GCF*fna.gz $db/ref
 
 # make a "large index" database with bowtie2
 bt_threads=10
-bt_db=$db/bt2_db ; mkdir -p $bt_db
+bt2_db=$db/bt2_db ; mkdir -p $bt2_db
 
 # build BT2 database,  no slurm (2hr?) ; dont forget conda activate geno
 time bowtie2-build --large-index --threads $bt_threads \
   $db/ref/decoy_GCA_000786075.2_hs38d1_genomic.fna.gz,\
   $db/ref/GCF_000001405.40_GRCh38.p14_genomic.fna.gz,\
   $db/ref/GCF_009914755.1_T2T-CHM13v2.0_genomic.fna.gz \
-  $bt_db/Hsap_ref
+  $bt2_db/Hsap_ref
 
 # note each bt2 database consists of 4 .bt2l files, and 2 reverse .bt2l files
-ls -lsh $bt_db
+ls -lsh $bt2_db
 ```
 
 <br>
@@ -739,11 +739,11 @@ multiqc $qc/${proj}_filt -o $qc/${proj}_filt_multi
 
 Check it again! Keep solving until the problem is resolved.
 
-<details>
-
-<br>
-
 ---
+
+</details>
+
+
 
 <br>
 
@@ -760,56 +760,66 @@ Note: while we also considered [`Deacon`](https://github.com/bede/deacon), compa
 ## tester set:
 # time cat $mat/${proj}__tester.txt | parallel -j 8 "deacon filter -d \
 
-# ~15mins
-time cat $mat/${proj}__samples.txt | parallel -j 8 "deacon filter -d \
-  $db/deacon_db/panhuman-1.k31w15.idx \
-  $filt/{}_R1_trimm.fastq.gz \
-  $filt/{}_R2_trimm.fastq.gz \
-  -o $host/{}_R1_deco.fastq.gz \
-  -O $host/{}_R2_deco.fastq.gz \
-  --threads 4 > $host/{}_hostless.log 2>&1"
+# we set this var earlier, when we downloaded databases:
+ls -lsh $bt2_db
+
+# number of threads
+bt2_threads=6
+
+bowtie2 -p $bt2_threads -x $bt2_db --mm --seed 2205  --very-sensitive-local \
+  -1 ${filt}/${samp}_trimm_R1.fastq.gz -2 ${filt}/${samp}_trimm_R2.fastq.gz \
+  --al-gz ${host}/${samp}_bt2-host-al-pe --al-conc-gz ${host}/${samp}_bt2-host-al-pe-conc | \
+
+  samtools view -f 12 -F 256  - -o - | \
+  samtools sort -n -m 5G -@ $bt2_threads - -o - | \
+  samtools fastq -@ $bt2_threads - -1 $host/${samp}_R1_deco.fastq.gz -2 $host/${samp}_R2_deco.fastq.gz -0 /dev/null -s /dev/null -n 
 
 ```
 
+Note above, the use of `|` to pipe, and `-` to pass standard output along without writing it to a file. This is a `bash` trick, that BowTie2 is built to exploit (i.e., the [piping](https://en.wikipedia.org/wiki/Pipeline_(Unix)) we discussed before).
+
 <details>
-<summary> `SLURM` version of `deacon` </summary>
+<summary> `SLURM` version of `BowTie2` </summary>
 
-Write the `SLURM` script: ` nano $mat/${proj}__slurm__deacon6.sh `
+Write the `SLURM` script: ` nano $mat/${proj}__slurm__bowtie2-6.sh `
 
-```{bash slurm_deacon }
+```{bash slurm_bt2 }
 #!/bin/bash
 
-#SBATCH --job-name=deacon6
-#SBATCH --partition=cpuq-long
-#SBATCH --output=omm__3__deacon6.%j.slrm
+#SBATCH --job-name=bt2sort6
+#SBATCH --output=omm__3__bt2sort6.%j.slrm
+#SBATCH --time=0-00:20:00
 #SBATCH --ntasks=6
 
-sl_samp=$1
+sl_file=$1
 sl_indir=$2
 sl_outdir=$3
+sl_db=$4
+#
+sl_threads=6
 
-source /home/EXT05188/bin/miniforge3/etc/profile.d/conda.sh
+source /home/'${self}'/bin/miniforge3/etc/profile.d/conda.sh
 conda activate geno
 
-deacon filter -d \
-  $db/deacon_db/panhuman-1.k31w15.idx \
-  $sl_indir/${sl_samp}_R1_trimm.fastq.gz \
-  $sl_indir/${sl_samp}_R2_trimm.fastq.gz \
-  -o $sl_outdir/${sl_samp}_R1_deco.fastq.gz \
-  -O $sl_outdir/${sl_samp}_R2_deco.fastq.gz \
-  --threads 6 > $sl_outdir/${sl_samp}_hostless.log 2>&1
+time bowtie2 -p $sl_threads -x $sl_db --mm --seed 2205  --very-sensitive-local \
+  -1 ${sl_indir}/${sl_file}_trimm_R1.fastq.gz -2 ${sl_indir}/${sl_file}_trimm_R2.fastq.gz \
+  --al-gz ${sl_outdir}/${sl_file}_bt2-host-al-pe --al-conc-gz ${sl_outdir}/${sl_file}_bt2-host-al-pe-conc | \
+
+  samtools view -f 12 -F 256  - -o - | \
+  samtools sort -n -m 5G -@ $sl_threads - -o - | \
+  samtools fastq -@ $sl_threads - -1 $sl_outdir/${sl_file}_R1_deco.fastq.gz -2 $sl_outdir/${sl_file}_R2_deco.fastq.gz -0 /dev/null -s /dev/null -n ;
 
 ```
 
 
 Run the `SLURM` script:
 
-```{bash sbatch_slurm}
+```{bash sbatch_slurm_bt2}
 
 # for f in $( cat $mat/${proj}__samples.txt ) ;
 for f in $( cat $mat/${proj}__tester.txt | head -4 ) ;
 do
-  sbatch $mat/${proj}__slurm__deacon6.sh $f $filt $host ;
+  sbatch $mat/${proj}__slurm__bowtie2-6.sh $f $filt $host $bt2_db ;
 done
 
 
@@ -838,7 +848,9 @@ sbatch $mat/${proj}__slurm__fqc20.sh $host $qc/host 20
 Note we split out the L / R samples for consideration separately:
 
 ```{bash qc_host_removal }
-fastqc -q -t 16 $host/*_deco.fastq.gz -o $qc/${proj}_host ; multiqc $qc/${proj}_host -o $qc/${proj}_host_multi
+fastqc -q -t 16 $host/*_R1_deco.fastq.gz -o $qc/${proj}_host ; multiqc $qc/${proj}_host -o $qc/${proj}_host_multi_R1
+
+fastqc -q -t 16 $host/*_R2_deco.fastq.gz -o $qc/${proj}_host ; multiqc $qc/${proj}_host -o $qc/${proj}_host_multi_R2
 ```
 
 </details>
@@ -849,7 +861,8 @@ And bring it back home for a look:
 
 ```{bash copy_host_removal }
 # enter this on your session with the terminal, so that the variables fill it out for you
-echo "scp -o ProxyJump=${self}@garrison.ucc.ie ${self}@XXX.YYY.34.1:$qc/${proj}_host_multi/multiqc_report.html ./Desktop/"
+echo "scp -o ProxyJump=${self}@garrison.ucc.ie ${self}@XXX.YYY.34.1:$qc/${proj}_host_multi_R1/multiqc_report.html ./Desktop/multiqc_report_filtR1.html"
+echo "scp -o ProxyJump=${self}@garrison.ucc.ie ${self}@XXX.YYY.34.1:$qc/${proj}_host_multi_R2/multiqc_report.html ./Desktop/multiqc_report_filtR2.html"
 ```
 
 **Generally less than 1M reads per vaginal sample**. Sometimes, removing huge amounts of host sequence data can reveal big problems with the underlying microbial data (the part you might care about). In this case, the _total_ adapter content increased a little (1%?), but overall things look decent.
@@ -905,20 +918,20 @@ vmtouch -t  $kr_db/*.k2d
 
 time for test in $(cat $mat/${proj}__samples.txt );
 do
+  echo " + + +   Kraken2 on ${test} -  conf 0.1, min-hits 5, min-qual 20 (mem-mapp)"
+  kraken2 --db $kr_db \
+    $host/${test}_R1_deco.fastq.gz \
+    $host/${test}_R2_deco.fastq.gz \
+    --paired \
+    --threads $kr_threads \
+    --confidence 0.1 \
+    --memory-mapping \
+    --gzip-compressed \
+    --report-zero-counts \
+    --minimum-hit-groups 5 \
+    --minimum-base-quality 20 \
+    --report $krak/${test}_kraken2_report \
 
-echo " + + +   Kraken2 on ${test} -  conf 0.1, min-hits 5, min-qual 20 (mem-mapp)"
-kraken2 --db $kr_db \
-  $host/${test}_R1_deco.fastq.gz \
-  $host/${test}_R2_deco.fastq.gz \
-  --paired \
-  --threads $kr_threads \
-  --confidence 0.1 \
-  --memory-mapping \
-  --gzip-compressed \
-  --report-zero-counts \
-  --minimum-hit-groups 5 \
-  --minimum-base-quality 20 \
-  --report $krak/${test}_kraken2_report \
 
 done > $krak/k2__all_memmap.log 2>&1
 
