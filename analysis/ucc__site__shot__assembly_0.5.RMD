@@ -127,9 +127,14 @@ proj=ucc__fbio
 mywork=/home/$self
 ```
 
+
 ```{bash folder_vars }
-# using mywork from above
-raw=$mywork/raws/${proj}__raw
+# define where your raw (untouched) data is
+# in this case, the folders of raw reads are located at: 
+raw=$mywork/rawdata_readonly/*/
+ls $raw
+
+# using $mywork from above
 join=$mywork/raws/${proj}__join
 wrk=$mywork/work/$proj
 
@@ -142,7 +147,7 @@ db=$mywork/db
 qc=$wrk/1__qc
 
 filt=$wrk/2__filt
-host=$wrk/3__deacon
+host=$wrk/3__bowtie2
 krak=$wrk/4__krak2
 
 ## make folders from vars
@@ -376,13 +381,14 @@ $bs download project --id $projectID --output $raw --log=$f_path/fdl.log &
 
 ## have a lük: red = compressed
 ls $raw/*/*gz
-# use that to pull a sample list for constant re-use. always worth doublechecking.
+# use that to pull a sample list for constant re-use
 ls $raw/*/*gz | sed -r 's/.*\/(.*)_L00._R._001.fastq.gz/\1/g' | sort -u > $mat/${proj}__samples.txt
+
+# always worth doublechecking:
 head -n 10 $mat/${proj}__samples.txt
   
 ##  tidy up - join lanes (L001, L002) and remove _L00*_R*_001 from name. 
 time parallel -j 16 "cat $raw/*/{}_L00*_R1_001.fastq.gz >  ${join}/{}_R1.fastq.gz ; cat $raw/*/{}_L00*_R2_001.fastq.gz >  ${join}/{}_R2.fastq.gz" :::: $mat/${proj}__samples.txt
-
 
 ```
 
@@ -757,9 +763,6 @@ Note: while we also considered [`Deacon`](https://github.com/bede/deacon), compa
 ```{bash decontam}
 # during setup, we already downloaded premade, updated, human and 'decoy' reference sequence.
 
-## tester set:
-# time cat $mat/${proj}__tester.txt | parallel -j 8 "deacon filter -d \
-
 # we set this var earlier, when we downloaded databases:
 ls -lsh $bt2_db
 
@@ -861,8 +864,14 @@ And bring it back home for a look:
 
 ```{bash copy_host_removal }
 # enter this on your session with the terminal, so that the variables fill it out for you
-echo "scp -o ProxyJump=${self}@garrison.ucc.ie ${self}@XXX.YYY.34.1:$qc/${proj}_host_multi_R1/multiqc_report.html ./Desktop/multiqc_report_filtR1.html"
-echo "scp -o ProxyJump=${self}@garrison.ucc.ie ${self}@XXX.YYY.34.1:$qc/${proj}_host_multi_R2/multiqc_report.html ./Desktop/multiqc_report_filtR2.html"
+echo "scp -o ProxyJump=${self}@garrison.ucc.ie \
+  ${self}@XXX.YYY.34.1:$qc/${proj}_host_multi_R1/multiqc_report.html \
+  ./Desktop/multiqc_report_filtR1.html"
+  
+echo "scp -o ProxyJump=${self}@garrison.ucc.ie \
+  ${self}@XXX.YYY.34.1:$qc/${proj}_host_multi_R2/multiqc_report.html \
+  ./Desktop/multiqc_report_filtR2.html"
+
 ```
 
 **Generally less than 1M reads per vaginal sample**. Sometimes, removing huge amounts of host sequence data can reveal big problems with the underlying microbial data (the part you might care about). In this case, the _total_ adapter content increased a little (1%?), but overall things look decent.
